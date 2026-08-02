@@ -6,6 +6,10 @@ Rails.application.routes.draw do
   # action on someone else's.
   root 'home#show'
 
+  scope controller: :pages do
+    get :about
+  end
+
   resources :spaces, only: %i[show new create edit update], param: :uuid, path: 's'
 
   get 's/:uuid/tasks', to: 'space_tasks#index', as: :space_tasks

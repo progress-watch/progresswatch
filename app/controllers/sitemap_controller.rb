@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 class SitemapController < WebController
+  # head, not the not-found page: this route answers XML to crawlers, and the error page
+  # is HTML.
   def show
-    @urls = [root_url, *ConnectSnippets::SECTIONS.each_key.map { |section| connect_url(section) }]
+    head :not_found unless ProgressWatch.multitenant?
   end
 end

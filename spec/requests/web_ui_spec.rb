@@ -3,12 +3,21 @@
 require 'rails_helper'
 
 RSpec.describe 'Web UI' do
+  # Indexing, the about page and the sitemap belong to the hosted deployment. Somebody's
+  # own box has no audience to reach, so this is off unless a spec asks for it.
+  def hosted!
+    allow(ProgressWatch).to receive(:multitenant?).and_return(true)
+  end
+
   describe 'GET /' do
-    it 'renders' do
+    # Nothing here is visible until space-list decides what to do, so a first visit sees
+    # a space made for it rather than a page. The templates are the whole payload.
+    it 'renders the card templates and nothing that would flash before them' do
       get '/'
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include('<space-list')
+      expect(response.body).to include('<template data-template="card">')
+      expect(response.body).not_to include('No spaces on this browser')
     end
 
     # Whatever this page holds has to be in the HTML: no branch that ships hidden and
@@ -20,21 +29,14 @@ RSpec.describe 'Web UI' do
       expect(response.body).not_to include('<noscript')
     end
 
-    it 'carries the meta a crawler reads, and a canonical without any uuid' do
-      get '/?space=must-not-appear'
-
-      expect(response.body).to include('<link rel="canonical" href="http://www.example.com/">')
-      expect(response.body).to include('<meta property="og:title"')
-      expect(response.body).not_to include('must-not-appear')
-      expect(response.body).not_to include('name="robots"')
-    end
-
     # Indexing is opt-in. A page that says nothing is noindex, so a route added without
     # thinking about it cannot leak — which is how /s/:uuid/edit leaked its uuid into a
-    # canonical URL while the default was the other way round.
-    it 'is the only kind of page that opts in' do
-      indexable = %w[/ /connect/cli /connect/curl /connect/agent /connect/mcp /connect/docker]
-      rest = ['/s/new', "/s/#{create_space.uuid}/edit", "/s/#{create_space.uuid}", '/connect/nonsense']
+    # canonical URL while the default was the other way round. `/` opts out too: it
+    # redirects a browser before it renders anything worth reading.
+    it 'is not indexable, and only /about and the Connect sections are' do
+      hosted!
+      indexable = %w[/about /connect/cli /connect/curl /connect/agent /connect/mcp /connect/docker]
+      rest = ['/', '/s/new', "/s/#{create_space.uuid}/edit", "/s/#{create_space.uuid}", '/connect/nonsense']
 
       indexable.each do |path|
         get path
@@ -73,6 +75,58 @@ RSpec.describe 'Web UI' do
       expect(response.body).to include('<!DOCTYPE html>')
       expect(response.body).to match(%r{<script[^>]+src="/packs(-test)?/js/application[^"]*"})
       expect(response.body).to match(%r{<link[^>]+href="/packs(-test)?/css/application[^"]*"})
+    end
+  end
+
+  describe 'GET /about' do
+    it 'is the page written to be found, with its own title and description' do
+      hosted!
+
+      get '/about'
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include('<title>What Progress Watch is | Progress Watch</title>')
+      expect(response.body).to include('<link rel="canonical" href="http://www.example.com/about">')
+      expect(response.body).to include('<meta property="og:title"')
+      expect(response.body).not_to include('name="robots"')
+    end
+
+    # Twice: the row that shows from sm up, and the menu it folds into below that. The
+    # link went missing from the mobile one once, because both halves render the same
+    # Connect partial and a blind edit landed in the wrong one.
+    it 'is reachable from both navbars, so it is not only in the sitemap' do
+      hosted!
+
+      get '/'
+
+      expect(response.body.scan(%(href="#{about_path}")).size).to eq(2)
+    end
+  end
+
+  # MULTITENANT is the hosted deployment. Self-hosted is the default, and everything
+  # written for a stranger who found us in a search is off there.
+  describe 'self-hosted, which is the default' do
+    it 'hides the about page from the navbar and keeps it out of any index' do
+      get '/'
+      expect(response.body).not_to include(%(href="#{about_path}"))
+
+      get '/about'
+      expect(response.body).to include('<meta name="robots" content="noindex, nofollow">')
+      expect(response.body).not_to include('rel="canonical"')
+    end
+
+    it '404s the sitemap' do
+      get '/sitemap.xml'
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    # Pointing at a sitemap that 404s is worse than not having the line.
+    it 'tells crawlers to stay out entirely, and names no sitemap' do
+      get '/robots.txt'
+
+      expect(response.body).to include('Disallow: /')
+      expect(response.body).not_to include('Sitemap:')
     end
   end
 
@@ -145,21 +199,40 @@ RSpec.describe 'Web UI' do
   end
 
   describe 'GET /sitemap.xml' do
-    # Derived from the same constant that drives the nav and the snippets, so a section
-    # added later cannot be missing from here.
-    it 'lists every indexable page and nothing else' do
+    it 'is valid and dates every entry' do
+      hosted!
+
       get '/sitemap.xml'
 
       expect(response).to have_http_status(:ok)
       expect(response.media_type).to eq('application/xml')
 
+      entries = response.body.scan(%r{<url>\s*<loc>(.*?)</loc>\s*<lastmod>(.*?)</lastmod>\s*</url>}m)
+      expect(entries.size).to eq(response.body.scan('<loc>').size)
+      expect(entries.map(&:last)).to all(match(/\A\d{4}-\d{2}-\d{2}\z/))
+    end
+
+    # The list is written by hand, so the thing that rots is the list itself: a page that
+    # stops being indexable, or one that is added and never listed.
+    it 'lists every indexable page, and only pages that are indexable' do
+      hosted!
+
+      get '/sitemap.xml'
       locs = response.body.scan(%r{<loc>(.*?)</loc>}).flatten
-      expect(locs).to contain_exactly(root_url, *ConnectSnippets::SECTIONS.each_key.map { |s| connect_url(s) })
+
+      expect(locs).to contain_exactly(about_url, *ConnectSnippets::SECTIONS.each_key.map { |s| connect_url(s) })
+
+      locs.each do |loc|
+        get URI.parse(loc).path
+        expect(response.body).not_to include('name="robots"'), "#{loc} is in the sitemap but noindex"
+      end
     end
   end
 
   describe 'GET /robots.txt' do
     it 'keeps crawlers off the space paths and points at the sitemap' do
+      hosted!
+
       get '/robots.txt'
 
       expect(response.media_type).to eq('text/plain')

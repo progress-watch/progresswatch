@@ -12,7 +12,7 @@ export default class extends HTMLElement {
     })
 
     bind(this)
-    this.render()
+    this.render({ arriving: true })
   }
 
   forgetSpace (event) {
@@ -24,11 +24,15 @@ export default class extends HTMLElement {
     this.render()
   }
 
-  render () {
+  render ({ arriving = false } = {}) {
     const spaces = read()
 
     this.querySelector('[data-list]')?.remove()
-    if (spaces.length === 0) return
+    if (spaces.length === 0) return this.createFirstSpace()
+
+    // Only on arrival: forgetting one of two spaces re-renders, and being thrown into
+    // the survivor is not what that click asked for.
+    if (arriving && spaces.length === 1) return this.open(spaces[0].uuid)
 
     const list = this.clone('list')
     const cards = list.querySelector('[data-cards]')
@@ -38,6 +42,24 @@ export default class extends HTMLElement {
 
     list.firstElementChild.dataset.list = ''
     this.append(list)
+  }
+
+  // Spaces made this way and never reported into are swept after a month, which is what
+  // makes minting one for every arrival — crawlers included — affordable.
+  createFirstSpace () {
+    if (this.creating) return
+    this.creating = true
+
+    fetch('/spaces', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+      .then((response) => (response.ok ? response.json() : Promise.reject(new Error(String(response.status)))))
+      .then(({ uuid }) => this.open(uuid))
+      .catch(() => { this.creating = false })
+  }
+
+  // replace, not href: with a normal navigation, Back from the space lands here and is
+  // thrown straight forward again.
+  open (uuid) {
+    window.location.replace(`/s/${encodeURIComponent(uuid)}`)
   }
 
   confirmed (title) {

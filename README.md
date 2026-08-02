@@ -35,6 +35,41 @@ curl http://localhost:3000/up
 # {"status":"ok","database":true,"redis":true}
 ```
 
+### MULTITENANT
+
+Unset, which is the default, is a self-hosted install: no about page in the navbar, every
+page `noindex`, `robots.txt` disallowing everything, and `/sitemap.xml` answering 404.
+There is no audience to reach from somebody's own box, and nothing there that wants to be
+found in a search.
+
+`MULTITENANT=true` is the hosted deployment and turns all of that on.
+
+### Sweeping empty spaces
+
+Opening the site creates a space for you, so plenty get created and never used —
+including by anything that crawls the page. A space that has **ever** held a task is kept
+for good, however long nobody looks at it. Only ones that never held a single task are
+swept, and only once they are more than 30 days old.
+
+Nothing runs on a timer, so 30 days is a floor rather than a schedule: run this daily and
+empty spaces go the day they qualify, run it once a year and they sit until then. Either
+way what a user can be promised is only that past 30 days an empty space may disappear.
+
+**Nothing runs it for you.** Schedule it however you already schedule things:
+
+```bash
+bin/rails sweep_empty_spaces
+```
+
+```
+# crontab, daily at 04:17
+17 4 * * * cd /path/to/progresswatch && bin/rails sweep_empty_spaces
+```
+
+With Docker, the same command through `docker compose exec app`. Skipping it is safe for
+your data — nothing is deleted that should not be — it just means the table grows with
+spaces nobody ever used.
+
 Losing the volume is recoverable, not catastrophic. Spaces and task structure are
 gone, but you create a new space and your reporting processes repopulate everything on
 their next request. Nothing on that volume is irreplaceable, which is the point.

@@ -6,6 +6,9 @@
     <% end %>
     <div class="flex-1"></div>
     <div class="hidden items-center gap-4 sm:flex">
+      <% if ProgressWatch.multitenant? %>
+        <%= link_to 'About', about_path, class: 'btn-ghost px-3 py-1.5 text-sm' %>
+      <% end %>
       <space-backup class="flex items-center gap-1">
         <button type="button" data-action="click:space-backup#export" aria-label="Export spaces" class="btn-ghost px-2 py-1.5" title="Download the spaces this browser knows about. It is the only backup there is.">
           <%= svg_icon 'download', class: 'h-4 w-4' %>
@@ -41,6 +44,9 @@
           New space
         <% end %>
         <div class="my-1 border-t border-zinc-200 dark:border-zinc-800"></div>
+        <% if ProgressWatch.multitenant? %>
+          <%= link_to 'About', about_path, class: 'flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800' %>
+        <% end %>
         <%= render 'shared/connect_links', space_uuid: local_assigns[:space_uuid] %>
         <div class="my-1 border-t border-zinc-200 dark:border-zinc-800"></div>
         <space-backup class="block">

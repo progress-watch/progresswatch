@@ -46,7 +46,8 @@
 </turbo-frame>
 <% if @tasks.empty? %>
   <section class="mt-10">
-    <h2 class="mb-3 text-sm font-medium text-zinc-500 dark:text-zinc-400">Report into this space</h2>
+    <h2 class="mb-1 text-sm font-medium text-zinc-500 dark:text-zinc-400">Report into this space</h2>
+    <p class="mb-3 text-xs text-zinc-500 dark:text-zinc-400">Nothing has reported into this space yet. Past <%= Spaces::SweepEmpty::EMPTY_FOR.inspect %> old it may be deleted at any time; one task keeps it for good.</p>
     <tab-panels class="card block overflow-hidden">
       <div class="flex flex-wrap gap-1 border-b border-zinc-200 p-1 dark:border-zinc-800">
         <% ConnectSnippets::SECTIONS.each_with_index do |(section, config), index| %>
