@@ -1,19 +1,24 @@
 <!DOCTYPE html>
 <html lang="en" class="h-full">
   <head>
-    <title><%= content_for(:title).presence || 'Progress Watch' %></title>
+    <title><%= content_for(:html_title).presence || 'Progress Watch | Watch any process' %></title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Watch any process. A script, crawler, CI job or agent reports progress with one HTTP request.">
+    <%= render 'shared/meta' %>
+    <% if content_for?(:indexable) %>
+      <link rel="canonical" href="<%= request.base_url %><%= request.path %>">
+    <% else %>
+      <meta name="robots" content="noindex, nofollow">
+    <% end %>
     <%= csrf_meta_tags %>
     <%= javascript_pack_tag 'application', defer: true %>
     <%= stylesheet_pack_tag 'application', media: 'all' %>
   </head>
   <body class="h-full bg-zinc-50 text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100">
     <%= render 'shared/navbar' %>
-
     <main class="mx-auto max-w-5xl px-4 py-8 sm:py-12">
       <%= yield %>
     </main>
+    <turbo-frame id="modal"></turbo-frame>
   </body>
 </html>

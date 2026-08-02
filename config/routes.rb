@@ -1,30 +1,38 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  # Web UI.
-  root 'pages#index'
+  # Web UI. One purpose per controller, docuseal's convention: anything that is not a
+  # REST action on a resource gets its own controller rather than becoming a custom
+  # action on someone else's.
+  root 'home#show'
 
-  resources :spaces, only: %i[create show update], param: :uuid, path: 's',
-                     controller: 'dashboards', as: :dashboards do
-    # The turbo-frame the dashboard re-fetches every couple of seconds.
-    get :tasks, on: :member
-  end
+  resources :spaces, only: %i[show new create edit update], param: :uuid, path: 's'
 
-  get 'connect/:section', to: 'pages#connect', as: :connect,
-                          constraints: { section: /cli|mcp|agent|docker|curl/ }
+  get 's/:uuid/tasks', to: 'space_tasks#index', as: :space_tasks
+
+  # No route constraint on :section — an unknown one is a page that does not exist,
+  # and that is the not-found page rather than a bare routing error.
+  get 'connect/:section', to: 'connect#show', as: :connect
 
   # JSON API. The whole surface — resist adding to it. Pinned to JSON so a browser
   # hitting these paths cannot negotiate its way into an HTML response the CLI and
   # the mobile app would then have to cope with.
-  defaults format: :json do
+  #
+  # `module: :api` and not `namespace :api`: the controllers live in app/controllers/api
+  # so the split is visible on disk, but the paths stay where the CLI, the MCP clients
+  # and every published snippet expect them.
+  scope module: :api, defaults: { format: :json } do
     # No `update` here on purpose. Renaming exists because a browser has to create a
     # space before anyone can name it; a CLI or an agent already knows the name and the
     # icon at creation time, so the endpoint would be surface with no caller.
-    resources :spaces, only: %i[create show], param: :uuid do
-      resources :tasks, only: %i[create]
-    end
+    resources :spaces, only: %i[create show], param: :uuid, as: :api_spaces
 
-    # `update` here answers PATCH as well as PUT. TasksController turns PATCH away,
+    # Spelled out rather than nested: `resources ... do resources` would rename the
+    # parent key to :api_space_uuid to match the `as:` above, and the controller reads
+    # params[:space_uuid].
+    post 'spaces/:space_uuid/tasks', to: 'tasks#create', as: :api_space_tasks
+
+    # `update` here answers PATCH as well as PUT. Api::TasksController turns PATCH away,
     # because a write replaces the entire volatile state and PATCH promises a merge.
     resources :tasks, only: %i[show update], param: :uuid
 
@@ -33,6 +41,11 @@ Rails.application.routes.draw do
     post 'mcp(/:space_uuid)', to: 'mcp#create', as: :mcp
     get 'mcp(/:space_uuid)', to: 'mcp#show'
   end
+
+  # format: false so the extension is literal path text — with it as a format segment
+  # Rails drops it from the generated URL, and robots.txt would advertise /sitemap.
+  get 'sitemap.xml', to: 'sitemap#show', as: :sitemap, format: false, defaults: { format: :xml }
+  get 'robots.txt', to: 'robots#show', as: :robots, format: false
 
   get 'up', to: 'health#show'
 end

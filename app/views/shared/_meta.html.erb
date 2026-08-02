@@ -1,0 +1,13 @@
+<% title = content_for(:html_title).presence || 'Progress Watch | Watch any process' %>
+<% description = content_for(:meta_description).presence || 'Watch any script, crawler, CI job or agent. It reports progress with a single HTTP request; you watch it on your phone and get a push notification when it finishes. Open source, self-hostable.' %>
+<meta name="description" content="<%= description %>">
+<% if content_for?(:indexable) %>
+  <meta property="og:site_name" content="Progress Watch">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="<%= title %>">
+  <meta property="og:description" content="<%= description %>">
+  <meta property="og:url" content="<%= request.base_url %><%= request.path %>">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="<%= title %>">
+  <meta name="twitter:description" content="<%= description %>">
+<% end %>

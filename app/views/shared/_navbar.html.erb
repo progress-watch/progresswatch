@@ -1,82 +1,57 @@
-<header class="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+<header class="sticky top-0 z-20 border-b border-zinc-200 bg-white sm:static sm:z-auto dark:border-zinc-800 dark:bg-zinc-900">
   <nav class="mx-auto flex max-w-5xl items-center gap-4 px-4 py-3">
     <%= link_to root_path, class: 'flex items-center gap-2 font-semibold tracking-tight' do %>
       <span class="flex h-6 w-6 items-center justify-center rounded-md bg-brand-600 text-xs font-bold text-white">P</span>
       <span>Progress Watch</span>
     <% end %>
-
     <div class="flex-1"></div>
-
-    <%# Every action twice: spread out from sm up, folded into one menu below it. The
-        contents are the same list, so the Connect links are a partial rather than two
-        loops that drift. %>
     <div class="hidden items-center gap-4 sm:flex">
-      <%# The local list is the only backup that exists, so both of these have to stay
-          reachable — but they are rare enough not to earn a word of navbar each. %>
       <space-backup class="flex items-center gap-1">
-        <button type="button" data-export aria-label="Export spaces" class="btn-ghost px-2 py-1.5"
-                title="Download the spaces this browser knows about. It is the only backup there is.">
+        <button type="button" data-action="click:space-backup#export" aria-label="Export spaces" class="btn-ghost px-2 py-1.5" title="Download the spaces this browser knows about. It is the only backup there is.">
           <%= svg_icon 'download', class: 'h-4 w-4' %>
         </button>
         <label class="btn-ghost px-2 py-1.5" title="Merge a previously exported list into this browser">
           <span class="sr-only">Import spaces</span>
           <%= svg_icon 'upload', class: 'h-4 w-4' %>
-          <input type="file" accept="application/json" data-import class="hidden">
+          <input type="file" accept="application/json" data-action="change:space-backup#import" class="hidden">
         </label>
         <span data-import-error class="text-xs text-red-600 dark:text-red-400"></span>
       </space-backup>
-
-      <%# Everything needed to start reporting into a space, from any of the four
-          directions someone might arrive from. %>
       <details class="relative" data-connect-menu>
         <summary class="btn-secondary list-none px-3 py-1.5 text-sm">
           Connect
           <%= svg_icon 'chevron_down', class: 'h-3 w-3' %>
         </summary>
-
         <div class="card absolute right-0 z-10 mt-2 w-56 overflow-hidden p-1 shadow-lg">
           <%= render 'shared/connect_links', space_uuid: local_assigns[:space_uuid] %>
         </div>
       </details>
-
-      <modal-button data-target="new-space">
-        <button type="button" class="btn-primary px-3 py-1.5 text-sm">
-          <%= svg_icon 'plus', class: 'h-3.5 w-3.5' %>
-          New space
-        </button>
-      </modal-button>
+      <%= link_to new_space_path, data: { turbo_frame: 'modal' }, class: 'btn-primary px-3 py-1.5 text-sm' do %>
+        <%= svg_icon 'plus', class: 'h-3.5 w-3.5' %>
+        New space
+      <% end %>
     </div>
-
     <details class="relative sm:hidden">
       <summary class="btn-secondary list-none px-2 py-1.5" aria-label="Menu">
         <%= svg_icon 'menu', class: 'h-4 w-4' %>
       </summary>
-
       <div class="card absolute right-0 z-10 mt-2 w-56 overflow-hidden p-1 shadow-lg">
-        <modal-button data-target="new-space" class="block">
-          <button type="button"
-                  class="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-800">
-            <%= svg_icon 'plus', class: 'h-4 w-4 shrink-0' %>
-            New space
-          </button>
-        </modal-button>
-
+        <%= link_to new_space_path, data: { turbo_frame: 'modal' }, class: 'flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-800' do %>
+          <%= svg_icon 'plus', class: 'h-4 w-4 shrink-0' %>
+          New space
+        <% end %>
         <div class="my-1 border-t border-zinc-200 dark:border-zinc-800"></div>
-
         <%= render 'shared/connect_links', space_uuid: local_assigns[:space_uuid] %>
-
         <div class="my-1 border-t border-zinc-200 dark:border-zinc-800"></div>
-
         <space-backup class="block">
-          <button type="button" data-export
-                  class="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800">
+          <button type="button" data-action="click:space-backup#export" class="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800">
             <%= svg_icon 'download', class: 'h-4 w-4 shrink-0' %>
             Export spaces
           </button>
           <label class="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800">
             <%= svg_icon 'upload', class: 'h-4 w-4 shrink-0' %>
             Import spaces
-            <input type="file" accept="application/json" data-import class="hidden">
+            <input type="file" accept="application/json" data-action="change:space-backup#import" class="hidden">
           </label>
           <span data-import-error class="block px-3 text-xs text-red-600 dark:text-red-400"></span>
         </space-backup>
@@ -84,12 +59,3 @@
     </details>
   </nav>
 </header>
-
-<%# A plain POST that redirects into the new dashboard. Turbo follows the redirect and
-    replaces the page, so the dialog goes with it and needs no closing. %>
-<%= render 'shared/modal', id: 'new-space', title: 'New space' do %>
-  <%= form_with url: dashboards_path, method: :post, class: 'space-y-4' do |f| %>
-    <%= render 'shared/space_fields', f: f %>
-    <%= f.submit 'Create', class: 'btn-primary w-full' %>
-  <% end %>
-<% end %>

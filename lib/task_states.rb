@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 # Nothing outside this module may touch ProgressWatch::PROGRESS_REDIS.
-# Reads return nil for a missing key, which is a normal state.
 module TaskStates
   InvalidValues = Class.new(StandardError)
 

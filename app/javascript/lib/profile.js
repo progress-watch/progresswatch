@@ -1,19 +1,3 @@
-// Everything this browser knows, under one key: the list of spaces, and settings as
-// they arrive.
-//
-// There are no accounts, so nothing here is recoverable from the server: a space UUID
-// is the credential, and losing it loses the space. That is why export/import exists at
-// all, and why it is not a nicety to add later — and it is why export carries the whole
-// profile rather than just the list.
-//
-// Each space entry stores the server it was resolved against, copied at the moment it
-// was added rather than referenced. Same rule as the CLI and the mobile app: if it were
-// a live reference, changing a default would silently repoint every space at a server
-// that has never heard of those UUIDs. There is deliberately **no** top-level server
-// setting here for the same reason.
-//
-// The shape matches the CLI's `~/.progresswatchrc`, so the two stay recognisable as the
-// same thing rather than drifting into two formats for one idea.
 const KEY = 'progresswatch.profile'
 
 export function read () {
@@ -70,9 +54,6 @@ export function exportBlob () {
   return new Blob([JSON.stringify(readProfile(), null, 2)], { type: 'application/json' })
 }
 
-// Merges rather than replaces: importing a backup on a machine that already has spaces
-// must not throw the existing ones away. What is being imported wins, because it is the
-// more deliberate act.
 export function importProfile (json) {
   const incoming = normalise(parse(json) ?? {})
   if (incoming.spaces.length === 0 && Object.keys(incoming.settings).length === 0) {

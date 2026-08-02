@@ -1,16 +1,16 @@
-// Holds the field to one character as a reader would count them: 👍🏽 is two codepoints
-// and a family emoji is five, but each is one thing on screen. The server validates the
-// same way — this only keeps the web form from ever submitting something it will reject.
+import { bind } from '@github/catalyst/lib/bind'
+
+// One grapheme, not one codepoint: 👍🏽 is two and a family emoji is five, and each is one
+// character on screen. The server validates the same way.
 export default class extends HTMLElement {
   connectedCallback () {
-    const input = this.querySelector('input')
-    if (!input) return
+    bind(this)
+  }
 
-    input.addEventListener('input', () => {
-      const first = firstGrapheme(input.value)
+  trim (event) {
+    const first = firstGrapheme(event.target.value)
 
-      if (input.value !== first) input.value = first
-    })
+    if (event.target.value !== first) event.target.value = first
   }
 }
 

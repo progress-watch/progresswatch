@@ -4,33 +4,48 @@ require 'rails_helper'
 
 RSpec.describe 'Web UI' do
   describe 'GET /' do
-    it 'renders the landing page' do
+    it 'renders' do
       get '/'
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include('Create a space')
+      expect(response.body).to include('<space-list')
     end
 
-    # `/` is a dispatcher: space-router sends a browser that already knows a space
-    # straight to it, so the page ships hidden. Without JavaScript nothing routes and
-    # the create form is the only way in, which is what the noscript rule is for.
-    it 'ships both landing branches hidden, with a noscript rule that reveals the pitch' do
+    # Whatever this page holds has to be in the HTML: no branch that ships hidden and
+    # waits for JavaScript to reveal it, which is what it used to do.
+    it 'hides nothing behind JavaScript' do
       get '/'
 
-      expect(response.body).to include('<div data-landing hidden>')
-      expect(response.body).to include('data-spaces hidden')
-      expect(response.body).to include('[data-landing][hidden] { display: block }')
+      expect(response.body).not_to include('hidden>')
+      expect(response.body).not_to include('<noscript')
     end
 
-    # The grid page is only the grid. Everything else on `/` belongs to the branch a
-    # browser that already knows several spaces never sees.
-    it 'keeps how-it-works and open-existing out of the grid branch' do
-      get '/'
+    it 'carries the meta a crawler reads, and a canonical without any uuid' do
+      get '/?space=must-not-appear'
 
-      grid = response.body[%r{<space-list.*?</space-list>}m]
+      expect(response.body).to include('<link rel="canonical" href="http://www.example.com/">')
+      expect(response.body).to include('<meta property="og:title"')
+      expect(response.body).not_to include('must-not-appear')
+      expect(response.body).not_to include('name="robots"')
+    end
 
-      expect(grid).to be_present
-      expect(grid).not_to include('How it works', 'Open an existing space')
+    # Indexing is opt-in. A page that says nothing is noindex, so a route added without
+    # thinking about it cannot leak — which is how /s/:uuid/edit leaked its uuid into a
+    # canonical URL while the default was the other way round.
+    it 'is the only kind of page that opts in' do
+      indexable = %w[/ /connect/cli /connect/curl /connect/agent /connect/mcp /connect/docker]
+      rest = ['/s/new', "/s/#{create_space.uuid}/edit", "/s/#{create_space.uuid}", '/connect/nonsense']
+
+      indexable.each do |path|
+        get path
+        expect(response.body).not_to include('name="robots"'), "#{path} should be indexable"
+      end
+
+      rest.each do |path|
+        get path
+        expect(response.body).to include('<meta name="robots" content="noindex, nofollow">'), "#{path} should not be"
+        expect(response.body).not_to include('rel="canonical"'), "#{path} should have no canonical"
+      end
     end
 
     it 'does not repeat the credential warning in a footer' do
@@ -39,14 +54,14 @@ RSpec.describe 'Web UI' do
       expect(response.body).not_to include('<footer')
     end
 
-    # In the navbar, so it is reachable from a dashboard too — the landing page is a
-    # dispatcher now and a browser that knows a space never sees its create form.
-    it 'carries a new-space modal in the header' do
+    # The modal is a route now, so a page carries a link and one empty frame rather than
+    # a dialog's worth of markup it may never open.
+    it 'links to the new-space modal instead of embedding it' do
       get '/'
 
-      expect(response.body).to include('<modal-button data-target="new-space">')
-      expect(response.body).to include('<dialog id="new-space"')
-      expect(response.body).to match(/<form[^>]+action="#{dashboards_path}"[^>]+method="post"/)
+      expect(response.body).to include('<turbo-frame id="modal"></turbo-frame>')
+      expect(response.body).to include(%(href="#{new_space_path}"), 'data-turbo-frame="modal"')
+      expect(response.body).not_to include('<dialog')
     end
 
     # A missing layout is silent: the page still renders and still returns 200, it
@@ -76,7 +91,7 @@ RSpec.describe 'Web UI' do
     let(:space) { create_space(title: 'Production') }
 
     it 'renders the dashboard' do
-      get dashboard_path(space.uuid)
+      get space_path(space.uuid)
 
       expect(response).to have_http_status(:ok)
       expect(response.body).to include('Production')
@@ -85,7 +100,7 @@ RSpec.describe 'Web UI' do
     # Opening the page records the space in this browser, so the page also has to
     # offer a way back out of that.
     it 'both remembers the space and offers to forget it' do
-      get dashboard_path(space.uuid)
+      get space_path(space.uuid)
 
       expect(response.body).to include("<remember-space data-uuid=\"#{space.uuid}\"")
       expect(response.body).to include("<forget-space data-uuid=\"#{space.uuid}\"")
@@ -94,37 +109,98 @@ RSpec.describe 'Web UI' do
     it 'shows the icon and offers a rename modal' do
       Spaces::Update.call(space, icon: '🌙')
 
-      get dashboard_path(space.uuid)
+      get space_path(space.uuid)
 
       expect(response.body).to include('🌙')
-      expect(response.body).to include('<modal-button data-target="edit-space"')
+      expect(response.body).to include(%(href="#{edit_space_path(space.uuid)}"))
+      expect(response.body).not_to include('<dialog')
     end
 
     it 'offers the space link for copying, not just the uuid' do
-      get dashboard_path(space.uuid)
+      get space_path(space.uuid)
 
-      expect(response.body).to include(%(data-text="#{dashboard_url(space.uuid)}"))
+      expect(response.body).to include(%(data-text="#{space_url(space.uuid)}"))
     end
 
     # The snippets are onboarding. Once anything has reported they are noise, and the
     # navbar still has them.
     it 'drops the reporting instructions once the space has a task' do
-      get dashboard_path(space.uuid)
+      get space_path(space.uuid)
       expect(response.body).to include('Report into this space')
 
       create_task(space, title: 'Anything')
 
-      get dashboard_path(space.uuid)
+      get space_path(space.uuid)
       expect(response.body).not_to include('Report into this space')
     end
 
     # A mistyped UUID and a real one must look the same from outside. There is no
     # "exists but not yours" state to probe at, because there are no accounts.
     it 'renders a not-found page for an unknown space rather than raising' do
-      get dashboard_path(SecureRandom.uuid)
+      get space_path(SecureRandom.uuid)
 
       expect(response).to have_http_status(:not_found)
       expect(response.body).to include('No such space')
+    end
+  end
+
+  describe 'GET /sitemap.xml' do
+    # Derived from the same constant that drives the nav and the snippets, so a section
+    # added later cannot be missing from here.
+    it 'lists every indexable page and nothing else' do
+      get '/sitemap.xml'
+
+      expect(response).to have_http_status(:ok)
+      expect(response.media_type).to eq('application/xml')
+
+      locs = response.body.scan(%r{<loc>(.*?)</loc>}).flatten
+      expect(locs).to contain_exactly(root_url, *ConnectSnippets::SECTIONS.each_key.map { |s| connect_url(s) })
+    end
+  end
+
+  describe 'GET /robots.txt' do
+    it 'keeps crawlers off the space paths and points at the sitemap' do
+      get '/robots.txt'
+
+      expect(response.media_type).to eq('text/plain')
+      expect(response.body).to include('Disallow: /s/', "Sitemap: #{sitemap_url}")
+    end
+  end
+
+  # The modal is a route, so it has the two behaviours a route has: it answers the frame
+  # with a dialog, and it answers a person with an ordinary page.
+  describe 'GET /s/new and /s/:uuid/edit' do
+    let(:space) { create_space(title: 'Production') }
+
+    it 'answers a frame request with a dialog in the modal frame' do
+      get new_space_path, headers: { 'Turbo-Frame' => 'modal' }
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body.strip).to start_with('<turbo-frame id="modal">')
+      expect(response.body).to include('<turbo-modal>', '<dialog class="modal"')
+      expect(response.body).not_to include('<!DOCTYPE html>')
+    end
+
+    it 'answers a direct visit with a whole page' do
+      get new_space_path
+
+      expect(response.body).to include('<!DOCTYPE html>')
+      expect(response.body).not_to include('<dialog')
+    end
+
+    it 'fills the rename form with what the space already has' do
+      Spaces::Update.call(space, icon: '🌙')
+
+      get edit_space_path(space.uuid), headers: { 'Turbo-Frame' => 'modal' }
+
+      expect(response.body).to include('value="Production"', 'value="🌙"')
+      expect(response.body).to include(%(action="#{space_path(space.uuid)}"))
+    end
+
+    it '404s for a space that does not exist' do
+      get edit_space_path(SecureRandom.uuid), headers: { 'Turbo-Frame' => 'modal' }
+
+      expect(response).to have_http_status(:not_found)
     end
   end
 
@@ -135,18 +211,18 @@ RSpec.describe 'Web UI' do
     # The frame's response has no layout, so opened directly it is an unstyled
     # fragment. That is a URL a person can land on, and it must not look broken.
     it 'sends a person who opens it directly to the dashboard' do
-      get tasks_dashboard_path(space.uuid)
+      get space_tasks_path(space.uuid)
 
-      expect(response).to redirect_to(dashboard_path(space.uuid))
+      expect(response).to redirect_to(space_path(space.uuid))
     end
 
     # Turbo rejects a frame whose response points back at the URL it was fetched
     # from, and does it by silently rendering nothing at all.
     it 'answers with a frame that does not reference itself' do
-      get tasks_dashboard_path(space.uuid), headers: frame_request
+      get space_tasks_path(space.uuid), headers: frame_request
 
       expect(response.body).to include('<turbo-frame id="tasks">')
-      expect(response.body).not_to include(tasks_dashboard_path(space.uuid))
+      expect(response.body).not_to include(space_tasks_path(space.uuid))
     end
 
     it 'renders the three progress states apart' do
@@ -158,7 +234,7 @@ RSpec.describe 'Web UI' do
 
       create_task(space, title: 'Never reported')
 
-      get tasks_dashboard_path(space.uuid), headers: frame_request
+      get space_tasks_path(space.uuid), headers: frame_request
 
       expect(response).to have_http_status(:ok)
       expect(response.body).to include('Waiting for data…')
@@ -172,7 +248,7 @@ RSpec.describe 'Web UI' do
       create_task(space, title: 'Test', parent_uuid: parent.uuid)
       Tasks::Report.call(build, current: 10, end_value: 10)
 
-      get tasks_dashboard_path(space.uuid), headers: frame_request
+      get space_tasks_path(space.uuid), headers: frame_request
 
       expect(response.body).to include('Deploy', 'Build', 'Test')
       # One of two children finished: the parent reads 50%, not its own numbers.
@@ -188,7 +264,7 @@ RSpec.describe 'Web UI' do
       Tasks::Report.call(child, current: 1, end_value: 1)
       Tasks::Report.call(done, done: true)
 
-      get tasks_dashboard_path(space.uuid), headers: frame_request
+      get space_tasks_path(space.uuid), headers: frame_request
 
       running_steps, done_steps = response.body.scan(/<details[^>]*>/)
 
@@ -205,7 +281,7 @@ RSpec.describe 'Web UI' do
         Tasks::Report.call(create_task(space, title: "Done #{title}"), done: true)
       end
 
-      get tasks_dashboard_path(space.uuid), headers: frame_request
+      get space_tasks_path(space.uuid), headers: frame_request
 
       expect(response.body.scan(/(?:Running|Done) (?:first|second)/))
         .to eq(['Running second', 'Running first', 'Done second', 'Done first'])
@@ -213,6 +289,20 @@ RSpec.describe 'Web UI' do
   end
 
   describe 'GET /connect/:section' do
+    # Five indexable pages, so five distinct titles and descriptions rather than one
+    # default repeated — a duplicate description is the whole set treated as one page.
+    it 'gives every section its own title and description' do
+      seen = ConnectSnippets::SECTIONS.keys.map do |section|
+        get connect_path(section)
+
+        [response.body[%r{<title>(.*?)</title>}, 1], response.body[/<meta name="description" content="(.*?)"/, 1]]
+      end
+
+      expect(seen.flatten).to all(be_present)
+      expect(seen.uniq.size).to eq(ConnectSnippets::SECTIONS.size)
+      expect(seen.map(&:first)).to all(end_with('| Progress Watch'))
+    end
+
     it 'fills the space uuid into the snippet when one is given' do
       space = create_space
 
@@ -222,17 +312,31 @@ RSpec.describe 'Web UI' do
       expect(response.body).to include(space.uuid)
     end
 
-    it 'falls back to a placeholder without one' do
-      get connect_path('curl')
+    it 'stops being indexable once a real uuid is in the query' do
+      get connect_path('cli', space: create_space.uuid)
 
-      expect(response.body).to include(ERB::Util.html_escape(ConnectSnippets::PLACEHOLDER))
+      expect(response.body).to include('<meta name="robots" content="noindex, nofollow">')
+      expect(response.body).not_to include('rel="canonical"')
     end
 
-    # Constrained in the routes, so an arbitrary path segment never reaches a lookup.
-    it 'rejects an unknown section' do
+    # Without a space the snippets still show, with a placeholder a shell can take: an
+    # angle bracket is a redirect and would fail on the first line pasted.
+    it 'falls back to a shell variable when there is no space' do
+      get connect_path('curl')
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include('curl -X PUT')
+      expect(response.body).to include(ERB::Util.html_escape('$SPACE_UUID'))
+      expect(response.body).not_to include('&lt;SPACE_UUID&gt;')
+    end
+
+    # An unknown section is a page that does not exist, and it looks like every other
+    # page that does not exist rather than like a routing error.
+    it 'renders the not-found page for an unknown section' do
       get '/connect/nonsense'
 
       expect(response).to have_http_status(:not_found)
+      expect(response.body).to include('Not found', 'Back to the start')
     end
   end
 

@@ -1,14 +1,11 @@
+import { bind } from '@github/catalyst/lib/bind'
 import { exportBlob, importProfile } from '../lib/profile'
 
-// Export and import of this browser's profile — the space list and any settings.
-// It is the only backup that exists: nothing is recoverable server-side, so losing the
-// browser loses every space whose UUID is not written down somewhere else.
+// The only backup there is: nothing is recoverable server-side, so losing the browser
+// loses every space whose UUID is not written down somewhere else.
 export default class extends HTMLElement {
   connectedCallback () {
-    this.querySelector('[data-export]')?.addEventListener('click', () => this.export())
-
-    const input = this.querySelector('[data-import]')
-    input?.addEventListener('change', () => this.import(input))
+    bind(this)
   }
 
   export () {
@@ -22,7 +19,8 @@ export default class extends HTMLElement {
     URL.revokeObjectURL(url)
   }
 
-  import (input) {
+  import (event) {
+    const input = event.target
     const file = input.files?.[0]
     if (!file) return
 

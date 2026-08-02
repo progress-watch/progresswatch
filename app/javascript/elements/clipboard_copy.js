@@ -1,12 +1,14 @@
+import { bind } from '@github/catalyst/lib/bind'
+
 export default class extends HTMLElement {
   connectedCallback () {
-    this.addEventListener('click', () => {
-      const text = this.dataset.text || this.innerText.trim()
+    bind(this)
+  }
 
-      if (!navigator.clipboard) return
+  copy () {
+    if (!navigator.clipboard) return
 
-      navigator.clipboard.writeText(text).then(() => this.flash())
-    })
+    navigator.clipboard.writeText(this.dataset.text || this.innerText.trim()).then(() => this.flash())
   }
 
   flash () {

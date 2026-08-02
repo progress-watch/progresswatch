@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 module Tasks
-  # The only place that decides what a task looks like on the wire. The response
-  # shape and the aggregation rules are documented in README.md.
   module SerializeForApi
     module_function
 

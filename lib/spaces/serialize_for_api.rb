@@ -4,8 +4,7 @@ module Spaces
   module SerializeForApi
     module_function
 
-    # One query for the tasks and one MGET for their state, whatever the task count.
-    # The app polls this every 2-3 seconds.
+    # One query and one MGET whatever the task count: this is polled every 2-3 seconds.
     def call(space)
       tasks = space.tasks.order(:created_at).to_a
       states = TaskStates.read_many(tasks.map(&:uuid))

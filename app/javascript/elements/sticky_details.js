@@ -1,18 +1,19 @@
-// The task list is replaced wholesale every couple of seconds by the polled frame, so
-// a <details> the user opened would snap shut on the next poll. Keeping the state per
-// task uuid and reapplying it on connect survives the replacement; the server's `open`
-// attribute stays the default for a task nobody has touched.
+import { bind } from '@github/catalyst/lib/bind'
+
+// The polled frame replaces the list every couple of seconds, which would snap every
+// <details> shut again.
 export default class extends HTMLElement {
   connectedCallback () {
+    bind(this)
+
     const details = this.querySelector('details')
-    if (!details) return
-
     const stored = sessionStorage.getItem(this.key)
-    if (stored !== null) details.open = stored === '1'
 
-    details.addEventListener('toggle', () => {
-      sessionStorage.setItem(this.key, details.open ? '1' : '0')
-    })
+    if (details && stored !== null) details.open = stored === '1'
+  }
+
+  remember (event) {
+    sessionStorage.setItem(this.key, event.target.open ? '1' : '0')
   }
 
   get key () {

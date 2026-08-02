@@ -1,16 +1,28 @@
+import { bind } from '@github/catalyst/lib/bind'
 import { forget } from '../lib/profile'
-import { confirmForget } from '../lib/confirm_forget'
 
-// Leaves for the landing page afterwards rather than staying put — <remember-space>
-// runs on every dashboard load, so a reload would silently add the space straight back
-// and the button would look broken.
 export default class extends HTMLElement {
   connectedCallback () {
-    this.querySelector('button')?.addEventListener('click', () => {
-      if (!confirmForget(this.dataset.title)) return
+    bind(this)
+  }
 
-      forget(this.dataset.uuid)
-      window.location.href = '/'
-    })
+  // Leaves for the landing page afterwards rather than staying put — <remember-space>
+  // runs on every dashboard load, so a reload would silently add the space straight back
+  // and the button would look broken.
+  forgetSpace () {
+    if (!this.confirmed(this.dataset.title)) return
+
+    forget(this.dataset.uuid)
+    window.location.href = '/'
+  }
+
+  confirmed (title) {
+    const what = title ? `"${title}"` : 'this space'
+
+    return window.confirm(
+      `Remove ${what} from this browser?\n\n` +
+      'The space and its tasks are not deleted, but its UUID is the only way back to it ' +
+      'and nothing on the server can recover it.'
+    )
   }
 }

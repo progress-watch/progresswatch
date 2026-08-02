@@ -1,21 +1,9 @@
 # frozen_string_literal: true
 
-# Everything behind the Connect menu, as data. One SECTIONS entry per section: its
-# title, its icon partial, and the steps it renders.
-#
-# Steps rather than one blob per section, because the thing a reader does with this
-# page is copy one command at a time. A body with no newline renders as a single-line
-# field, a longer one as a block, and a step with no body at all is prose.
-#
-# `{{server}}` and `{{space}}` are filled in by `call`. Substitution rather than
-# interpolation is what lets this be data instead of a method per section, and `gsub`
-# rather than `format` so a stray `%` in a snippet stays a stray `%`.
-#
-# The long bodies are named above SECTIONS rather than inlined: a heredoc opened inside
-# a hash literal has to be indented to wherever the hash sits, and rubocop's own
-# formatting of that is unreadable.
 module ConnectSnippets
-  PLACEHOLDER = '<SPACE_UUID>'
+  # A shell variable, not <SPACE_UUID>: these are meant to be pasted into a console,
+  # where an angle bracket is a redirect and would fail on the first line.
+  PLACEHOLDER = '$SPACE_UUID'
 
   AGENT_SKILL = <<~MD.strip
     ---
@@ -25,7 +13,6 @@ module ConnectSnippets
       Use when starting an operation with many steps or one that takes minutes or more.
     ---
 
-    # Reporting progress
 
     Space: {{space}}
     Server: {{server}}
@@ -100,6 +87,9 @@ module ConnectSnippets
 
   SECTIONS = {
     'cli' => {
+      heading: 'Report progress from the command line',
+      description: 'Track any command with the progresswatch CLI. Wrap a script in one line and watch it on your ' \
+                   'phone, or report start, progress and finish by hand.',
       title: 'CLI',
       icon: 'terminal',
       steps: [
@@ -117,6 +107,9 @@ module ConnectSnippets
     },
 
     'curl' => {
+      heading: 'Report progress with curl',
+      description: 'Three curl calls are the whole integration: create a task, PUT its progress, PUT it done. No ' \
+                   'SDK, no library, works from any shell or CI job.',
       title: 'curl',
       icon: 'globe',
       steps: [
@@ -132,6 +125,9 @@ module ConnectSnippets
     },
 
     'agent' => {
+      heading: 'Give an AI agent a progress skill',
+      description: 'Drop a skill file into .claude/skills and an agent reports its own long-running work — one task ' \
+                   'per job, one child task per step — so you can watch it from your phone.',
       title: 'Agent skill',
       icon: 'robot',
       steps: [
@@ -140,6 +136,9 @@ module ConnectSnippets
     },
 
     'mcp' => {
+      heading: 'Connect an agent over MCP',
+      description: 'Add Progress Watch as an MCP server and an agent gets four tools for creating tasks and ' \
+                   'reporting progress, deciding on its own when tracking is worth it.',
       title: 'MCP',
       icon: 'plug',
       steps: [
@@ -155,6 +154,9 @@ module ConnectSnippets
     },
 
     'docker' => {
+      heading: 'Self-host Progress Watch with Docker',
+      description: 'One container and a Redis. Progress never touches the database, so the volume stays tiny and ' \
+                   'losing it costs you nothing but the space list.',
       title: 'Docker',
       icon: 'container',
       steps: [

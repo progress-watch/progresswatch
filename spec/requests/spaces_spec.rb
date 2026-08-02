@@ -53,11 +53,15 @@ RSpec.describe 'Spaces' do
       expect(rendered_parent['children'].pluck('uuid')).to eq([child.uuid])
     end
 
-    it '404s for an unknown space' do
-      get "/spaces/#{SecureRandom.uuid}"
+    # find rather than find_by!, because the uuid is the primary key and the message a
+    # caller gets back says so — find_by! answers with the SQL fragment instead.
+    it '404s for an unknown space, and says which uuid it could not find' do
+      uuid = SecureRandom.uuid
+
+      get "/spaces/#{uuid}"
 
       expect(response).to have_http_status(:not_found)
-      expect(json['error']).to be_present
+      expect(json['error']).to include('Space', uuid)
     end
   end
 end

@@ -1,7 +1,0 @@
-<%# Deliberately no src on this frame. Turbo refuses a response whose frame points
-    at the URL it was just fetched from — "has a source URL which references itself" —
-    and the whole task list silently disappears. The src belongs on the page's frame
-    only; this one just carries the new contents into it. %>
-<turbo-frame id="tasks">
-  <%= render 'dashboards/tasks_list' %>
-</turbo-frame>

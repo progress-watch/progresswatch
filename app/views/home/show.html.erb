@@ -1,0 +1,39 @@
+<% content_for :indexable, true %>
+<space-list class="block">
+  <template data-template="list">
+    <div class="mb-12">
+      <h2 class="mb-3 text-sm font-medium text-zinc-500 dark:text-zinc-400">Spaces on this browser</h2>
+      <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" data-cards></ul>
+    </div>
+  </template>
+  <template data-template="card">
+    <li class="group relative min-h-[7rem]">
+      <a data-link class="card flex h-full flex-col justify-between gap-3 p-4 transition hover:border-zinc-300 dark:hover:border-zinc-700">
+        <span class="flex min-w-0 items-start gap-2.5">
+          <span data-icon class="text-xl leading-none" aria-hidden="true"></span>
+          <span data-title class="line-clamp-2 min-w-0 text-base font-medium text-zinc-900 dark:text-zinc-100"></span>
+        </span>
+        <span data-meta class="truncate text-xs text-zinc-500 dark:text-zinc-400"></span>
+      </a>
+      <div class="absolute right-3 top-3 flex flex-col gap-1 sm:hidden sm:group-hover:flex">
+        <clipboard-copy data-share data-action="click:clipboard-copy#copy" class="block" title="Copy the link to this space. Whoever has it can read and write here.">
+          <button type="button" tabindex="-1" aria-label="Copy the link to this space" class="card flex h-7 w-7 items-center justify-center rounded-full text-zinc-500 transition hover:text-zinc-900 dark:hover:text-zinc-100">
+            <%= svg_icon 'share', class: 'h-3.5 w-3.5', data: { copy_mark: true } %>
+            <%= svg_icon 'check', class: 'h-3.5 w-3.5 text-emerald-500', data: { copy_check: true } %>
+          </button>
+        </clipboard-copy>
+        <button type="button" data-forget data-action="click:space-list#forgetSpace" aria-label="Forget this space" class="card flex h-7 w-7 items-center justify-center rounded-full text-zinc-500 transition hover:text-red-600 dark:hover:text-red-400" title="Remove from this browser. The space itself is not deleted.">
+          <%= svg_icon 'trash', class: 'h-3.5 w-3.5' %>
+        </button>
+      </div>
+    </li>
+  </template>
+  <template data-template="add">
+    <li class="min-h-[7rem]">
+      <a href="<%= new_space_path %>" data-turbo-frame="modal" class="flex h-full w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-zinc-300 p-4 text-sm text-zinc-500 transition hover:border-brand-500 hover:text-brand-600 dark:border-zinc-700 dark:text-zinc-400 dark:hover:border-brand-500 dark:hover:text-brand-400">
+        <%= svg_icon 'plus', class: 'h-5 w-5' %>
+        New space
+      </a>
+    </li>
+  </template>
+</space-list>

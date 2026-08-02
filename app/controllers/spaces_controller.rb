@@ -1,19 +1,34 @@
 # frozen_string_literal: true
 
-class SpacesController < ApplicationController
+# Renaming is web-only on purpose: a browser has to create a space before anyone can
+# name it, while a CLI or an agent already knows the name and the icon at creation time.
+class SpacesController < WebController
   def show
-    render json: Spaces::SerializeForApi.call(Space.find(params[:uuid]))
+    @space = Space.find(params[:uuid])
+    @tasks = Tasks::PrepareForDashboard.call(Spaces::SerializeForApi.call(@space)['tasks'])
+  end
+
+  def new
+    render layout: !turbo_frame_request?
+  end
+
+  def edit
+    @space = Space.find(params[:uuid])
+
+    render layout: !turbo_frame_request?
   end
 
   def create
-    space = Spaces::Create.call(title: params[:title], icon: params[:icon])
+    space = Spaces::Create.call(title: params[:title].presence, icon: params[:icon])
 
-    render json: rendered(space), status: :created
+    redirect_to space_path(space.uuid)
   end
 
-  private
+  def update
+    space = Space.find(params[:uuid])
 
-  def rendered(space)
-    { uuid: space.uuid, title: space.title, icon: space.icon }
+    Spaces::Update.call(space, title: params[:title], icon: params[:icon])
+
+    redirect_to space_path(space.uuid)
   end
 end

@@ -7,6 +7,6 @@
   </div>
 <% else %>
   <ul class="space-y-3">
-    <%= render partial: 'dashboards/task', collection: display_order(@tasks), as: :task, locals: { nested: false } %>
+    <%= render partial: 'spaces/task', collection: @tasks, as: :task, locals: { nested: false } %>
   </ul>
 <% end %>
