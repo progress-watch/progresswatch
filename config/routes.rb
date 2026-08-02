@@ -48,6 +48,8 @@ Rails.application.routes.draw do
 
   # format: false so the extension is literal path text — with it as a format segment
   # Rails drops it from the generated URL, and robots.txt would advertise /sitemap.
+  get 'openapi.json', to: 'open_api#show', as: :openapi, format: false
+  get 'openapi.yml', to: 'open_api#show', as: :openapi_yaml, format: false, defaults: { format: :yaml }
   get 'sitemap.xml', to: 'sitemap#show', as: :sitemap, format: false, defaults: { format: :xml }
   get 'robots.txt', to: 'robots#show', as: :robots, format: false
 

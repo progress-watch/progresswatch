@@ -120,7 +120,10 @@ module ConnectSnippets
           body: "curl -X PUT {{server}}/tasks/$TASK -H 'Content-Type: application/json' " \
                 "-d '{\"current\": 1200, \"end\": 50000, \"values\": {\"pages\": 1200, \"errors\": 3}}'" },
         { label: 'Finish it. This is what sends the notification.',
-          body: "curl -X PUT {{server}}/tasks/$TASK -H 'Content-Type: application/json' -d '{\"done\": true}'" }
+          body: "curl -X PUT {{server}}/tasks/$TASK -H 'Content-Type: application/json' -d '{\"done\": true}'" },
+        { label: 'The whole API as OpenAPI 3.1, if you would rather generate a client than write one. ' \
+                 'Same document at /openapi.yml.',
+          body: 'curl {{server}}/openapi.json' }
       ]
     },
 
