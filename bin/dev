@@ -1,2 +1,10 @@
-#!/usr/bin/env ruby
-exec "./bin/rails", "server", *ARGV
+#!/usr/bin/env sh
+
+if ! gem list foreman -i --silent; then
+  echo "Installing foreman..."
+  gem install foreman
+fi
+
+# Procfile.dev sets PORT explicitly from PW_PORT. It has to: foreman hands every
+# process its own PORT, and config/puma.rb reads PORT in preference to `rails s -p`.
+exec foreman start -f Procfile.dev "$@"

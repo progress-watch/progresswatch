@@ -41,10 +41,14 @@ module Progresswatch
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
 
-    # Only loads a smaller set of middleware suitable for API only apps.
-    # Middleware like session, flash, cookies can be added back manually.
-    # Skip views, helpers and assets when generating a new resource.
-    config.api_only = true
+    # Not api_only, because of the web UI — but the JSON endpoints stay on
+    # ActionController::API and are pinned to format: :json in the routes, so a
+    # browser's Accept header can never turn them into HTML under the CLI's feet.
+    config.api_only = false
+
+    # Sessions exist for one reason: CSRF tokens on the two web forms. There are no
+    # accounts and nothing else is ever stored in them.
+    config.session_store :cookie_store, key: '_progresswatch_session', same_site: :lax
 
     config.active_job.queue_adapter = :sidekiq
 

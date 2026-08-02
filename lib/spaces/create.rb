@@ -4,8 +4,8 @@ module Spaces
   module Create
     module_function
 
-    def call(title: nil)
-      Space.create!(title:)
+    def call(title: nil, icon: nil)
+      Space.create!(title:, icon: icon.presence)
     end
   end
 end

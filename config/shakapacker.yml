@@ -1,0 +1,36 @@
+default: &default
+  source_path: app/javascript
+  source_entry_path: /
+  nested_entries: false
+  public_root_path: public
+  public_output_path: packs
+  cache_path: tmp/shakapacker
+  shakapacker_precompile: true
+  webpack_compile_output: true
+  additional_paths: []
+  javascript_transpiler: 'babel'
+  compiler_strategy: digest
+  cache_manifest: false
+  ensure_consistent_versioning: false
+
+# dev_server must be false, not merely absent: shakapacker falls back to its own
+# bundled default of localhost:3035 for any key this file omits, and then decides the
+# dev server is "running" if *anything* is listening on that port — another project's
+# watcher will do. Every /packs request then proxies there and returns 502, and the
+# page renders with no JavaScript at all. Procfile.dev runs bin/shakapacker-watch,
+# which writes to public/packs for Rails to serve directly, so no proxy is wanted.
+development:
+  <<: *default
+  compile: true
+  compiler_strategy: mtime
+  dev_server: false
+
+test:
+  <<: *default
+  compile: true
+  public_output_path: packs-test
+
+production:
+  <<: *default
+  compile: false
+  cache_manifest: true

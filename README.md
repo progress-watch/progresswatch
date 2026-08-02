@@ -23,6 +23,11 @@ docker compose up
 That is the whole thing: the API on `http://localhost:3000`, a Sidekiq worker, Redis,
 and a SQLite database on a named volume. Set `PORT` to serve somewhere other than 3000.
 
+Open `http://localhost:3000` and create a space — that is the whole setup. The dashboard
+shows every task in the space live, and the **Connect** menu gives you ready-to-paste
+snippets for the CLI, curl, an agent skill and Docker, with your space UUID already
+filled in.
+
 Check it is alive:
 
 ```bash
@@ -74,6 +79,7 @@ Six endpoints, and the surface is meant to stay this small.
 | `PUT /tasks/:task_uuid` | overwrite task state |
 | `GET /spaces/:space_uuid` | every task in the space with current state |
 | `GET /tasks/:task_uuid` | one task with its children |
+| `POST /mcp/:space_uuid` | MCP over Streamable HTTP |
 | `GET /up` | health check |
 
 ### Create a space
@@ -163,6 +169,29 @@ curl http://localhost:3000/tasks/fee462f1-...
 ```
 
 Same shape as a single entry above, with its children nested.
+
+---
+
+### MCP
+
+Agents can report progress without you writing any glue:
+
+```bash
+claude mcp add --transport http progress-watch https://progress.watch/mcp/406d45fd-...
+```
+
+Four tools — `create_space`, `create_task`, `update_task`, `complete_task` — hitting the
+same code as the endpoints above. The agent decides when to create a task and how often to
+report; the tool descriptions tell it when tracking is worth the trouble and that nesting
+is one level.
+
+`create_space` exists so an agent that connects without one is not stuck: it creates a
+space and hands back the URL for you to open. `create_task` takes an optional `space_uuid`
+to use it; the rest need only a task uuid, which already knows its space.
+
+The space UUID can travel in the path (above) or in an `X-Space-Uuid` header, for clients
+that only accept a bare URL. This server is stateless: it issues no `Mcp-Session-Id` and
+answers with `application/json` rather than opening an SSE stream.
 
 ---
 
@@ -280,7 +309,7 @@ and no config files to edit — the same image runs on a home NAS and in the clo
 | `RAILS_MAX_THREADS` | `5` | also sizes both connection pools |
 | `WEB_CONCURRENCY` | `0` | Puma workers; leave at 0 for a small box |
 | `SIDEKIQ_CONCURRENCY` | `5` | |
-| `FORCE_SSL` | `false` | set `true` behind a TLS-terminating proxy |
+| `FORCE_SSL` | `false` | set `true` behind a TLS-terminating proxy; also drives `assume_ssl`, so leaving it off keeps redirects on plain HTTP |
 | `PUSH_CONTENT` | `full` | `minimal` sends no task title — see below |
 | `RAILS_LOG_LEVEL` | `info` | |
 
@@ -322,13 +351,29 @@ particular cloud, and that is a property worth keeping:
 
 ## Development
 
-Requires Ruby 4.0.5 (see `.tool-versions`) and a local Redis.
+Requires Ruby 4.0.5 (see `.tool-versions`), Node 22, and a local Redis.
 
 ```bash
 bundle install
+npm install
 bin/rails db:prepare
+bin/dev
+```
+
+`bin/dev` runs everything in `Procfile.dev` under foreman (installing it if missing): the
+server on port 3000, a webpack watcher, and Sidekiq — without the worker, completion
+notifications never fire locally. Set `PW_PORT` to move the server; plain `PORT` will not
+work, because foreman assigns its own to every process.
+
+To run just the server, build the assets once first — the layout renders
+`javascript_pack_tag`, which needs a manifest to look up:
+
+```bash
+./bin/shakapacker
 bin/rails server
 ```
+
+The specs need that manifest too.
 
 Tests:
 

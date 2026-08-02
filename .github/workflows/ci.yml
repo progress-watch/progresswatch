@@ -50,6 +50,18 @@ jobs:
         with:
           bundler-cache: true
 
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      # The layout renders asset tags, so the specs need a real manifest to look
+      # them up in — without this they fail on a clean checkout.
+      - name: Build assets
+        run: |
+          npm ci
+          ./bin/shakapacker
+
       - name: Migrate from scratch
         run: bin/rails db:prepare
 

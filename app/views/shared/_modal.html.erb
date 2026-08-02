@@ -1,0 +1,24 @@
+<%= tag.dialog id: id, class: 'modal', inert: true, 'aria-labelledby': "#{id}-title" do %>
+  <div class="modal-box">
+    <div class="flex items-center justify-between gap-4 border-b border-zinc-200 pb-3 dark:border-zinc-800">
+      <h2 id="<%= id %>-title" class="text-base font-medium"><%= title %></h2>
+
+      <form method="dialog">
+        <button class="btn-ghost h-7 w-7 p-0 text-lg leading-none" aria-label="Close">&times;</button>
+      </form>
+    </div>
+
+    <div class="mt-4">
+      <%= yield %>
+    </div>
+  </div>
+
+  <%# Full-screen and behind the panel, so anything outside the box closes the dialog —
+      a ::backdrop cannot take a click, which is why this exists at all. It sits after
+      the box rather than before it so the dialog does not open with a full-screen form
+      as its first element; `.modal-box` keeps `z-10` so painting order still favours
+      the panel. %>
+  <form method="dialog" class="modal-backdrop">
+    <button aria-label="Close"></button>
+  </form>
+<% end %>

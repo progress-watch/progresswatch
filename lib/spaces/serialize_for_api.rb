@@ -14,6 +14,7 @@ module Spaces
       {
         'uuid' => space.uuid,
         'title' => space.title,
+        'icon' => space.icon,
         'tasks' => tasks.filter_map do |task|
           next unless task.parent_uuid.nil?
 

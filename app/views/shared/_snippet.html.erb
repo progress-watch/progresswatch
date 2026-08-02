@@ -1,0 +1,13 @@
+<div class="space-y-4">
+  <% steps.each do |step| %>
+    <div>
+      <% if step[:label].present? %>
+        <p class="mb-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400"><%= step[:label] %></p>
+      <% end %>
+
+      <% if step[:body].present? %>
+        <%= render 'shared/command', body: step[:body] %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

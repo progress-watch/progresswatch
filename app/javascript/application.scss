@@ -1,0 +1,125 @@
+// Directives rather than @import: Dart Sass has deprecated @import, and these are
+// what Tailwind's own docs use.
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// DaisyUI is deliberately not used. These are the handful of component classes it
+// would otherwise have provided — defined here so the ERB stays readable instead of
+// repeating a dozen utilities per button.
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2
+           text-sm font-medium transition-colors
+           focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
+           focus-visible:outline-brand-500 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn bg-brand-600 text-white hover:bg-brand-700;
+  }
+
+  .btn-secondary {
+    @apply btn border border-zinc-300 bg-white text-zinc-800 hover:bg-zinc-50
+           dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800;
+  }
+
+  .btn-ghost {
+    @apply btn text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900
+           dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100;
+  }
+
+  .card {
+    @apply rounded-xl border border-zinc-200 bg-white
+           dark:border-zinc-800 dark:bg-zinc-900;
+  }
+
+  .input {
+    @apply h-10 w-full rounded-lg border border-zinc-300 bg-white px-3 text-sm
+           text-zinc-900 placeholder:text-zinc-400
+           focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500
+           dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100;
+  }
+
+  .badge {
+    @apply inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium;
+  }
+
+  .snippet {
+    @apply relative overflow-x-auto rounded-lg bg-zinc-900 p-4 font-mono text-xs
+           leading-relaxed text-zinc-100 dark:bg-black;
+  }
+
+  // Native <dialog>: Esc, focus trapping and the backdrop come from the browser. The
+  // dialog itself is the full-screen container and .modal-box is the panel, so a click
+  // outside the panel lands on .modal-backdrop and closes it.
+  .modal {
+    @apply fixed inset-0 m-0 h-full max-h-none w-full max-w-none items-center
+           justify-center bg-transparent p-4;
+  }
+
+  .modal-box {
+    @apply relative z-10 w-full max-w-md rounded-xl border border-zinc-200 bg-white p-6
+           text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100;
+  }
+
+  .modal-backdrop {
+    @apply fixed inset-0;
+  }
+
+  .copy-icon {
+    @apply absolute right-2 rounded-md p-1.5 transition;
+  }
+}
+
+a[href],
+button,
+label[for],
+select,
+summary {
+  cursor: pointer;
+}
+
+// The copy button swaps a tick for the clipboard while clipboard-copy holds
+// data-copied, so it needs no markup of its own beyond the two icons.
+[data-copy-check] {
+  display: none;
+}
+
+clipboard-copy[data-copied] [data-copy-check] {
+  display: block;
+}
+
+clipboard-copy[data-copied] [data-copy-mark] {
+  display: none;
+}
+
+.modal:not([open]) {
+  display: none;
+}
+
+.modal[open] {
+  display: flex;
+}
+
+.modal::backdrop {
+  background: rgb(0 0 0 / 0.5);
+}
+
+.modal-backdrop button {
+  width: 100%;
+  height: 100%;
+  cursor: default;
+}
+
+details > summary {
+  list-style: none;
+}
+
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+details[open] > summary [data-chevron] {
+  transform: rotate(90deg);
+}

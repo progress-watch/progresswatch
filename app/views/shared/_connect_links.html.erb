@@ -1,0 +1,7 @@
+<% ConnectSnippets::SECTIONS.each do |section, config| %>
+  <%= link_to connect_path(section, space: local_assigns[:space_uuid] || @space&.uuid),
+              class: 'flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800' do %>
+    <%= svg_icon config[:icon], class: 'h-4 w-4 shrink-0' %>
+    <%= config[:title] %>
+  <% end %>
+<% end %>

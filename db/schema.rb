@@ -10,12 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_02_120100) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_02_200000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "spaces", primary_key: "uuid", id: { type: :string, limit: 36 }, force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.string "icon", limit: 16
     t.string "title"
   end
 

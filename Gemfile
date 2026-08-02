@@ -15,6 +15,10 @@ gem 'connection_pool'
 gem 'redis'
 gem 'sidekiq'
 
+# Web UI. Same bundler as docuseal so frontend code moves between the two projects
+# without a rewrite.
+gem 'shakapacker'
+
 gem 'bootsnap', require: false
 gem 'tzinfo-data', platforms: %i[windows jruby]
 

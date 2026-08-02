@@ -9,3 +9,6 @@
 .github
 /config/master.key
 /config/credentials.yml.enc
+/node_modules
+/public/packs
+/public/packs-test

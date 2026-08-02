@@ -1,0 +1,42 @@
+{
+  "name": "progresswatch",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "babel": {
+    "presets": [
+      "./node_modules/shakapacker/package/babel/preset.js"
+    ]
+  },
+  "browserslist": [
+    "last 5 years"
+  ],
+  "dependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/plugin-transform-runtime": "^7.25.9",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/runtime": "^7.26.0",
+    "@hotwired/turbo": "^8.0.12",
+    "autoprefixer": "^10.4.20",
+    "babel-loader": "^9.2.1",
+    "compression-webpack-plugin": "^12.0.0",
+    "css-loader": "^7.1.2",
+    "css-minimizer-webpack-plugin": "^8.0.0",
+    "mini-css-extract-plugin": "^2.9.2",
+    "postcss": "^8.4.49",
+    "postcss-import": "^16.1.0",
+    "postcss-loader": "^8.1.1",
+    "sass": "^1.83.0",
+    "sass-loader": "^16.0.4",
+    "shakapacker": "^10.3.0",
+    "style-loader": "^4.0.0",
+    "tailwindcss": "^3.4.17",
+    "terser-webpack-plugin": "^5.3.11",
+    "webpack": "^5.97.1",
+    "webpack-assets-manifest": "^5.2.1",
+    "webpack-cli": "^5.1.4",
+    "webpack-merge": "^6.0.1"
+  },
+  "scripts": {
+    "build": "./bin/shakapacker"
+  }
+}

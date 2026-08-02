@@ -6,8 +6,14 @@ class SpacesController < ApplicationController
   end
 
   def create
-    space = Spaces::Create.call(title: params[:title])
+    space = Spaces::Create.call(title: params[:title], icon: params[:icon])
 
-    render json: { uuid: space.uuid, title: space.title }, status: :created
+    render json: rendered(space), status: :created
+  end
+
+  private
+
+  def rendered(space)
+    { uuid: space.uuid, title: space.title, icon: space.icon }
   end
 end

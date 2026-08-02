@@ -1,0 +1,61 @@
+<%# Two blocks, both hidden until space-router picks one: the grid for a browser that
+    already knows several spaces, the pitch for everyone else. Hidden from the server so
+    neither flashes before the router decides. Without JavaScript the router never runs
+    and the create form is the only way in, which is what the noscript rule is for. %>
+<noscript>
+  <style>[data-landing][hidden] { display: block }</style>
+</noscript>
+
+<space-router>
+  <%# There are no accounts, so this list is the only record that a space exists.
+      The icons come from here rather than from the element's own markup, so SVG stays
+      in the views — space-list clones them into every card it builds. %>
+  <space-list class="block" data-spaces hidden>
+    <template data-icon="share">
+      <%= svg_icon 'share', class: 'h-4 w-4', data: { copy_mark: true } %>
+      <%= svg_icon 'check', class: 'h-4 w-4 text-emerald-500', data: { copy_check: true } %>
+    </template>
+    <template data-icon="plus"><%= svg_icon 'plus', class: 'h-5 w-5' %></template>
+  </space-list>
+
+  <div data-landing hidden>
+    <div class="mx-auto max-w-2xl text-center">
+      <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">Watch any process</h1>
+      <p class="mt-4 text-base text-zinc-600 dark:text-zinc-400">
+        A script, crawler, CI job or agent reports its progress with a single HTTP request.
+        You watch it here, and get a push notification when it finishes.
+      </p>
+
+      <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <%= form_with url: dashboards_path, method: :post, class: 'flex w-full max-w-sm gap-2 sm:w-auto' do |f| %>
+          <%= f.text_field :title, placeholder: 'Production', class: 'input sm:w-52', 'aria-label': 'Space name' %>
+          <%= f.submit 'Create a space', class: 'btn-primary whitespace-nowrap' %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="mx-auto mt-12 max-w-2xl">
+      <h2 class="mb-3 text-sm font-medium text-zinc-500 dark:text-zinc-400">How it works</h2>
+      <div class="card divide-y divide-zinc-200 p-0 dark:divide-zinc-800">
+        <div class="p-4">
+          <p class="text-sm font-medium">1. Create a space</p>
+          <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            Its UUID is the credential. No account, no password — whoever has it can read and write.
+          </p>
+        </div>
+        <div class="p-4">
+          <p class="text-sm font-medium">2. Report from anywhere</p>
+          <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            One <code class="font-mono text-xs">PUT</code> per update, from a shell script, a crawler, CI, or an agent.
+          </p>
+        </div>
+        <div class="p-4">
+          <p class="text-sm font-medium">3. Watch it here or on your phone</p>
+          <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            Progress lives in memory and expires on its own. Nothing to clean up.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</space-router>

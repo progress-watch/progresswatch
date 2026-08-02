@@ -18,6 +18,23 @@ RSpec.describe 'Spaces' do
       expect(response).to have_http_status(:created)
       expect(Space.find(json['uuid'])).to be_present
     end
+
+    it 'accepts a one-character icon' do
+      post_json '/spaces', { title: 'Nightly', icon: '🌙' }
+
+      expect(response).to have_http_status(:created)
+      expect(json['icon']).to eq('🌙')
+    end
+
+    # Counted as a reader counts them: a skin tone or a family emoji is several
+    # codepoints and still one icon, while two letters is two.
+    it 'takes a multi-codepoint emoji as one character and refuses two of anything' do
+      post_json '/spaces', { title: 'Team', icon: '👍🏽' }
+      expect(response).to have_http_status(:created)
+
+      post_json '/spaces', { title: 'Nope', icon: 'ab' }
+      expect(response).to have_http_status(:unprocessable_content)
+    end
   end
 
   describe 'GET /spaces/:space_uuid' do

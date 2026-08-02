@@ -20,8 +20,9 @@ Rails.application.configure do
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   # config.asset_host = "http://assets.example.com"
 
-  # Assume all access to the app is happening through a SSL-terminating reverse proxy.
-  config.assume_ssl = true
+  # Tied to FORCE_SSL for the same reason: assuming SSL makes Rails generate https
+  # redirects, which send a self-hoster on plain HTTP to a port that is not listening.
+  config.assume_ssl = ENV.fetch('FORCE_SSL', 'false') == 'true'
 
   # Off by default, unlike the Rails generator: a self-hosted box on a home network
   # or behind a VPN often has no certificate, and the redirect would break it.
