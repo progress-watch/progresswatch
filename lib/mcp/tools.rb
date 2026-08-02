@@ -73,6 +73,11 @@ module Mcp
           parent_uuid. Nesting is one level only: a child cannot have children. A parent's
           progress is averaged from its children automatically, so never report progress
           on a parent yourself.
+
+          Create the whole tree before starting, then report each step as it happens and
+          complete it when it is actually done — not all of them at the end. A board that
+          stays empty for the whole job and turns green at the finish is worth nothing to
+          whoever is watching it.
         TEXT
       },
       {
@@ -94,6 +99,11 @@ module Mcp
         'description' => <<~TEXT
           Report progress on a task. Call periodically — every meaningful step, not every
           loop iteration.
+
+          Call it once when the work actually begins, too. A task that has been created but
+          never reported reads as "waiting for data", which nobody can tell apart from a
+          reporter that died before its first write. If the step has nothing to count, send
+          current 0 and end 1: that reads as running, and it is honest.
 
           `current` and `end` are raw counts, not a percentage: the user sees
           "1200 of 50000 pages", which tells them something "2.4%" does not. `end` may

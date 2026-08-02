@@ -85,6 +85,11 @@ RSpec.describe 'MCP' do
 
       expect(create['description']).to include('long-running', 'one level only')
       expect(update['description']).to include('replaces the whole state')
+
+      # An agent that reports only at the end leaves a board that is empty for the whole
+      # job, which is the thing this exists to prevent.
+      expect(create['description']).to include('not all of them at the end')
+      expect(update['description']).to include('when the work actually begins')
     end
   end
 
