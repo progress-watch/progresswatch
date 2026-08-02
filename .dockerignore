@@ -1,0 +1,11 @@
+.git
+.gitignore
+/.bundle
+/tmp/*
+/storage/*
+!/storage/.keep
+/spec
+.DS_Store
+.github
+/config/master.key
+/config/credentials.yml.enc

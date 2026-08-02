@@ -1,0 +1,22 @@
+# Negated because some machines exclude both globally. The image builds with
+# BUNDLE_DEPLOYMENT=1 and will not build without the lockfile.
+!Gemfile.lock
+!.tool-versions
+
+/.bundle
+
+# There is no log/ — every environment logs to stdout, see config/application.rb.
+/tmp/*
+!/tmp/.keep
+/tmp/pids/*
+!/tmp/pids/.keep
+
+/storage/*
+!/storage/.keep
+
+# This app has no encrypted credentials on purpose — a self-hoster cannot have our
+# key, so everything is an environment variable. Do not run credentials:edit.
+/config/master.key
+/config/credentials.yml.enc
+
+.DS_Store

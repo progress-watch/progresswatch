@@ -1,0 +1,14 @@
+#!/bin/sh -e
+
+# POSIX sh, not bash: the image is Alpine and has no bash.
+#
+# Self-hosting has nobody to run migrations against a fresh volume. Safe on cloud
+# too: db:prepare is idempotent and concurrent starts serialise on the migration
+# lock. Only the web process does it — Sidekiq starts with a different command.
+case "$*" in
+  *puma*|*"rails server"*)
+    ./bin/rails db:prepare
+    ;;
+esac
+
+exec "$@"

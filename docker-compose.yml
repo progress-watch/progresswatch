@@ -1,0 +1,46 @@
+services:
+  app:
+    build: .
+    ports:
+      - "${PORT:-3000}:3000"
+    volumes:
+      - storage:/rails/storage
+    environment:
+      DATABASE_URL: sqlite3:storage/production.sqlite3?timeout=5000
+      REDIS_URL: redis://redis:6379
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:-change-me-in-production-0000000000000000000000000000000000000000}
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  sidekiq:
+    build: .
+    command: bundle exec sidekiq -C config/sidekiq.yml
+    volumes:
+      - storage:/rails/storage
+    environment:
+      DATABASE_URL: sqlite3:storage/production.sqlite3?timeout=5000
+      REDIS_URL: redis://redis:6379
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:-change-me-in-production-0000000000000000000000000000000000000000}
+    depends_on:
+      redis:
+        condition: service_healthy
+      app:
+        condition: service_started
+    restart: unless-stopped
+
+  redis:
+    image: redis:8-alpine
+    # No persistence: progress is volatile by design, and a restart costs one
+    # "Waiting for data..." cycle.
+    command: redis-server --save "" --appendonly no
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  storage:

@@ -1,0 +1,16 @@
+# Keep this file adapter-neutral: DATABASE_URL selects sqlite3 or postgresql, and
+# adapter options travel as query parameters on the URL rather than as keys here.
+default: &default
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
+
+development:
+  <<: *default
+  url: <%= ENV.fetch("DATABASE_URL", "sqlite3:storage/development.sqlite3?timeout=5000") %>
+
+test:
+  <<: *default
+  url: <%= ENV.fetch("DATABASE_URL", "sqlite3:storage/test.sqlite3?timeout=5000") %>
+
+production:
+  <<: *default
+  url: <%= ENV.fetch("DATABASE_URL", "sqlite3:storage/production.sqlite3?timeout=5000") %>

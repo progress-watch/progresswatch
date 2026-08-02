@@ -1,0 +1,6 @@
+:concurrency: <%= ENV.fetch("SIDEKIQ_CONCURRENCY", 5) %>
+# Inside Fargate's SIGTERM deadline, as in config/puma.rb.
+:timeout: 25
+:queues:
+  - notifications
+  - default
