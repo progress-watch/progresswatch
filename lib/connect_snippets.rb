@@ -33,6 +33,18 @@ module ConnectSnippets
     `parent_uuid`. Nesting is one level only — a child cannot have children. The
     parent's bar averages its children, so never update the parent yourself.
 
+    Create the whole tree before you start, and finish each step as it finishes rather
+    than all of them at the end. A board that stays empty for the whole job and turns
+    green at the finish is worth nothing to whoever is watching it.
+
+    Keep adding steps as work appears. The tree is a live picture, not a plan fixed at
+    the start — something you did not foresee gets its own step when you find it. The
+    parent's bar dropping because it gained a step is honest.
+
+    Say when a step begins even if it has nothing to count — send
+    `{"current": 0, "end": 1}`, which reads as running. Without it the step sits at
+    "waiting for data", which looks identical to a reporter that died.
+
     Every write replaces the whole state. Send the complete state each time; anything
     you leave out is cleared, not kept.
 

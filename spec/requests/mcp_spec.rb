@@ -82,6 +82,7 @@ RSpec.describe 'MCP' do
 
       create = json['result']['tools'].find { |tool| tool['name'] == 'create_task' }
       update = json['result']['tools'].find { |tool| tool['name'] == 'update_task' }
+      complete = json['result']['tools'].find { |tool| tool['name'] == 'complete_task' }
 
       expect(create['description']).to include('long-running', 'one level only')
       expect(update['description']).to include('replaces the whole state')
@@ -90,6 +91,8 @@ RSpec.describe 'MCP' do
       # job, which is the thing this exists to prevent.
       expect(create['description']).to include('not all of them at the end')
       expect(update['description']).to include('when the work actually begins')
+      expect(complete['description']).to include('not in a sweep')
+      expect(create['description']).to include('Keep creating steps as work appears')
     end
   end
 

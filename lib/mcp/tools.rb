@@ -78,6 +78,11 @@ module Mcp
           complete it when it is actually done — not all of them at the end. A board that
           stays empty for the whole job and turns green at the finish is worth nothing to
           whoever is watching it.
+
+          Keep creating steps as work appears. The tree is a live picture, not a plan you
+          fixed at the start: something you did not foresee gets its own step when you
+          find it, rather than being folded into whichever step is already open. A parent
+          whose bar drops because it gained a step is telling the truth.
         TEXT
       },
       {
@@ -134,6 +139,10 @@ module Mcp
           Mark a task finished. This is what sends the user's push notification, so call
           it when the work is actually done — including when it failed, with the failure
           recorded in values.
+
+          Call it as part of the step that finishes the work, not in a sweep once
+          everything is done. Closing a whole tree at the end is cheaper for you and
+          leaves the user watching an empty board for the entire job.
         TEXT
       }
     ].freeze
