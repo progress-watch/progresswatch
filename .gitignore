@@ -2,6 +2,7 @@
 # BUNDLE_DEPLOYMENT=1 and will not build without the lockfile.
 !Gemfile.lock
 !.tool-versions
+!Procfile.dev
 
 /.bundle
 

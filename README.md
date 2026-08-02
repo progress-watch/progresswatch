@@ -20,10 +20,10 @@ cd progresswatch
 docker compose up
 ```
 
-That is the whole thing: the API on `http://localhost:3000`, a Sidekiq worker, Redis,
-and a SQLite database on a named volume. Set `PORT` to serve somewhere other than 3000.
+That is the whole thing: the API on `http://localhost:7979`, a Sidekiq worker, Redis,
+and a SQLite database on a named volume. Set `PORT` to publish somewhere other than 7979.
 
-Open `http://localhost:3000` and create a space — that is the whole setup. The dashboard
+Open `http://localhost:7979` and create a space — that is the whole setup. The dashboard
 shows every task in the space live, and the **Connect** menu gives you ready-to-paste
 snippets for the CLI, curl, an agent skill and Docker, with your space UUID already
 filled in.
@@ -31,9 +31,20 @@ filled in.
 Check it is alive:
 
 ```bash
-curl http://localhost:3000/up
+curl http://localhost:7979/up
 # {"status":"ok","database":true,"redis":true}
 ```
+
+### Why 7979
+
+Not 3000. This is a service you leave running for weeks while you work, and 3000 is where
+your own dev servers land — Rails, Vite, Next, Grafana and half the `docker run` lines in
+other READMEs. A background service should not hold the most contended port on the
+machine, especially one whose URL you paste into CI secrets and cron lines and then forget
+about.
+
+Inside the container it is still 3000; only the published port moved. `PORT` changes both
+independently.
 
 ### MULTITENANT
 
@@ -120,7 +131,7 @@ Six endpoints, and the surface is meant to stay this small.
 ### Create a space
 
 ```bash
-curl -X POST http://localhost:3000/spaces \
+curl -X POST http://localhost:7979/spaces \
   -H 'Content-Type: application/json' \
   -d '{"title": "Production"}'
 ```
@@ -132,7 +143,7 @@ curl -X POST http://localhost:3000/spaces \
 ### Create a task
 
 ```bash
-curl -X POST http://localhost:3000/spaces/406d45fd-.../tasks \
+curl -X POST http://localhost:7979/spaces/406d45fd-.../tasks \
   -H 'Content-Type: application/json' \
   -d '{"title": "Crawl docs", "source": "crawler.py"}'
 ```
@@ -146,7 +157,7 @@ Pass `parent_uuid` to make it a child of another task.
 ### Report progress
 
 ```bash
-curl -X PUT http://localhost:3000/tasks/fee462f1-... \
+curl -X PUT http://localhost:7979/tasks/fee462f1-... \
   -H 'Content-Type: application/json' \
   -d '{"current": 1200, "end": 50000, "values": {"pages": 1200, "errors": 3}}'
 ```
@@ -156,7 +167,7 @@ Every request **fully overwrites** the task's state. There is no merging — see
 Mark a task finished explicitly, whatever the numbers say:
 
 ```bash
-curl -X PUT http://localhost:3000/tasks/fee462f1-... \
+curl -X PUT http://localhost:7979/tasks/fee462f1-... \
   -H 'Content-Type: application/json' \
   -d '{"done": true}'
 ```
@@ -164,7 +175,7 @@ curl -X PUT http://localhost:3000/tasks/fee462f1-... \
 ### Read a space
 
 ```bash
-curl http://localhost:3000/spaces/406d45fd-...
+curl http://localhost:7979/spaces/406d45fd-...
 ```
 
 ```json
@@ -200,7 +211,7 @@ curl http://localhost:3000/spaces/406d45fd-...
 ### Read one task
 
 ```bash
-curl http://localhost:3000/tasks/fee462f1-...
+curl http://localhost:7979/tasks/fee462f1-...
 ```
 
 Same shape as a single entry above, with its children nested.
@@ -340,7 +351,7 @@ and no config files to edit — the same image runs on a home NAS and in the clo
 | `PROGRESS_TTL_SECONDS` | `86400` | abandoned tasks expire; refreshed on every write |
 | `PROGRESS_KEY_PREFIX` | `pw:progress` | |
 | `SECRET_KEY_BASE` | — | required in production |
-| `PORT` | `3000` | |
+| `PORT` | `3000` | inside the container; `docker-compose.yml` publishes it on 7979 |
 | `RAILS_MAX_THREADS` | `5` | also sizes both connection pools |
 | `WEB_CONCURRENCY` | `0` | Puma workers; leave at 0 for a small box |
 | `SIDEKIQ_CONCURRENCY` | `5` | |
@@ -396,7 +407,7 @@ bin/dev
 ```
 
 `bin/dev` runs everything in `Procfile.dev` under foreman (installing it if missing): the
-server on port 3000, a webpack watcher, and Sidekiq — without the worker, completion
+server on port 7979, a webpack watcher, and Sidekiq — without the worker, completion
 notifications never fire locally. Set `PW_PORT` to move the server; plain `PORT` will not
 work, because foreman assigns its own to every process.
 

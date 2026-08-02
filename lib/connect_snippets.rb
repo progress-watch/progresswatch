@@ -69,7 +69,7 @@ module ConnectSnippets
     services:
       app:
         image: progresswatch/progresswatch:latest
-        ports: ["3000:3000"]
+        ports: ["7979:3000"]
         volumes: ["storage:/rails/storage"]
         environment:
           DATABASE_URL: sqlite3:storage/production.sqlite3
@@ -164,7 +164,7 @@ module ConnectSnippets
                  'losing it costs you nothing but the space list.', body: COMPOSE },
         { label: 'Start it.', body: 'docker compose up -d' },
         { label: 'Then point the CLI at it. This page is served from {{server}}.',
-          body: 'export PROGRESSWATCH_SERVER="http://localhost:3000"' }
+          body: 'export PROGRESSWATCH_SERVER="http://localhost:7979"' }
       ]
     }
   }.freeze
