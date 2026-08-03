@@ -66,7 +66,7 @@ export default class extends HTMLElement {
     const what = title ? `"${title}"` : 'this space'
 
     return window.confirm(
-      `Remove ${what} from this browser?\n\n` +
+      `Remove ${what} from this device?\n\n` +
       'The space and its tasks are not deleted, but its UUID is the only way back to it ' +
       'and nothing on the server can recover it.'
     )

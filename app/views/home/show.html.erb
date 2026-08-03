@@ -1,7 +1,7 @@
 <space-list class="block">
   <template data-template="list">
     <div class="mb-12">
-      <h2 class="mb-3 text-sm font-medium text-zinc-500 dark:text-zinc-300">Spaces on this browser</h2>
+      <h2 class="mb-3 text-sm font-medium text-zinc-500 dark:text-zinc-300">Spaces on this device</h2>
       <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" data-cards></ul>
     </div>
   </template>
@@ -21,7 +21,7 @@
             <%= svg_icon 'check', class: 'h-3.5 w-3.5 text-emerald-500', data: { copy_check: true } %>
           </button>
         </clipboard-copy>
-        <button type="button" data-forget data-action="click:space-list#forgetSpace" aria-label="Forget this space" class="card flex h-7 w-7 items-center justify-center rounded-full text-zinc-600 shadow-sm transition hover:text-red-600 dark:border-zinc-500 dark:bg-zinc-600 dark:text-zinc-200 dark:hover:text-red-300" title="Remove from this browser. The space itself is not deleted.">
+        <button type="button" data-forget data-action="click:space-list#forgetSpace" aria-label="Forget this space" class="card flex h-7 w-7 items-center justify-center rounded-full text-zinc-600 shadow-sm transition hover:text-red-600 dark:border-zinc-500 dark:bg-zinc-600 dark:text-zinc-200 dark:hover:text-red-300" title="Remove from this device. The space itself is not deleted.">
           <%= svg_icon 'trash', class: 'h-3.5 w-3.5' %>
         </button>
       </div>

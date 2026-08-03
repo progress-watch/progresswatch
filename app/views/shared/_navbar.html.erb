@@ -9,10 +9,10 @@
       <%= link_to 'About', about_path, class: 'btn-ghost hidden px-3 py-1.5 text-sm md:inline-flex' %>
     <% end %>
     <space-backup class="hidden items-center gap-1 md:flex">
-      <button type="button" data-action="click:space-backup#export" aria-label="Export spaces" class="btn-ghost px-2 py-1.5" title="Download the spaces this browser knows about. It is the only backup there is.">
+      <button type="button" data-action="click:space-backup#export" aria-label="Export spaces" class="btn-ghost px-2 py-1.5" title="Download the spaces this device knows about. It is the only backup there is.">
         <%= svg_icon 'download', class: 'h-4 w-4' %>
       </button>
-      <label class="btn-ghost px-2 py-1.5" title="Merge a previously exported list into this browser">
+      <label class="btn-ghost px-2 py-1.5" title="Merge a previously exported list into this device">
         <span class="sr-only">Import spaces</span>
         <%= svg_icon 'upload', class: 'h-4 w-4' %>
         <input type="file" accept="application/json" data-action="change:space-backup#import" class="hidden">
