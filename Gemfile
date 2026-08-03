@@ -19,6 +19,10 @@ gem 'sidekiq'
 # without a rewrite.
 gem 'shakapacker'
 
+# The only AWS dependency, and dormant unless AWS_SECRET_MANAGER_ID is set. See
+# config/aws_secrets.rb for why the rule about no AWS in the application is broken here.
+gem 'aws-sdk-secretsmanager', require: false
+
 gem 'bootsnap', require: false
 gem 'tzinfo-data', platforms: %i[windows jruby]
 
