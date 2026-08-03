@@ -14,6 +14,10 @@ Rails.application.routes.draw do
 
   get 's/:uuid/tasks', to: 'space_tasks#index', as: :space_tasks
 
+  # Web-only, for the same reason renaming is: only a browser has a push endpoint.
+  post 's/:uuid/push', to: 'space_push_subscriptions#create', as: :space_push
+  delete 's/:uuid/push', to: 'space_push_subscriptions#destroy'
+
   # No route constraint on :section — an unknown one is a page that does not exist,
   # and that is the not-found page rather than a bare routing error.
   get 'connect/:section', to: 'connect#show', as: :connect

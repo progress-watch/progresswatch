@@ -170,6 +170,20 @@ RSpec.describe 'Web UI' do
       expect(response.body).not_to include('<dialog')
     end
 
+    # Nothing about a watcher reaches the server unless they ask for it, so the button
+    # is absent entirely when no VAPID keys are configured.
+    it 'offers notifications only when push is configured' do
+      get space_path(space.uuid)
+      expect(response.body).not_to include('<push-toggle')
+
+      stub_const('ProgressWatch::VAPID_PUBLIC_KEY', 'public')
+      stub_const('ProgressWatch::VAPID_PRIVATE_KEY', 'private')
+
+      get space_path(space.uuid)
+      expect(response.body).to include('<push-toggle')
+      expect(response.body).to include('data-key="public"')
+    end
+
     it 'offers the space link for copying, not just the uuid' do
       get space_path(space.uuid)
 

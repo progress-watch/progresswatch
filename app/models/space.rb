@@ -8,6 +8,7 @@ class Space < ApplicationRecord
   attribute :uuid, :string, default: -> { SecureRandom.uuid }
 
   has_many :tasks, foreign_key: :space_uuid, inverse_of: :space, dependent: :destroy
+  has_many :push_subscriptions, foreign_key: :space_uuid, inverse_of: :space, dependent: :delete_all
 
   validates :uuid, presence: true
   validate :icon_is_one_character

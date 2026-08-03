@@ -10,9 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_02_200000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_03_160027) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "push_subscriptions", primary_key: "uuid", id: { type: :string, limit: 36 }, force: :cascade do |t|
+    t.string "auth", null: false
+    t.datetime "created_at", null: false
+    t.text "endpoint", null: false
+    t.string "endpoint_digest", limit: 64, null: false
+    t.string "p256dh", null: false
+    t.string "space_uuid", limit: 36, null: false
+    t.index ["space_uuid", "endpoint_digest"], name: "index_push_subscriptions_on_space_uuid_and_endpoint_digest", unique: true
+    t.index ["space_uuid"], name: "index_push_subscriptions_on_space_uuid"
+  end
 
   create_table "spaces", primary_key: "uuid", id: { type: :string, limit: 36 }, force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -32,6 +43,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_200000) do
     t.index ["space_uuid"], name: "index_tasks_on_space_uuid"
   end
 
+  add_foreign_key "push_subscriptions", "spaces", column: "space_uuid", primary_key: "uuid"
   add_foreign_key "tasks", "spaces", column: "space_uuid", primary_key: "uuid"
   add_foreign_key "tasks", "tasks", column: "parent_uuid", primary_key: "uuid"
 end

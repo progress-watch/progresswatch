@@ -356,27 +356,64 @@ and no config files to edit — the same image runs on a home NAS and in the clo
 | `WEB_CONCURRENCY` | `0` | Puma workers; leave at 0 for a small box |
 | `SIDEKIQ_CONCURRENCY` | `5` | |
 | `FORCE_SSL` | `false` | set `true` behind a TLS-terminating proxy; also drives `assume_ssl`, so leaving it off keeps redirects on plain HTTP |
+| `VAPID_PUBLIC_KEY` | — | Web Push. Both keys unset means notifications are not offered at all |
+| `VAPID_PRIVATE_KEY` | — | |
+| `VAPID_SUBJECT` | `mailto:hello@progress.watch` | contact address the push services can reach |
 | `PUSH_CONTENT` | `full` | `minimal` sends no task title — see below |
 | `RAILS_LOG_LEVEL` | `info` | |
 
-### Notification content and privacy
+### Notifications
 
-Push notifications are **not** end-to-end encrypted yet. A self-hosted server has no
-FCM/APNs credentials of its own, so it forwards notifications through a relay on
-progress.watch — which means **your task titles pass through a third party in the clear**
-on their way to Apple and Google.
+Progress Watch notifies through **Web Push**, straight from your server to the browser.
+Set a VAPID key pair and a "Notify me" button appears on each space; leave the keys unset
+and the feature does not exist — no button, and nothing about anyone is stored.
 
-Self-hosters are exactly the audience that will assume otherwise, so: that is the
-trade, stated upfront. If you cannot accept it, set `PUSH_CONTENT=minimal` and
-notifications become "Task completed" with nothing identifying in them. You lose most of
-their usefulness, which is the honest cost.
+Generate the pair once:
 
-The relay forwards and forgets: no persistence of payloads beyond what delivery
-requires, and metadata-only logging. Encryption is on the roadmap — it is deferred
-because doing it on iOS requires a Notification Service Extension and a custom dev
-client, which is a large cost landing on the most expensive part of the project.
+```bash
+docker compose exec app ./bin/rails runner \
+  'k = WebPush.generate_key; puts "VAPID_PUBLIC_KEY=#{k.public_key}"; puts "VAPID_PRIVATE_KEY=#{k.private_key}"'
+```
 
----
+**There is nothing to register anywhere** — no Firebase project, no Apple developer
+account, no API key. Whoever made the browser runs the push service; its address arrives
+inside the subscription the browser hands your server, and the VAPID pair is self-signed
+proof that every notification came from the same sender. `VAPID_SUBJECT` is only a contact
+address and nobody verifies it.
+
+Do not rotate the keys. Existing subscriptions are bound to them, browsers are not told,
+and they simply stop receiving.
+
+**On a phone, the site has to be added to the Home Screen.** iOS delivers Web Push only to
+an installed web app, and there is no way around it. Android and desktop work from an
+ordinary tab. Installing has a second benefit on iOS: Safari clears an ordinary site's
+local storage after seven days without a visit, and an installed web app is exempt — and
+that storage is where the list of your spaces lives.
+
+#### What your server tells whom
+
+Web Push payloads are **encrypted for the browser that subscribed**, using keys only it
+holds. Google, Mozilla and Apple relay ciphertext and cannot read your task titles.
+
+What they do learn is that a particular browser received something, and when. Your server
+learns one thing it otherwise would not: that a browser opted in on a given space. That is
+why it is opt-in per space rather than a global setting — nothing is registered until
+somebody presses the button. Deleting the space deletes the registration with it.
+
+`PUSH_CONTENT=minimal` sends "Task completed" with no title. The payload is encrypted
+either way; this is for the lock screen of a phone somebody else can see.
+
+#### The native app, and why it is not here
+
+A React Native app was designed for this and has not been built. Web Push covers what it
+was for. The one thing it would still do better is watching several servers at once —
+a browser is bound to one origin, so a space on another server opens on that server rather
+than joining one list. If that matters to you, install the web app from each server.
+
+The plaintext relay described in earlier versions of this file belongs to that unbuilt
+app: with no FCM or APNs credentials of its own, a self-hosted server would have had to
+forward notifications through progress.watch. Web Push needs no relay and no third party
+holding your titles, which is why it shipped first.
 
 ## Cloud deployment
 

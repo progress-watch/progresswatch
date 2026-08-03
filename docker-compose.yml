@@ -9,6 +9,10 @@ services:
       DATABASE_URL: sqlite3:storage/production.sqlite3?timeout=5000
       REDIS_URL: redis://redis:6379
       SECRET_KEY_BASE: ${SECRET_KEY_BASE:-change-me-in-production-0000000000000000000000000000000000000000}
+      # Web Push. Unset means the feature is not offered and nothing is stored about
+      # anyone; both services need them, since one renders the button and the other sends.
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
     depends_on:
       redis:
         condition: service_healthy
@@ -23,6 +27,10 @@ services:
       DATABASE_URL: sqlite3:storage/production.sqlite3?timeout=5000
       REDIS_URL: redis://redis:6379
       SECRET_KEY_BASE: ${SECRET_KEY_BASE:-change-me-in-production-0000000000000000000000000000000000000000}
+      # Web Push. Unset means the feature is not offered and nothing is stored about
+      # anyone; both services need them, since one renders the button and the other sends.
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
     depends_on:
       redis:
         condition: service_healthy
