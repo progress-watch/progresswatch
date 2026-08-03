@@ -1,14 +1,14 @@
-<header class="sticky top-0 z-20 border-b border-zinc-200 bg-white sm:static sm:z-auto dark:border-zinc-800 dark:bg-zinc-900">
-  <nav class="mx-auto flex max-w-5xl items-center gap-2 px-4 py-3 sm:gap-4">
+<header class="sticky top-0 z-20 border-b border-zinc-200 bg-white md:static md:z-auto dark:border-zinc-800 dark:bg-zinc-900">
+  <nav class="mx-auto flex max-w-5xl items-center gap-2 px-4 py-3 md:gap-4">
     <%= link_to root_path, class: 'flex items-center gap-2 font-semibold tracking-tight' do %>
       <span class="flex h-6 w-6 items-center justify-center rounded-md bg-brand-600 text-xs font-bold text-white">P</span>
       <span>Progress Watch</span>
     <% end %>
     <div class="flex-1"></div>
     <% if ProgressWatch.multitenant? %>
-      <%= link_to 'About', about_path, class: 'btn-ghost hidden px-3 py-1.5 text-sm sm:inline-flex' %>
+      <%= link_to 'About', about_path, class: 'btn-ghost hidden px-3 py-1.5 text-sm md:inline-flex' %>
     <% end %>
-    <space-backup class="hidden items-center gap-1 sm:flex">
+    <space-backup class="hidden items-center gap-1 md:flex">
       <button type="button" data-action="click:space-backup#export" aria-label="Export spaces" class="btn-ghost px-2 py-1.5" title="Download the spaces this browser knows about. It is the only backup there is.">
         <%= svg_icon 'download', class: 'h-4 w-4' %>
       </button>
@@ -19,18 +19,18 @@
       </label>
       <span data-import-error class="text-xs text-red-600 dark:text-red-400"></span>
     </space-backup>
-    <%= link_to new_space_path, data: { turbo_frame: 'modal' }, 'aria-label': 'New space', class: 'btn-primary px-2 py-1.5 text-sm sm:px-3' do %>
+    <%= link_to new_space_path, data: { turbo_frame: 'modal' }, 'aria-label': 'New space', class: 'btn-primary px-2 py-1.5 text-sm md:px-3' do %>
       <%= svg_icon 'plus', class: 'h-3.5 w-3.5' %>
-      <span class="hidden sm:inline">New space</span>
+      <span class="hidden md:inline">New space</span>
     <% end %>
     <details class="relative" data-connect-menu>
-      <summary class="btn-secondary list-none px-2 py-1.5 text-sm sm:px-3">
-        <%= svg_icon 'menu', class: 'h-4 w-4 sm:hidden' %>
-        <span class="hidden sm:inline">Connect</span>
-        <%= svg_icon 'chevron_down', class: 'hidden h-3 w-3 sm:block' %>
+      <summary class="btn-secondary list-none px-2 py-1.5 text-sm md:px-3">
+        <%= svg_icon 'menu', class: 'h-4 w-4 md:hidden' %>
+        <span class="hidden md:inline">Connect</span>
+        <%= svg_icon 'chevron_down', class: 'hidden h-3 w-3 md:block' %>
       </summary>
       <div class="card absolute right-0 z-10 mt-2 w-56 overflow-hidden p-1 shadow-lg">
-        <div class="sm:hidden">
+        <div class="md:hidden">
           <% if ProgressWatch.multitenant? %>
             <%= link_to 'About', about_path, class: 'flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800' %>
           <% end %>
