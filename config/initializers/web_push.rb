@@ -13,4 +13,10 @@ module ProgressWatch
   end
 end
 
-PushDelivery.backend = PushDelivery::WebPush.new if ProgressWatch.web_push?
+# to_prepare, not here at the top level: PushDelivery is autoloaded from lib, and
+# referencing an autoloadable constant while Rails initializes raises. It only ever
+# raised once the keys were set, so the failure arrived with the feature rather than
+# with the code.
+Rails.application.config.to_prepare do
+  PushDelivery.backend = PushDelivery::WebPush.new if ProgressWatch.web_push?
+end
