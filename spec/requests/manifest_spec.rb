@@ -3,8 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe 'Installable to the home screen' do
-  # iOS only delivers Web Push to a site added to the Home Screen, so on the phone this
-  # manifest is not a nicety — it is the prerequisite for notifications working at all.
   it 'serves a manifest naming icons that exist' do
     manifest = JSON.parse(Rails.public_path.join('manifest.json').read)
 

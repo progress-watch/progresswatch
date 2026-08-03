@@ -19,9 +19,6 @@ RSpec.describe 'Push subscriptions' do
     expect(space.push_subscriptions.first).to have_attributes(endpoint: subscription[:endpoint], auth: 'secret')
   end
 
-  # A browser re-subscribing must replace its row. Two rows for one endpoint means the
-  # same completion notifies twice, which is the kind of bug people turn the feature off
-  # over rather than report.
   it 'replaces a row rather than adding one when the same endpoint returns' do
     subscribe
 
@@ -53,8 +50,6 @@ RSpec.describe 'Push subscriptions' do
     expect(response).to have_http_status(:not_found)
   end
 
-  # Deleting a space must not leave rows pointing at nothing, and there is no reason to
-  # keep a registration for a space that is gone.
   it 'goes away with the space' do
     subscribe
 

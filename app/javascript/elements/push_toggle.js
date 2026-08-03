@@ -1,7 +1,5 @@
 import { bind } from '@github/catalyst/lib/bind'
 
-// The push subscription is the one thing about a watcher the server learns, so it is
-// per space and never implicit: nothing is registered until this is clicked.
 export default class extends HTMLElement {
   async connectedCallback () {
     bind(this)
@@ -61,7 +59,7 @@ export default class extends HTMLElement {
     this.setAttribute('data-state', subscription ? 'on' : 'off')
   }
 
-  // The VAPID key travels as base64url in HTML and has to reach the browser as bytes.
+  // base64url in the markup, bytes in the API.
   get applicationServerKey () {
     const padded = (this.dataset.key + '='.repeat((4 - this.dataset.key.length % 4) % 4))
       .replace(/-/g, '+').replace(/_/g, '/')

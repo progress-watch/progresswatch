@@ -4,9 +4,7 @@ module PushSubscriptions
   module Create
     module_function
 
-    # Upsert, not create: a browser re-subscribing — after a permission reset, a key
-    # rotation, or simply a second visit — must replace its row, or one completion sends
-    # the same notification several times.
+    # Upsert, not create: two rows for one browser means one completion notifies twice.
     def call(space:, endpoint:, p256dh:, auth:)
       digest = PushSubscription.digest(endpoint)
 

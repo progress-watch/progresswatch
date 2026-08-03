@@ -3,13 +3,8 @@
 require 'rails_helper'
 require 'open3'
 
-# The suite runs inside an already-booted app, so nothing in it can see a failure that
-# happens while Rails initializes. This one boots a second process to look.
-#
-# It exists because wiring the push backend from an initializer raised — PushDelivery is
-# autoloaded from lib, and autoloading during initialization is not allowed — and the
-# raise only happened once VAPID keys were set. Every other spec passed; the container
-# restart-looped in production.
+# The rest of the suite runs inside an already-booted app and cannot see a failure that
+# happens while Rails initializes. This boots a second process to look.
 RSpec.describe 'Booting' do
   def boot(env)
     output, status = Open3.capture2e(env.merge('RAILS_ENV' => 'test'),

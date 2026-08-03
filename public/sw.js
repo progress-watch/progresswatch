@@ -1,5 +1,3 @@
-// Served from the root so its scope covers the whole app; webpack output lives under
-// /packs, which would scope it to the assets instead.
 self.addEventListener('push', (event) => {
   const payload = event.data ? event.data.json() : {}
 
@@ -7,7 +5,6 @@ self.addEventListener('push', (event) => {
     body: payload.body || '',
     icon: '/icons/icon-192.png',
     badge: '/icons/icon-192.png',
-    // Two reports of the same task collapse into one notification rather than stacking.
     tag: payload.task_uuid || 'progress-watch',
     data: { url: payload.url || '/' }
   }))

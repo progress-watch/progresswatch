@@ -2,6 +2,7 @@ import '@hotwired/turbo'
 
 import { remember } from './lib/profile'
 
+import AddSpace from './elements/add_space'
 import ClipboardCopy from './elements/clipboard_copy'
 import ForgetSpace from './elements/forget_space'
 import IconInput from './elements/icon_input'
@@ -21,6 +22,7 @@ function safeRegisterElement (name, elementClass) {
   if (!window.customElements.get(name)) window.customElements.define(name, elementClass)
 }
 
+safeRegisterElement('add-space', AddSpace)
 safeRegisterElement('clipboard-copy', ClipboardCopy)
 safeRegisterElement('forget-space', ForgetSpace)
 safeRegisterElement('icon-input', IconInput)

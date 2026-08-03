@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 
-# Web-only, like renaming a space: the browser is the only client that has a push
-# endpoint to register, and an API caller would have nothing to send.
 class SpacePushSubscriptionsController < WebController
-  # head, not the not-found page: only fetch() calls this, and WebController's rescue
-  # renders HTML — the same reason SitemapController answers with a bare status.
+  # head, not the not-found page: only fetch() calls this, and that rescue renders HTML.
   rescue_from ActiveRecord::RecordNotFound do
     head :not_found
   end

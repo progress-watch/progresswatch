@@ -1,13 +1,9 @@
 # frozen_string_literal: true
 
 module PushDelivery
-  # Sends to every browser that opted in on this space. Safe to retry, as the seam
-  # requires: a resend is at worst a duplicate notification, and the service worker
-  # collapses those by task uuid.
   class WebPush
-    # 404 and 410 are the push service saying this endpoint is gone for good — the
-    # browser was reinstalled, or permission was revoked. Keeping the row would mean
-    # failing forever on every completion.
+    # The push service saying this endpoint is gone for good. Keeping the row would mean
+    # failing on every completion from now on.
     GONE = [404, 410].freeze
 
     def call(payload)

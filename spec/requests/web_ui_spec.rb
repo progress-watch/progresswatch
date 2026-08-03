@@ -130,6 +130,16 @@ RSpec.describe 'Web UI' do
     end
   end
 
+  describe 'GET /s/new' do
+    it 'offers both creating a space and adding one that exists' do
+      get new_space_path, headers: { 'Turbo-Frame' => 'modal' }
+
+      expect(response.body).to include('<add-space')
+      expect(response.body).to include('data-action="submit:add-space#open"')
+      expect(response.body).to include(%(action="#{spaces_path}"))
+    end
+  end
+
   describe 'POST /s' do
     it 'creates a space and redirects into its dashboard' do
       expect { post '/s', params: { title: 'Production' } }.to change(Space, :count).by(1)
@@ -170,8 +180,6 @@ RSpec.describe 'Web UI' do
       expect(response.body).not_to include('<dialog')
     end
 
-    # Nothing about a watcher reaches the server unless they ask for it, so the button
-    # is absent entirely when no VAPID keys are configured.
     it 'offers notifications only when push is configured' do
       get space_path(space.uuid)
       expect(response.body).not_to include('<push-toggle')

@@ -28,8 +28,6 @@ RSpec.describe PushDelivery::WebPush do
     expect(JSON.parse(sent.first[:message])).to include('title' => 'Crawl docs', 'url' => "/s/#{space.uuid}")
   end
 
-  # A push service answering 410 means the browser is gone for good. Keeping the row
-  # would fail on every completion from then on, forever.
   it 'drops a registration the push service says is gone' do
     allow(WebPush).to receive(:payload_send).and_raise(gone(410))
 
