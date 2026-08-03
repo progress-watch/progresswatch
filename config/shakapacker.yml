@@ -24,6 +24,9 @@ development:
   compile: true
   compiler_strategy: mtime
   dev_server: false
+  # Without a hash the filename never changes, and a browser serves a stale stylesheet
+  # after every rebuild.
+  useContentHash: true
 
 test:
   <<: *default
