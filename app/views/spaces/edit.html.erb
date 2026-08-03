@@ -1,5 +1,5 @@
 <%= render 'shared/turbo_modal', title: 'Rename space' do %>
-  <%= form_with url: space_path(@space.uuid), method: :patch, class: 'space-y-4', data: { turbo_frame: '_top' } do |f| %>
+  <%= form_with url: space_path(@space.uuid), method: :patch, class: 'flex flex-col gap-4', data: { turbo_frame: '_top' } do |f| %>
     <%= render 'shared/space_fields', f: f, title: @space.title, icon: @space.icon %>
     <%= f.submit 'Save', class: 'btn-primary w-full' %>
   <% end %>

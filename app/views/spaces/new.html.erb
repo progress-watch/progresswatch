@@ -1,5 +1,5 @@
 <%= render 'shared/turbo_modal', title: 'New space' do %>
-  <%= form_with url: spaces_path, method: :post, class: 'space-y-4', data: { turbo_frame: '_top' } do |f| %>
+  <%= form_with url: spaces_path, method: :post, class: 'flex flex-col gap-4', data: { turbo_frame: '_top' } do |f| %>
     <%= render 'shared/space_fields', f: f %>
     <%= f.submit 'Create', class: 'btn-primary w-full' %>
   <% end %>
