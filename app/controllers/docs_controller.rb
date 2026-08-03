@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
-class ConnectController < WebController
+class DocsController < WebController
+  def index; end
+
   def show
     @section = params[:section]
 

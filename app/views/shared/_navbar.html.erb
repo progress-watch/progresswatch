@@ -6,7 +6,7 @@
     <% end %>
     <div class="flex-1"></div>
     <% if ProgressWatch.multitenant? %>
-      <%= link_to 'About', about_path, class: 'btn-ghost hidden px-3 py-1.5 text-sm md:inline-flex' %>
+      <%= link_to 'Docs', docs_path, class: 'btn-ghost hidden px-3 py-1.5 text-sm md:inline-flex' %>
     <% end %>
     <space-backup class="hidden items-center gap-1 md:flex">
       <button type="button" data-action="click:space-backup#export" aria-label="Export spaces" class="btn-ghost px-2 py-1.5" title="Download the spaces this device knows about. It is the only backup there is.">
@@ -32,7 +32,7 @@
       <div class="card absolute right-0 z-10 mt-2 w-56 overflow-hidden p-1 shadow-lg">
         <div class="md:hidden">
           <% if ProgressWatch.multitenant? %>
-            <%= link_to 'About', about_path, class: 'flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600' %>
+            <%= link_to 'Docs', docs_path, class: 'flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600' %>
           <% end %>
           <space-backup class="block">
             <button type="button" data-action="click:space-backup#export" class="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600">

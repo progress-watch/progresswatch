@@ -1,0 +1,19 @@
+<% active = ->(here) { here ? 'bg-zinc-100 text-zinc-900 dark:bg-zinc-600 dark:text-zinc-100' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-600 dark:hover:text-zinc-100' } %>
+<nav class="shrink-0 lg:w-52">
+  <ul class="flex flex-wrap gap-1 lg:flex-col lg:flex-nowrap">
+    <li>
+      <%= link_to docs_path, 'aria-current': ('page' if current == :docs), class: "flex items-center gap-2.5 rounded-lg px-3 py-2 text-base font-medium transition #{active.call(current == :docs)}" do %>
+        <%= svg_icon 'book', class: 'h-4 w-4 shrink-0' %>
+        Get started
+      <% end %>
+    </li>
+    <% ConnectSnippets::SECTIONS.each do |section, config| %>
+      <li>
+        <%= link_to docs_section_path(section, space: local_assigns[:space_uuid]), 'aria-current': ('page' if section == current), class: "flex items-center gap-2.5 rounded-lg px-3 py-2 text-base font-medium transition #{active.call(section == current)}" do %>
+          <%= svg_icon config[:icon], class: 'h-4 w-4 shrink-0' %>
+          <%= config[:title] %>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+</nav>

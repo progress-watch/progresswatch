@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe 'Web UI' do
-  # Indexing, the about page and the sitemap belong to the hosted deployment. Somebody's
+  # Indexing, the docs and the sitemap belong to the hosted deployment. Somebody's
   # own box has no audience to reach, so this is off unless a spec asks for it.
   def hosted!
     allow(ProgressWatch).to receive(:multitenant?).and_return(true)
@@ -33,10 +33,10 @@ RSpec.describe 'Web UI' do
     # thinking about it cannot leak — which is how /s/:uuid/edit leaked its uuid into a
     # canonical URL while the default was the other way round. `/` opts out too: it
     # redirects a browser before it renders anything worth reading.
-    it 'is not indexable, and only /about and the Connect sections are' do
+    it 'is not indexable, and only /docs and the Connect sections are' do
       hosted!
-      indexable = %w[/about /connect/cli /connect/curl /connect/agent /connect/mcp /connect/docker]
-      rest = ['/', '/s/new', "/s/#{create_space.uuid}/edit", "/s/#{create_space.uuid}", '/connect/nonsense']
+      indexable = %w[/docs /docs/cli /docs/curl /docs/agent /docs/mcp /docs/docker]
+      rest = ['/', '/s/new', "/s/#{create_space.uuid}/edit", "/s/#{create_space.uuid}", '/docs/nonsense']
 
       indexable.each do |path|
         get path
@@ -78,15 +78,15 @@ RSpec.describe 'Web UI' do
     end
   end
 
-  describe 'GET /about' do
+  describe 'GET /docs' do
     it 'is the page written to be found, with its own title and description' do
       hosted!
 
-      get '/about'
+      get '/docs'
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include('<title>What Progress Watch is | Progress Watch</title>')
-      expect(response.body).to include('<link rel="canonical" href="http://www.example.com/about">')
+      expect(response.body).to include('<title>Get started | Progress Watch</title>')
+      expect(response.body).to include('<link rel="canonical" href="http://www.example.com/docs">')
       expect(response.body).to include('<meta property="og:title"')
       expect(response.body).not_to include('name="robots"')
     end
@@ -99,18 +99,18 @@ RSpec.describe 'Web UI' do
 
       get '/'
 
-      expect(response.body.scan(%(href="#{about_path}")).size).to eq(2)
+      expect(response.body.scan(%(href="#{docs_path}")).size).to eq(2)
     end
   end
 
   # MULTITENANT is the hosted deployment. Self-hosted is the default, and everything
   # written for a stranger who found us in a search is off there.
   describe 'self-hosted, which is the default' do
-    it 'hides the about page from the navbar and keeps it out of any index' do
+    it 'hides the docs from the navbar and keeps them out of any index' do
       get '/'
-      expect(response.body).not_to include(%(href="#{about_path}"))
+      expect(response.body).not_to include(%(href="#{docs_path}"))
 
-      get '/about'
+      get '/docs'
       expect(response.body).to include('<meta name="robots" content="noindex, nofollow">')
       expect(response.body).not_to include('rel="canonical"')
     end
@@ -242,7 +242,7 @@ RSpec.describe 'Web UI' do
       get '/sitemap.xml'
       locs = response.body.scan(%r{<loc>(.*?)</loc>}).flatten
 
-      expect(locs).to contain_exactly(about_url, *ConnectSnippets::SECTIONS.each_key.map { |s| connect_url(s) })
+      expect(locs).to contain_exactly(docs_url, *ConnectSnippets::SECTIONS.each_key.map { |s| docs_section_url(s) })
 
       locs.each do |loc|
         get URI.parse(loc).path
@@ -383,12 +383,12 @@ RSpec.describe 'Web UI' do
     end
   end
 
-  describe 'GET /connect/:section' do
+  describe 'GET /docs/:section' do
     # Five indexable pages, so five distinct titles and descriptions rather than one
     # default repeated — a duplicate description is the whole set treated as one page.
     it 'gives every section its own title and description' do
       seen = ConnectSnippets::SECTIONS.keys.map do |section|
-        get connect_path(section)
+        get docs_section_path(section)
 
         [response.body[%r{<title>(.*?)</title>}, 1], response.body[/<meta name="description" content="(.*?)"/, 1]]
       end
@@ -401,14 +401,14 @@ RSpec.describe 'Web UI' do
     it 'fills the space uuid into the snippet when one is given' do
       space = create_space
 
-      get connect_path('cli', space: space.uuid)
+      get docs_section_path('cli', space: space.uuid)
 
       expect(response).to have_http_status(:ok)
       expect(response.body).to include(space.uuid)
     end
 
     it 'stops being indexable once a real uuid is in the query' do
-      get connect_path('cli', space: create_space.uuid)
+      get docs_section_path('cli', space: create_space.uuid)
 
       expect(response.body).to include('<meta name="robots" content="noindex, nofollow">')
       expect(response.body).not_to include('rel="canonical"')
@@ -417,7 +417,7 @@ RSpec.describe 'Web UI' do
     # Without a space the snippets still show, with a placeholder a shell can take: an
     # angle bracket is a redirect and would fail on the first line pasted.
     it 'falls back to a shell variable when there is no space' do
-      get connect_path('curl')
+      get docs_section_path('curl')
 
       expect(response).to have_http_status(:ok)
       expect(response.body).to include('curl -X PUT')
@@ -428,7 +428,7 @@ RSpec.describe 'Web UI' do
     # An unknown section is a page that does not exist, and it looks like every other
     # page that does not exist rather than like a routing error.
     it 'renders the not-found page for an unknown section' do
-      get '/connect/nonsense'
+      get '/docs/nonsense'
 
       expect(response).to have_http_status(:not_found)
       expect(response.body).to include('Not found', 'Back to the start')

@@ -14,7 +14,7 @@ RSpec.describe 'Installable to the home screen' do
   end
 
   it 'links the manifest and an apple-touch-icon from every page' do
-    get '/about'
+    get '/docs'
 
     expect(response.body).to include('<link rel="manifest" href="/manifest.json">')
     expect(response.body).to include('<link rel="apple-touch-icon" href="/icons/icon-180.png">')
