@@ -1,4 +1,4 @@
-<header class="sticky top-0 z-20 border-b border-zinc-200 bg-white md:static md:z-auto dark:border-zinc-800 dark:bg-zinc-900">
+<header class="sticky top-0 z-20 border-b border-zinc-200 bg-white md:static md:z-auto dark:border-zinc-600 dark:bg-zinc-800">
   <nav class="mx-auto flex max-w-5xl items-center gap-2 px-4 py-3 md:gap-4">
     <%= link_to root_path, class: 'flex items-center gap-2 font-semibold tracking-tight' do %>
       <span class="flex h-6 w-6 items-center justify-center rounded-md bg-brand-600 text-xs font-bold text-white">P</span>
@@ -32,21 +32,21 @@
       <div class="card absolute right-0 z-10 mt-2 w-56 overflow-hidden p-1 shadow-lg">
         <div class="md:hidden">
           <% if ProgressWatch.multitenant? %>
-            <%= link_to 'About', about_path, class: 'flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800' %>
+            <%= link_to 'About', about_path, class: 'flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600' %>
           <% end %>
           <space-backup class="block">
-            <button type="button" data-action="click:space-backup#export" class="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800">
+            <button type="button" data-action="click:space-backup#export" class="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600">
               <%= svg_icon 'download', class: 'h-4 w-4 shrink-0' %>
               Export spaces
             </button>
-            <label class="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800">
+            <label class="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600">
               <%= svg_icon 'upload', class: 'h-4 w-4 shrink-0' %>
               Import spaces
               <input type="file" accept="application/json" data-action="change:space-backup#import" class="hidden">
             </label>
             <span data-import-error class="block px-3 text-xs text-red-600 dark:text-red-400"></span>
           </space-backup>
-          <div class="my-1 border-t border-zinc-200 dark:border-zinc-800"></div>
+          <div class="my-1 border-t border-zinc-200 dark:border-zinc-600"></div>
         </div>
         <%= render 'shared/connect_links', space_uuid: local_assigns[:space_uuid] %>
       </div>

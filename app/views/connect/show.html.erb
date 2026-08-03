@@ -6,7 +6,7 @@
     <ul class="flex flex-wrap gap-1 lg:flex-col lg:flex-nowrap">
       <% ConnectSnippets::SECTIONS.each do |section, config| %>
         <li>
-          <%= link_to connect_path(section, space: @space_uuid), 'aria-current': ('page' if section == @section), class: "flex items-center gap-2.5 rounded-lg px-3 py-2 text-base transition #{section == @section ? 'bg-zinc-100 font-medium text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'}" do %>
+          <%= link_to connect_path(section, space: @space_uuid), 'aria-current': ('page' if section == @section), class: "flex items-center gap-2.5 rounded-lg px-3 py-2 text-base transition #{section == @section ? 'bg-zinc-100 font-medium text-zinc-900 dark:bg-zinc-700 dark:text-zinc-100' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-600 dark:hover:text-zinc-100'}" do %>
             <%= svg_icon config[:icon], class: 'h-4 w-4 shrink-0' %>
             <%= config[:title] %>
           <% end %>
@@ -17,11 +17,11 @@
   <div class="min-w-0 flex-1">
     <h1 class="text-2xl font-semibold tracking-tight"><%= ConnectSnippets::SECTIONS[@section][:heading] %></h1>
     <% if @space_uuid %>
-      <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+      <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
         Ready to paste, with your space UUID already in it.
       </p>
     <% else %>
-      <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+      <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
         Set <code class="font-mono text-xs"><%= ConnectSnippets::PLACEHOLDER %></code> in your shell first, or
         <%= link_to 'create a space', root_path, class: 'text-brand-600 underline dark:text-brand-400' %>
         and come back through the Connect menu to get it filled in.

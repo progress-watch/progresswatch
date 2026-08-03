@@ -9,16 +9,16 @@
       <h1 class="min-w-0 break-words text-2xl font-semibold tracking-tight">
         <%= @space.title.presence || 'Untitled space' %>
       </h1>
-      <%= link_to edit_space_path(@space.uuid), data: { turbo_frame: 'modal' }, 'aria-label': 'Rename this space', class: 'flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200' do %>
+      <%= link_to edit_space_path(@space.uuid), data: { turbo_frame: 'modal' }, 'aria-label': 'Rename this space', class: 'flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-600 dark:hover:text-zinc-200' do %>
         <%= svg_icon 'pencil', class: 'h-[1.125rem] w-[1.125rem]' %>
       <% end %>
     </div>
     <div class="mt-1 flex items-center gap-2">
       <clipboard-copy class="inline-flex" data-action="click:clipboard-copy#copy" data-text="<%= @space.uuid %>" title="Copy the space UUID">
-        <code class="font-mono text-xs text-zinc-500 transition hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"><%= @space.uuid %></code>
+        <code class="font-mono text-xs text-zinc-500 transition hover:text-zinc-800 dark:text-zinc-300 dark:hover:text-zinc-200"><%= @space.uuid %></code>
       </clipboard-copy>
       <clipboard-copy class="inline-flex" data-action="click:clipboard-copy#copy" data-text="<%= space_url(@space.uuid) %>" title="Copy the link to this space. Whoever has it can read and write here.">
-        <button type="button" tabindex="-1" aria-label="Copy the link to this space" class="rounded-md p-1 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200">
+        <button type="button" tabindex="-1" aria-label="Copy the link to this space" class="rounded-md p-1 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-600 dark:hover:text-zinc-200">
           <%= svg_icon 'share', class: 'h-3.5 w-3.5', data: { copy_mark: true } %>
           <%= svg_icon 'check', class: 'h-3.5 w-3.5 text-emerald-500', data: { copy_check: true } %>
         </button>
@@ -26,7 +26,7 @@
     </div>
   </div>
   <div class="flex items-center gap-3">
-    <span class="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+    <span class="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-300">
       <span class="relative flex h-2 w-2">
         <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
         <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
@@ -48,7 +48,7 @@
       </push-toggle>
     <% end %>
     <forget-space data-uuid="<%= @space.uuid %>" data-title="<%= @space.title %>">
-      <button type="button" data-action="click:forget-space#forgetSpace" class="btn-ghost px-2 py-1 text-xs" title="Removes this space from this browser only. The space and its tasks are untouched — but the UUID is the only way back to it, so copy it first if you might want it.">
+      <button type="button" data-action="click:forget-space#forgetSpace" class="btn-danger px-2 py-1 text-xs" title="Removes this space from this browser only. The space and its tasks are untouched — but the UUID is the only way back to it, so copy it first if you might want it.">
         Forget
       </button>
     </forget-space>
@@ -60,12 +60,12 @@
 </turbo-frame>
 <% if @tasks.empty? %>
   <section class="mt-10">
-    <h2 class="mb-1 text-sm font-medium text-zinc-500 dark:text-zinc-400">Report into this space</h2>
-    <p class="mb-3 text-xs text-zinc-500 dark:text-zinc-400">Nothing has reported into this space yet. Past <%= Spaces::SweepEmpty::EMPTY_FOR.inspect %> old it may be deleted at any time; one task keeps it for good.</p>
+    <h2 class="mb-1 text-sm font-medium text-zinc-500 dark:text-zinc-300">Report into this space</h2>
+    <p class="mb-3 text-xs text-zinc-500 dark:text-zinc-300">Nothing has reported into this space yet. Past <%= Spaces::SweepEmpty::EMPTY_FOR.inspect %> old it may be deleted at any time; one task keeps it for good.</p>
     <tab-panels class="card block overflow-hidden">
-      <div class="flex flex-wrap gap-1 border-b border-zinc-200 p-1 dark:border-zinc-800">
+      <div class="flex flex-wrap gap-1 border-b border-zinc-200 p-1 dark:border-zinc-600">
         <% ConnectSnippets::SECTIONS.each_with_index do |(section, config), index| %>
-          <button type="button" data-action="click:tab-panels#select" data-tab="<%= section %>" aria-selected="<%= index.zero? %>" class="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm text-zinc-600 aria-selected:bg-zinc-100 aria-selected:font-medium aria-selected:text-zinc-900 dark:text-zinc-400 dark:aria-selected:bg-zinc-800 dark:aria-selected:text-zinc-100">
+          <button type="button" data-action="click:tab-panels#select" data-tab="<%= section %>" aria-selected="<%= index.zero? %>" class="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm text-zinc-600 aria-selected:bg-zinc-100 aria-selected:font-medium aria-selected:text-zinc-900 dark:text-zinc-300 dark:aria-selected:bg-zinc-800 dark:aria-selected:text-zinc-100">
             <%= svg_icon config[:icon], class: 'h-4 w-4 shrink-0' %>
             <%= config[:title] %>
           </button>

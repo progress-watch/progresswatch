@@ -3,18 +3,18 @@
     <%= render 'shared/space_fields', f: f %>
     <%= f.submit 'Create', class: 'btn-primary w-full' %>
   <% end %>
-  <div class="my-5 flex items-center gap-3 text-xs text-zinc-400 dark:text-zinc-500">
-    <span class="h-px flex-1 bg-zinc-200 dark:bg-zinc-800"></span>
+  <div class="my-5 flex items-center gap-3 text-xs text-zinc-400 dark:text-zinc-300">
+    <span class="h-px flex-1 bg-zinc-200 dark:bg-zinc-500"></span>
     or add one you already have
-    <span class="h-px flex-1 bg-zinc-200 dark:bg-zinc-800"></span>
+    <span class="h-px flex-1 bg-zinc-200 dark:bg-zinc-500"></span>
   </div>
   <add-space class="block">
     <form data-action="submit:add-space#open" class="flex gap-2">
       <input type="text" inputmode="text" autocomplete="off" spellcheck="false" required placeholder="UUID, or a link to a space" aria-label="Space UUID or link" class="input min-w-0 flex-1 font-mono text-xs">
-      <button type="submit" class="btn-secondary shrink-0 px-3">Add</button>
+      <button type="submit" class="btn-primary shrink-0 px-3">Add</button>
     </form>
   </add-space>
-  <p class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+  <p class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-300">
     Opening a space is what records it in this browser. A full link works too, including one on another server.
   </p>
 <% end %>

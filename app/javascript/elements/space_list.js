@@ -78,7 +78,7 @@ export default class extends HTMLElement {
 
     node.querySelector('[data-link]').href = `/s/${encodeURIComponent(space.uuid)}`
     node.querySelector('[data-title]').textContent = title
-    node.querySelector('[data-meta]').textContent = `${hostOf(space.server)} · ${openedAgo(space.last_opened_at)}`
+    node.querySelector('[data-meta]').textContent = openedAgo(space.last_opened_at)
     node.querySelector('[data-share]').dataset.text = linkTo(space)
 
     const icon = node.querySelector('[data-icon]')
@@ -94,14 +94,6 @@ export default class extends HTMLElement {
 
   clone (name) {
     return this.templates[name].content.cloneNode(true)
-  }
-}
-
-function hostOf (server) {
-  try {
-    return new URL(server).host
-  } catch {
-    return server || 'unknown server'
   }
 }
 
