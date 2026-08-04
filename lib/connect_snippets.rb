@@ -106,8 +106,12 @@ module ConnectSnippets
       icon: 'terminal',
       steps: [
         { label: 'Install it.', body: 'npm install -g progresswatch' },
+        { label: 'Point it at this server first. Saved to ~/.progresswatchrc, so this is a one-off.',
+          body: 'progresswatch configure --server {{server}}', only: :self_hosted },
+        { label: 'Create a space. It becomes the default, so nothing else needs configuring.',
+          body: 'progresswatch space new "My work"', only: :without_space },
         { label: 'Point it at this space. Saved to ~/.progresswatchrc, so this is a one-off.',
-          body: 'progresswatch space use {{space}} --server {{server}}' },
+          body: 'progresswatch space use {{space}}', only: :with_space },
         { label: 'Wrap anything. It reports start and finish, and pushes when it is done.',
           body: 'progresswatch run "python train.py"' },
         { label: 'Or report by hand.', body: 'TASK=$(progresswatch new "Crawl docs")' },
@@ -125,6 +129,10 @@ module ConnectSnippets
       title: 'curl',
       icon: 'globe',
       steps: [
+        { label: 'Create a space, keep its uuid. Whoever has it can read and write here.',
+          body: 'SPACE_UUID=$(curl -s -X POST {{server}}/spaces ' \
+                "-H 'Content-Type: application/json' -d '{\"title\": \"My work\"}' | jq -r .uuid)",
+          only: :without_space },
         { label: 'Create a task, keep its uuid.',
           body: 'TASK=$(curl -s -X POST {{server}}/spaces/{{space}}/tasks ' \
                 "-H 'Content-Type: application/json' -d '{\"title\": \"Crawl docs\"}' | jq -r .uuid)" },
@@ -186,13 +194,20 @@ module ConnectSnippets
 
   module_function
 
-  def call(section, base_url:, space_uuid: PLACEHOLDER)
-    SECTIONS.fetch(section)[:steps].map do |step|
-      step.transform_values { |value| fill(value, base_url, space_uuid) }
-    end
+  # A step may be marked for one kind of reader and is dropped for the others. Two axes:
+  # where they are — progress.watch is the CLI's default server, so configuring one is
+  # noise there and unskippable on somebody's own box — and whether they already have a
+  # space, because a page reached without one has to show how to make it rather than
+  # assume it.
+  def call(section, base_url:, space_uuid: nil, hosted: ProgressWatch.multitenant?)
+    here = [hosted ? :hosted : :self_hosted, space_uuid ? :with_space : :without_space]
+
+    SECTIONS.fetch(section)[:steps]
+            .select { |step| step[:only].nil? || here.include?(step[:only]) }
+            .map { |step| step.except(:only).transform_values { |value| fill(value, base_url, space_uuid) } }
   end
 
   def fill(value, base_url, space_uuid)
-    value&.gsub('{{server}}', base_url)&.gsub('{{space}}', space_uuid)
+    value&.gsub('{{server}}', base_url)&.gsub('{{space}}', space_uuid || PLACEHOLDER)
   end
 end

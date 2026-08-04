@@ -91,9 +91,9 @@ RSpec.describe 'Web UI' do
       expect(response.body).not_to include('name="robots"')
     end
 
-    # Twice: the row that shows from sm up, and the menu it folds into below that. The
-    # link went missing from the mobile one once, because both halves render the same
-    # Connect partial and a blind edit landed in the wrong one.
+    # Twice: the row that shows from md up, and the menu it folds into below that. The
+    # link went missing from the mobile one once, because both halves are edited
+    # separately and a blind edit landed in the wrong one.
     it 'is reachable from both navbars, so it is not only in the sitemap' do
       hosted!
 
@@ -106,9 +106,12 @@ RSpec.describe 'Web UI' do
   # MULTITENANT is the hosted deployment. Self-hosted is the default, and everything
   # written for a stranger who found us in a search is off there.
   describe 'self-hosted, which is the default' do
-    it 'hides the docs from the navbar and keeps them out of any index' do
+    # The docs are how somebody sets up their own box, so they are linked here too. What
+    # stays behind the flag is being found from outside: a private instance has no
+    # audience to reach.
+    it 'links the docs but keeps them out of any index' do
       get '/'
-      expect(response.body).not_to include(%(href="#{docs_path}"))
+      expect(response.body).to include(%(href="#{docs_path}"))
 
       get '/docs'
       expect(response.body).to include('<meta name="robots" content="noindex, nofollow">')
@@ -193,6 +196,15 @@ RSpec.describe 'Web UI' do
       # Not "off": the server cannot know whether this browser is subscribed, and
       # guessing makes the label flip a moment after it renders.
       expect(response.body).to include('data-state="unknown"')
+    end
+
+    # The snippet block below disappears once anything has reported, so without this the
+    # only way back to the commands is a dropdown in the chrome that says nothing about
+    # this space.
+    it 'links to its own connect instructions, uuid already filled in' do
+      get space_path(space.uuid)
+
+      expect(response.body).to include(%(href="#{docs_section_path('cli', space: space.uuid)}"))
     end
 
     it 'offers the space link for copying, not just the uuid' do
@@ -383,6 +395,52 @@ RSpec.describe 'Web UI' do
 
       expect(response.body.scan(/(?:Running|Done) (?:first|second)/))
         .to eq(['Running second', 'Running first', 'Done second', 'Done first'])
+    end
+  end
+
+  # progress.watch is the CLI's default server, so instructions for pointing at one are
+  # noise there and the thing a self-hoster cannot skip on their own box.
+  describe 'GET /docs/cli, on each kind of deployment' do
+    it 'omits configure on the hosted site' do
+      hosted!
+
+      get docs_section_path('cli')
+
+      expect(response.body).to include('progresswatch space new')
+      expect(response.body).not_to include('progresswatch configure')
+    end
+
+    it 'teaches configure everywhere else, naming this host' do
+      get docs_section_path('cli')
+
+      expect(response.body).to include('progresswatch configure --server http://www.example.com')
+    end
+  end
+
+  # A reader arriving without a space has nothing to point the CLI at, and the page used
+  # to hand them `space use <uuid>` for a uuid they do not have.
+  describe 'GET /docs, for a reader with no space yet' do
+    it 'shows how to create one instead of assuming it' do
+      get docs_section_path('cli')
+
+      expect(response.body).to include('progresswatch space new')
+      expect(response.body).not_to include('progresswatch space use')
+    end
+
+    it 'creates one with curl too, into the variable the rest of the section uses' do
+      get docs_section_path('curl')
+
+      expect(response.body).to include('SPACE_UUID=$(curl -s -X POST')
+      expect(response.body).to include('/spaces/$SPACE_UUID/tasks')
+    end
+
+    it 'switches to the space it was given once there is one' do
+      space = create_space
+
+      get docs_section_path('cli', space: space.uuid)
+
+      expect(response.body).to include("progresswatch space use #{space.uuid}")
+      expect(response.body).not_to include('progresswatch space new')
     end
   end
 

@@ -1,13 +1,11 @@
 <header class="sticky top-0 z-20 border-b border-zinc-200 bg-white md:static md:z-auto dark:border-zinc-600 dark:bg-zinc-800">
-  <nav class="mx-auto flex max-w-5xl items-center gap-2 px-4 py-3 md:gap-4">
+  <nav class="mx-auto flex max-w-5xl items-center gap-1.5 px-4 py-3 md:gap-2">
     <%= link_to root_path, class: 'flex items-center gap-2 font-semibold tracking-tight' do %>
-      <span class="flex h-6 w-6 items-center justify-center rounded-md bg-brand-600 text-xs font-bold text-white">P</span>
+      <%= svg_icon 'logo', class: 'h-6 w-6' %>
       <span>Progress Watch</span>
     <% end %>
     <div class="flex-1"></div>
-    <% if ProgressWatch.multitenant? %>
-      <%= link_to 'Docs', docs_path, class: 'btn-ghost hidden px-3 py-1.5 text-sm md:inline-flex' %>
-    <% end %>
+    <%= link_to 'Docs', docs_path, class: 'btn-ghost hidden px-2 py-1.5 text-sm md:inline-flex' %>
     <space-backup class="hidden items-center gap-1 md:flex">
       <button type="button" data-action="click:space-backup#export" aria-label="Export spaces" class="btn-ghost px-2 py-1.5" title="Download the spaces this device knows about. It is the only backup there is.">
         <%= svg_icon 'download', class: 'h-4 w-4' %>
@@ -20,35 +18,30 @@
       <span data-import-error class="text-xs text-red-600 dark:text-red-400"></span>
     </space-backup>
     <%= link_to new_space_path, data: { turbo_frame: 'modal' }, 'aria-label': 'New space', class: 'btn-primary px-2 py-1.5 text-sm md:px-3' do %>
-      <%= svg_icon 'plus', class: 'h-3.5 w-3.5' %>
+      <%= svg_icon 'plus', class: 'h-4 w-4' %>
       <span class="hidden md:inline">New space</span>
     <% end %>
-    <details class="relative" data-connect-menu>
-      <summary class="btn-secondary list-none px-2 py-1.5 text-sm md:px-3">
-        <%= svg_icon 'menu', class: 'h-4 w-4 md:hidden' %>
-        <span class="hidden md:inline">Connect</span>
-        <%= svg_icon 'chevron_down', class: 'hidden h-3 w-3 md:block' %>
+    <details class="relative md:hidden">
+      <summary class="btn-secondary list-none px-2 py-1.5 text-sm" aria-label="Menu">
+        <%= svg_icon 'menu', class: 'h-4 w-4' %>
       </summary>
       <div class="card absolute right-0 z-10 mt-2 w-56 overflow-hidden p-1 shadow-lg">
-        <div class="md:hidden">
-          <% if ProgressWatch.multitenant? %>
-            <%= link_to 'Docs', docs_path, class: 'flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600' %>
-          <% end %>
-          <space-backup class="block">
-            <button type="button" data-action="click:space-backup#export" class="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600">
-              <%= svg_icon 'download', class: 'h-4 w-4 shrink-0' %>
-              Export spaces
-            </button>
-            <label class="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600">
-              <%= svg_icon 'upload', class: 'h-4 w-4 shrink-0' %>
-              Import spaces
-              <input type="file" accept="application/json" data-action="change:space-backup#import" class="hidden">
-            </label>
-            <span data-import-error class="block px-3 text-xs text-red-600 dark:text-red-400"></span>
-          </space-backup>
-          <div class="my-1 border-t border-zinc-200 dark:border-zinc-600"></div>
-        </div>
-        <%= render 'shared/connect_links', space_uuid: local_assigns[:space_uuid] %>
+        <%= link_to docs_path, class: 'flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600' do %>
+          <%= svg_icon 'book', class: 'h-4 w-4 shrink-0' %>
+          Documentation
+        <% end %>
+        <space-backup class="block">
+          <button type="button" data-action="click:space-backup#export" class="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600">
+            <%= svg_icon 'download', class: 'h-4 w-4 shrink-0' %>
+            Export spaces
+          </button>
+          <label class="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600">
+            <%= svg_icon 'upload', class: 'h-4 w-4 shrink-0' %>
+            Import spaces
+            <input type="file" accept="application/json" data-action="change:space-backup#import" class="hidden">
+          </label>
+          <span data-import-error class="block px-3 text-xs text-red-600 dark:text-red-400"></span>
+        </space-backup>
       </div>
     </details>
   </nav>

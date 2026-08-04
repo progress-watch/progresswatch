@@ -11,13 +11,11 @@
       </p>
     <% else %>
       <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
-        Set <code class="font-mono text-xs"><%= ConnectSnippets::PLACEHOLDER %></code> in your shell first, or
-        <%= link_to 'create a space', root_path, class: 'text-brand-600 underline dark:text-brand-400' %>
-        and come back through the Connect menu to get it filled in.
+        These create a space and report into it. Already have one? Open it and come back through the Connect menu, and its UUID is filled in for you.
       </p>
     <% end %>
     <div class="mt-6">
-      <%= render 'shared/snippet', steps: ConnectSnippets.call(@section, base_url: request.base_url, space_uuid: @snippet_uuid) %>
+      <%= render 'shared/snippet', steps: ConnectSnippets.call(@section, base_url: request.base_url, space_uuid: @space_uuid) %>
     </div>
   </div>
 </div>
