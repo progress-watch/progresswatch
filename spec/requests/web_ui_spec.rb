@@ -190,6 +190,9 @@ RSpec.describe 'Web UI' do
       get space_path(space.uuid)
       expect(response.body).to include('<push-toggle')
       expect(response.body).to include('data-key="public"')
+      # Not "off": the server cannot know whether this browser is subscribed, and
+      # guessing makes the label flip a moment after it renders.
+      expect(response.body).to include('data-state="unknown"')
     end
 
     it 'offers the space link for copying, not just the uuid' do

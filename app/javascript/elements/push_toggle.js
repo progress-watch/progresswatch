@@ -6,6 +6,11 @@ export default class extends HTMLElement {
 
     if (!this.supported) return this.setAttribute('data-state', 'unsupported')
 
+    // Rendering "Notify me" before the subscription is known makes it flip to "Notifying"
+    // a moment later for everyone already subscribed. Permission answers synchronously
+    // and rules that out: anything but granted means not subscribed.
+    if (Notification.permission !== 'granted') this.setAttribute('data-state', 'off')
+
     this.registration = await navigator.serviceWorker.register('/sw.js')
     this.render(await this.registration.pushManager.getSubscription())
   }
