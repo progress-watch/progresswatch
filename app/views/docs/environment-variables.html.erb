@@ -1,0 +1,44 @@
+<%= markdown do %>
+Everything is an environment variable. There are no config files to edit and no encrypted credentials baked into the image, so the same container runs on a home NAS and in the cloud.
+
+## General
+
+| Variable | Default | What it does |
+|---|---|---|
+| `SECRET_KEY_BASE` | — | The only variable that is required in production. Generate one with `openssl rand -hex 64` and keep it. |
+| `DATABASE_URL` | `sqlite3:storage/production.sqlite3` | Where spaces and task structure live. The default file is what the Docker volume holds; point it at `postgresql://…` for a cloud deployment. Progress itself is never written here. |
+| `FORCE_SSL` | `false` | Set `true` when something in front terminates TLS. It also drives `assume_ssl`, so leaving it off keeps the app usable over plain HTTP instead of redirecting to a certificate you do not have. |
+| `PORT` | `3000` | The port Puma binds inside the container. `docker-compose.yml` publishes it on 7979, because a service you leave running for weeks should not hold the port your own dev servers want. |
+| `RAILS_LOG_LEVEL` | `info` | Logs go to stdout and nowhere else. This is how much of them. |
+
+## Redis
+
+Redis holds two unrelated things: the current progress of every task, and the Sidekiq queue. They are two logical databases of one server by default, and either can be moved to its own instance.
+
+| Variable | Default | What it does |
+|---|---|---|
+| `REDIS_URL` | `redis://localhost:6379` | The server used for both roles, split into db 0 for progress and db 1 for the queue. |
+| `PROGRESS_REDIS_URL` | `REDIS_URL`, db 0 | Overrides the progress store alone. |
+| `SIDEKIQ_REDIS_URL` | `REDIS_URL`, db 1 | Overrides the queue alone. |
+| `PROGRESS_TTL_SECONDS` | `86400` | How long a task keeps its progress without being written to. Every report refreshes it, so this is really how long an abandoned task stays on screen. |
+| `PROGRESS_KEY_PREFIX` | `pw:progress` | Key prefix for the progress store, so it can share a database with something else. |
+
+## Notifications
+
+Both keys unset means the feature does not exist: no button on a space, and nothing stored about anyone. There is nothing to register with Apple or Google — whoever made the browser runs the push service. Generate a pair once and do not rotate it; existing subscriptions are bound to it and browsers are not told.
+
+| Variable | Default | What it does |
+|---|---|---|
+| `VAPID_PUBLIC_KEY` | — | Public half of the pair that signs every push. Handed to the browser when it subscribes. |
+| `VAPID_PRIVATE_KEY` | — | Private half. Never leaves the server. |
+| `VAPID_SUBJECT` | `mailto:hello@progress.watch` | A contact address the push services can reach if something goes wrong. Nobody verifies it. |
+| `PUSH_CONTENT` | `full` | `full` puts the task title in the notification, `minimal` sends "Task completed" and nothing identifying. |
+
+## Process sizing
+
+| Variable | Default | What it does |
+|---|---|---|
+| `RAILS_MAX_THREADS` | `5` | Puma threads per process, and the size of both the database and the Redis connection pool. |
+| `WEB_CONCURRENCY` | `0` | Puma worker processes. Zero runs a single process, which is the right answer on a small box. |
+| `SIDEKIQ_CONCURRENCY` | `5` | Threads in the Sidekiq process. Sending notifications is the only job there is. |
+<% end %>

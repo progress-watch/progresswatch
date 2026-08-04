@@ -24,4 +24,10 @@
     <loc><%= docs_section_url('docker') %></loc>
     <lastmod>2026-08-02</lastmod>
   </url>
+  <% Docs::DOCUMENTS.each do |doc| %>
+    <url>
+      <loc><%= docs_section_url(doc[:slug]) %></loc>
+      <lastmod><%= doc[:date] %></lastmod>
+    </url>
+  <% end %>
 </urlset>

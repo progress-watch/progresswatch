@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <%= render 'shared/meta' %>
-    <% if content_for?(:indexable) && ProgressWatch.multitenant? %>
+    <% if indexable? %>
       <link rel="canonical" href="<%= request.base_url %><%= request.path %>">
     <% else %>
       <meta name="robots" content="noindex, nofollow">

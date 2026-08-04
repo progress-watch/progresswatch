@@ -187,7 +187,9 @@ module ConnectSnippets
                  'losing it costs you nothing but the space list.', body: COMPOSE },
         { label: 'Start it.', body: 'docker compose up -d' },
         { label: 'Then point the CLI at it. This page is served from {{server}}.',
-          body: 'export PROGRESSWATCH_SERVER="http://localhost:7979"' }
+          body: 'export PROGRESSWATCH_SERVER="http://localhost:7979"' },
+        { label: 'That is a working server. Notifications, Postgres and the rest are environment variables — ' \
+                 'see Environment variables in the sidebar.' }
       ]
     }
   }.freeze

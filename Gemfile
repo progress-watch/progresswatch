@@ -22,6 +22,9 @@ gem 'shakapacker'
 # Web Push. Pure Ruby, and the only way to notify anyone before the mobile app exists.
 gem 'web-push'
 
+# Docs pages are written as markdown inside their template rather than as markup.
+gem 'kramdown'
+
 # The only AWS dependency, and dormant unless AWS_SECRET_MANAGER_ID is set. See
 # config/aws_secrets.rb for why the rule about no AWS in the application is broken here.
 gem 'aws-sdk-secretsmanager', require: false

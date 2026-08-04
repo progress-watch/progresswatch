@@ -8,6 +8,21 @@ class WebController < ActionController::Base
 
   helper_method :turbo_frame_request?, :svg_icon
 
+  # Real view helpers and not helper_method: capture and content_for both work against
+  # the state of the view that is rendering, and helper_method runs on the controller.
+  helper do
+    def markdown(&)
+      Kramdown::Document.new(capture(&)).to_html.html_safe # rubocop:disable Rails/OutputSafety
+    end
+
+    # A page opting in is half of it: nothing on a self-hosted box is meant to be found
+    # from outside, so the flag is checked here rather than at each of the places that
+    # emit something only an indexable page should have.
+    def indexable?
+      content_for?(:indexable) && ProgressWatch.multitenant?
+    end
+  end
+
   rescue_from ActiveRecord::RecordNotFound do
     not_found(
       heading: 'No such space',

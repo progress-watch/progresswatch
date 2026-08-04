@@ -5,8 +5,9 @@ class DocsController < WebController
 
   def show
     @section = params[:section]
+    @doc = Docs::DOCUMENTS.find { |doc| doc[:slug] == @section }
 
-    return not_found unless ConnectSnippets::SECTIONS.key?(@section)
+    return not_found unless @doc || ConnectSnippets::SECTIONS.key?(@section)
 
     @space_uuid = params[:space].presence
   end
