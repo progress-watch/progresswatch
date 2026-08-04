@@ -4,9 +4,10 @@ require 'rails_helper'
 
 RSpec.describe PushDelivery::WebPush do
   let(:space) { create_space }
+  let(:root) { SecureRandom.uuid }
   let(:payload) do
-    { space_uuid: space.uuid, task_uuid: SecureRandom.uuid, title: 'Crawl docs',
-      body: 'Crawl docs completed', duration: 12 }
+    { space_uuid: space.uuid, task_uuid: root, root_uuid: root, tag: root, renotify: true,
+      title: 'Crawl docs', body: 'Crawl docs completed', duration: 12 }
   end
 
   before do
@@ -25,7 +26,8 @@ RSpec.describe PushDelivery::WebPush do
 
     expect(sent.size).to eq(1)
     expect(sent.first[:endpoint]).to eq('https://push.example.com/a')
-    expect(JSON.parse(sent.first[:message])).to include('title' => 'Crawl docs', 'url' => "/s/#{space.uuid}")
+    expect(JSON.parse(sent.first[:message]))
+      .to include('title' => 'Crawl docs', 'url' => "/s/#{space.uuid}", 'tag' => root, 'renotify' => true)
   end
 
   it 'drops a registration the push service says is gone' do

@@ -15,12 +15,16 @@ module PushDelivery
 
   module_function
 
-  def deliver(space_uuid:, task_uuid:, title:, duration:)
+  def deliver(space_uuid:, task_uuid:, root_uuid:, title:, duration:)
     minimal = CONTENT_MODE == 'minimal'
 
     backend.call(
       space_uuid:,
       task_uuid:,
+      # Steps of one job share a tag, so the phone shows one line that updates instead of
+      # a stack. The job's own completion is the last to arrive and re-alerts.
+      tag: root_uuid,
+      renotify: task_uuid == root_uuid,
       duration:,
       title: minimal ? nil : title,
       body: minimal ? 'Task completed' : "#{title.presence || 'Task'} completed"

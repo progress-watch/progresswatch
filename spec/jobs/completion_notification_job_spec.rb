@@ -18,6 +18,28 @@ RSpec.describe CompletionNotificationJob do
     expect(deliveries.first).to include(task_uuid: task.uuid, title: 'Nightly backup')
   end
 
+  # One job, one line on the phone: steps share the root's tag so each replaces the last
+  # rather than stacking, and only the job's own completion re-alerts.
+  it 'tags a step with its parent, and names both' do
+    space = create_space
+    parent = create_task(space, title: 'Deploy')
+    step = create_task(space, title: 'Build', parent_uuid: parent.uuid)
+
+    described_class.perform_now(step.uuid)
+    described_class.perform_now(parent.uuid)
+
+    expect(deliveries.first).to include(tag: parent.uuid, renotify: false, title: 'Deploy — Build')
+    expect(deliveries.last).to include(tag: parent.uuid, renotify: true, title: 'Deploy')
+  end
+
+  it 'tags a task with no parent as itself' do
+    task = create_task(create_space, title: 'Standalone')
+
+    described_class.perform_now(task.uuid)
+
+    expect(deliveries.first).to include(tag: task.uuid, renotify: true)
+  end
+
   it 'does nothing for a task that has since been deleted' do
     expect { described_class.perform_now(SecureRandom.uuid) }.not_to raise_error
     expect(deliveries).to be_empty

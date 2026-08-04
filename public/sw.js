@@ -5,7 +5,8 @@ self.addEventListener('push', (event) => {
     body: payload.body || '',
     icon: '/icons/icon-192.png',
     badge: '/icons/icon-192.png',
-    tag: payload.task_uuid || 'progress-watch',
+    tag: payload.tag || 'progress-watch',
+    renotify: Boolean(payload.renotify),
     data: { url: payload.url || '/' }
   }))
 })

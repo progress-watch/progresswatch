@@ -40,7 +40,8 @@ module PushDelivery
       {
         title: payload[:title].presence || 'Progress Watch',
         body: payload.fetch(:body),
-        task_uuid: payload[:task_uuid],
+        tag: payload[:tag],
+        renotify: payload[:renotify],
         url: "/s/#{payload.fetch(:space_uuid)}"
       }
     end
