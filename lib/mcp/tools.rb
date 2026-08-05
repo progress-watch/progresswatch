@@ -200,7 +200,7 @@ module Mcp
     def complete_task(arguments)
       task = Task.find(arguments['task_uuid'])
 
-      Tasks::Report.call(task, current: 1, end_value: 1, values: arguments['values'], done: true)
+      Tasks::Report.call(task, values: arguments['values'], done: true)
 
       text('Task marked done. The user has been notified.')
     end

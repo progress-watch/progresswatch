@@ -143,4 +143,33 @@ RSpec.describe 'Task state' do
       expect(json['progress']).to be_nil
     end
   end
+
+  describe 'a finished task is complete however it was closed' do
+    it 'reports a full ratio for a done with no numbers' do
+      put_json "/tasks/#{task.uuid}", { done: true }
+
+      expect(json['progress']).to include('current' => nil, 'end' => nil, 'ratio' => 1.0)
+    end
+
+    it 'leaves the counts alone rather than inventing one of one' do
+      put_json "/tasks/#{task.uuid}", { current: 3, end: 10, done: true }
+
+      expect(json['progress']).to include('current' => 3, 'end' => 10, 'ratio' => 1.0)
+    end
+
+    it 'stays complete after Redis expires' do
+      put_json "/tasks/#{task.uuid}", { done: true }
+      ProgressWatch::PROGRESS_REDIS.with(&:flushdb)
+
+      get "/tasks/#{task.uuid}"
+
+      expect(json['progress']).to include('ratio' => 1.0)
+    end
+
+    it 'still says nothing about an unfinished task that has not reported' do
+      get "/tasks/#{task.uuid}"
+
+      expect(json['progress']).to be_nil
+    end
+  end
 end

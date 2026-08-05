@@ -363,8 +363,9 @@ module OpenApi
           },
           'Progress' => {
             'type' => %w[object null],
-            'description' => 'Live state, held in memory and expired on inactivity. Null means the task exists ' \
-                             'but has never reported, which is not the same as reporting zero.',
+            'description' => 'Live state, held in memory and expired on inactivity. Null means the task is ' \
+                             'unfinished and has never reported, which is not the same as reporting zero. ' \
+                             'A finished task always has an object, whether or not it ever reported.',
             'properties' => {
               'current' => { 'type' => %w[number null] },
               'end' => { 'type' => %w[number null] },
@@ -372,7 +373,8 @@ module OpenApi
                 'type' => %w[number null],
                 'minimum' => 0,
                 'maximum' => 1,
-                'description' => 'Null when `end` is zero or missing: an unknown denominator, not zero progress.'
+                'description' => '1 once the task is finished, whatever the counts say. Otherwise null when ' \
+                                 '`end` is zero or missing: an unknown denominator, not zero progress.'
               },
               'values' => {
                 'type' => 'object',

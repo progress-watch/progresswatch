@@ -4,7 +4,12 @@ require 'rails_helper'
 
 RSpec.describe Tasks::PrepareForDashboard do
   def task(title, finished: false, children: [])
-    { 'title' => title, 'finished_at' => (finished ? '2026-08-02T00:00:00Z' : nil), 'children' => children }
+    {
+      'title' => title,
+      'created_at' => Time.current.iso8601,
+      'finished_at' => (finished ? '2026-08-02T00:00:00Z' : nil),
+      'children' => children
+    }
   end
 
   it 'puts active first and newest first within each group, at both levels' do
@@ -27,18 +32,30 @@ RSpec.describe Tasks::PrepareForDashboard do
   end
 
   it 'copes with a task that has no children key' do
-    expect { described_class.call([{ 'title' => 'x', 'finished_at' => nil }]) }.not_to raise_error
+    expect do
+      described_class.call([{ 'title' => 'x', 'created_at' => Time.current.iso8601, 'finished_at' => nil }])
+    end.not_to raise_error
   end
 
   describe 'the labels a template would otherwise compute' do
     def prepared(attrs)
-      described_class.call([{ 'finished_at' => nil, 'children' => [] }.merge(attrs)]).first
+      base = { 'created_at' => Time.current.iso8601, 'finished_at' => nil, 'children' => [] }
+      described_class.call([base.merge(attrs)]).first
     end
 
-    it 'reads a duration in the largest unit that fits' do
+    def reported(ago)
+      { 'progress' => { 'updated_at' => ago.ago.iso8601 } }
+    end
+
+    # iso8601 drops the fraction, so an unfrozen clock turns 20 seconds into 21.
+    around { |example| freeze_time { example.run } }
+
+    it 'reads a duration in the largest unit that fits, dropping a zero tail' do
       expect(prepared('finished_at' => 'x', 'duration' => 45)['finished_label']).to eq('finished in 45s')
       expect(prepared('finished_at' => 'x', 'duration' => 391)['finished_label']).to eq('finished in 6m 31s')
       expect(prepared('finished_at' => 'x', 'duration' => 7_530)['finished_label']).to eq('finished in 2h 5m')
+      expect(prepared('finished_at' => 'x', 'duration' => 120)['finished_label']).to eq('finished in 2m')
+      expect(prepared('finished_at' => 'x', 'duration' => 7_200)['finished_label']).to eq('finished in 2h')
     end
 
     it 'says finished with no duration, and nothing at all while running' do
@@ -54,6 +71,25 @@ RSpec.describe Tasks::PrepareForDashboard do
       expect(prepared('progress' => { 'current' => 1200, 'end' => 50_000 })['counts_label']).to eq('1200/50000')
       expect(prepared('progress' => { 'current' => 42, 'end' => nil })['counts_label']).to eq('42')
       expect(prepared('progress' => nil)['counts_label']).to be_nil
+    end
+
+    it 'says how long a task has waited, however briefly' do
+      expect(prepared('created_at' => 20.seconds.ago.iso8601)['idle_label']).to eq('waiting 20s')
+      expect(prepared('created_at' => 3.hours.ago.iso8601)['idle_label']).to eq('waiting 3h')
+    end
+
+    it 'calls a task idle only once it has been quiet long enough' do
+      expect(prepared(reported(9.minutes))['idle_label']).to be_nil
+      expect(prepared(reported(2.hours))['idle_label']).to eq('idle 2h')
+    end
+
+    it 'says nothing about a task that has finished, however long ago it reported' do
+      expect(prepared(reported(2.hours).merge('finished_at' => 'x'))['idle_label']).to be_nil
+    end
+
+    it 'falls back to creation for an aggregate that has heard nothing' do
+      expect(prepared('progress' => { 'updated_at' => nil, 'aggregated' => true },
+                      'created_at' => 40.minutes.ago.iso8601)['idle_label']).to eq('waiting 40m')
     end
   end
 end

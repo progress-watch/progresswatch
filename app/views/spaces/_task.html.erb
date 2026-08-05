@@ -11,8 +11,8 @@
       <span class="badge bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
         <%= task['finished_label'] %>
       </span>
-    <% elsif progress.nil? %>
-      <span class="badge bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">waiting</span>
+    <% elsif task['idle_label'] %>
+      <span class="badge bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"><%= task['idle_label'] %></span>
     <% else %>
       <span class="badge bg-brand-100 text-brand-800 dark:bg-brand-900/40 dark:text-brand-300">running</span>
     <% end %>

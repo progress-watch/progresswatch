@@ -132,6 +132,17 @@ RSpec.describe 'Web UI' do
       expect(response.body).to include('Disallow: /')
       expect(response.body).not_to include('Sitemap:')
     end
+
+    # Nothing schedules the sweep, so on somebody's own box this is a promise about an
+    # operator's cron rather than about the software.
+    it 'promises nothing about deleting an empty space' do
+      space = create_space
+
+      get "/s/#{space.uuid}"
+
+      expect(response.body).to include('Report into this space')
+      expect(response.body).not_to include('may be deleted')
+    end
   end
 
   describe 'GET /s/new' do
@@ -224,6 +235,14 @@ RSpec.describe 'Web UI' do
 
       get space_path(space.uuid)
       expect(response.body).not_to include('Report into this space')
+    end
+
+    it 'warns the hosted deployment that an empty space is swept' do
+      hosted!
+
+      get space_path(space.uuid)
+
+      expect(response.body).to include('may be deleted at any time')
     end
 
     # A mistyped UUID and a real one must look the same from outside. There is no

@@ -2,6 +2,15 @@
 
 module Tasks
   module SerializeForApi
+    FINISHED_WITHOUT_STATE = {
+      'current' => nil,
+      'end' => nil,
+      'ratio' => nil,
+      'values' => {},
+      'updated_at' => nil,
+      'aggregated' => false
+    }.freeze
+
     module_function
 
     def call(task)
@@ -29,7 +38,7 @@ module Tasks
     end
 
     def progress(task, children, states)
-      return states[task.uuid]&.as_json if children.empty?
+      return leaf(task, states[task.uuid]) if children.empty?
 
       own = states[task.uuid]
       ratios = children.map { |child| child_ratio(child, states[child.uuid]) }
@@ -43,6 +52,13 @@ module Tasks
         'updated_at' => updates.compact.max,
         'aggregated' => true
       }
+    end
+
+    # Only the ratio: a count that was never sent is not a count of one.
+    def leaf(task, state)
+      return state&.as_json unless task.finished_at?
+
+      (state&.as_json || FINISHED_WITHOUT_STATE).merge('ratio' => 1.0)
     end
 
     # finished_at? wins over the stored state because Redis may have expired since,

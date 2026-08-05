@@ -142,6 +142,16 @@ RSpec.describe 'MCP' do
       expect(task.reload.finished_at).to be_present
     end
 
+    it 'invents no numbers, and reads as complete anyway' do
+      task = create_task(space, title: 'Crawl')
+      call_tool('update_task', { task_uuid: task.uuid, current: 7, end: 10 })
+
+      call_tool('complete_task', { task_uuid: task.uuid })
+
+      expect(TaskStates.read(task.uuid).current).to be_nil
+      expect(Tasks::SerializeForApi.call(task.reload)['progress']).to include('ratio' => 1.0)
+    end
+
     it 'creates a child task under a parent' do
       parent = create_task(space, title: 'Deploy')
 
