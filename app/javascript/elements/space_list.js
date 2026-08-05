@@ -1,5 +1,6 @@
 import { bind } from '@github/catalyst/lib/bind'
 import { read, forget } from '../lib/profile'
+import { disable } from '../lib/push'
 
 // The list lives in localStorage and nowhere else — without accounts the server has no
 // idea which spaces are yours, and telling it would put that in its request log. So the
@@ -15,11 +16,12 @@ export default class extends HTMLElement {
     this.render({ arriving: true })
   }
 
-  forgetSpace (event) {
+  async forgetSpace (event) {
     const button = event.currentTarget
 
     if (!this.confirmed(button.dataset.forgetTitle)) return
 
+    await disable(button.dataset.forget)
     forget(button.dataset.forget)
     this.render()
   }

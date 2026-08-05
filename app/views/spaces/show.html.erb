@@ -44,7 +44,7 @@
       </div>
     </details>
     <% if ProgressWatch.web_push? %>
-      <push-toggle class="group inline-flex" data-url="<%= space_push_path(@space.uuid) %>" data-key="<%= ProgressWatch::VAPID_PUBLIC_KEY %>" data-state="unknown">
+      <push-toggle class="group inline-flex" data-uuid="<%= @space.uuid %>" data-key="<%= ProgressWatch::VAPID_PUBLIC_KEY %>" data-state="unknown">
         <button type="button" data-action="click:push-toggle#toggle" class="btn-ghost px-2 py-1 text-xs group-data-[state=unknown]:hidden group-data-[state=unsupported]:hidden" title="Notify this device when a task here finishes. Registers it with the server for this space only, and nothing else about you.">
           <span class="hidden items-center gap-1.5 group-data-[state=off]:inline-flex group-data-[state=denied]:inline-flex">
             <%= svg_icon 'bell', class: 'h-4 w-4' %>

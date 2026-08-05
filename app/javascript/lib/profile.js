@@ -19,7 +19,9 @@ export function write (spaces) {
 export function remember ({ uuid, title, icon, server }) {
   const spaces = read().filter((s) => s.uuid !== uuid)
 
+  // Runs on every dashboard load, so rebuilding the entry would drop `push` each time.
   spaces.unshift({
+    ...read().find((s) => s.uuid === uuid),
     uuid,
     title: title || null,
     icon: icon || null,
@@ -36,6 +38,19 @@ export function forget (uuid) {
   write(spaces)
 
   return spaces
+}
+
+// A subscription belongs to the origin, so the browser cannot answer this per space.
+export function pushEnabled (uuid) {
+  return read().some((s) => s.uuid === uuid && s.push === true)
+}
+
+export function setPush (uuid, on) {
+  write(read().map((s) => (s.uuid === uuid ? { ...s, push: on } : s)))
+}
+
+export function anyPushEnabled () {
+  return read().some((s) => s.push === true)
 }
 
 export function readSetting (name, fallback = null) {

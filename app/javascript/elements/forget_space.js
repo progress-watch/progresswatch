@@ -1,5 +1,6 @@
 import { bind } from '@github/catalyst/lib/bind'
 import { forget } from '../lib/profile'
+import { disable } from '../lib/push'
 
 export default class extends HTMLElement {
   connectedCallback () {
@@ -9,9 +10,10 @@ export default class extends HTMLElement {
   // Leaves for the landing page afterwards rather than staying put — <remember-space>
   // runs on every dashboard load, so a reload would silently add the space straight back
   // and the button would look broken.
-  forgetSpace () {
+  async forgetSpace () {
     if (!this.confirmed(this.dataset.title)) return
 
+    await disable(this.dataset.uuid)
     forget(this.dataset.uuid)
     window.location.href = '/'
   }

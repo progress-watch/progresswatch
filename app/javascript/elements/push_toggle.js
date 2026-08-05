@@ -1,67 +1,51 @@
 import { bind } from '@github/catalyst/lib/bind'
+import { pushEnabled, setPush } from '../lib/profile'
+import { disable, send, subscription, supported } from '../lib/push'
 
 export default class extends HTMLElement {
   async connectedCallback () {
     bind(this)
 
-    if (!this.supported) return this.setAttribute('data-state', 'unsupported')
+    if (!supported()) return this.setAttribute('data-state', 'unsupported')
 
-    // Rendering "Notify me" before the subscription is known makes it flip to "Notifying"
-    // a moment later for everyone already subscribed. Permission answers synchronously
-    // and rules that out: anything but granted means not subscribed.
-    if (Notification.permission !== 'granted') this.setAttribute('data-state', 'off')
-
-    this.registration = await navigator.serviceWorker.register('/sw.js')
-    this.render(await this.registration.pushManager.getSubscription())
-  }
-
-  get supported () {
-    return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window
+    this.render(pushEnabled(this.dataset.uuid))
   }
 
   async toggle () {
-    const existing = await this.registration.pushManager.getSubscription()
+    if (pushEnabled(this.dataset.uuid)) {
+      await disable(this.dataset.uuid)
 
-    return existing ? this.unsubscribe(existing) : this.subscribe()
+      return this.render(false)
+    }
+
+    return this.subscribe()
   }
 
   async subscribe () {
-    if (await Notification.requestPermission() !== 'granted') return this.setAttribute('data-state', 'denied')
+    if (await window.Notification.requestPermission() !== 'granted') {
+      return this.setAttribute('data-state', 'denied')
+    }
 
-    const subscription = await this.registration.pushManager.subscribe({
+    const registration = await window.navigator.serviceWorker.register('/sw.js')
+    const existing = await subscription()
+    const created = existing ?? await registration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: this.applicationServerKey
     })
 
-    await this.send('POST', { subscription: this.serialize(subscription) })
-    this.render(subscription)
+    await send(this.dataset.uuid, 'POST', { subscription: this.serialize(created) })
+    setPush(this.dataset.uuid, true)
+    this.render(true)
   }
 
-  async unsubscribe (subscription) {
-    await this.send('DELETE', { endpoint: subscription.endpoint })
-    await subscription.unsubscribe()
-    this.render(null)
-  }
-
-  serialize (subscription) {
-    const json = subscription.toJSON()
+  serialize (created) {
+    const json = created.toJSON()
 
     return { endpoint: json.endpoint, p256dh: json.keys.p256dh, auth: json.keys.auth }
   }
 
-  send (method, body) {
-    return window.fetch(this.dataset.url, {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
-      },
-      body: JSON.stringify(body)
-    })
-  }
-
-  render (subscription) {
-    this.setAttribute('data-state', subscription ? 'on' : 'off')
+  render (on) {
+    this.setAttribute('data-state', on ? 'on' : 'off')
   }
 
   // base64url in the markup, bytes in the API.
