@@ -50,16 +50,36 @@ RSpec.describe Tasks::PrepareForDashboard do
     # iso8601 drops the fraction, so an unfrozen clock turns 20 seconds into 21.
     around { |example| freeze_time { example.run } }
 
+    # How long it took and when it happened are different questions. The badge answers the
+    # first; without this a board with a week of history never answers the second.
+    it 'says when a task finished, coarsely, and spells it out in the tooltip' do
+      expect(prepared('finished_at' => 20.seconds.ago.iso8601)['finished_ago']).to eq('just now')
+      expect(prepared('finished_at' => 40.minutes.ago.iso8601)['finished_ago']).to eq('40m ago')
+      expect(prepared('finished_at' => 5.hours.ago.iso8601)['finished_ago']).to eq('5h ago')
+      expect(prepared('finished_at' => 3.days.ago.iso8601)['finished_ago']).to eq('3d ago')
+
+      expect(prepared('finished_at' => '2026-08-02T14:32:00Z')['finished_on']).to eq('2 Aug 2026, 14:32 UTC')
+    end
+
+    it 'says neither about a task that is still running' do
+      expect(prepared('title' => 'x')).to include('finished_ago' => nil, 'finished_on' => nil)
+    end
+
     it 'reads a duration in the largest unit that fits, dropping a zero tail' do
-      expect(prepared('finished_at' => 'x', 'duration' => 45)['finished_label']).to eq('finished in 45s')
-      expect(prepared('finished_at' => 'x', 'duration' => 391)['finished_label']).to eq('finished in 6m 31s')
-      expect(prepared('finished_at' => 'x', 'duration' => 7_530)['finished_label']).to eq('finished in 2h 5m')
-      expect(prepared('finished_at' => 'x', 'duration' => 120)['finished_label']).to eq('finished in 2m')
-      expect(prepared('finished_at' => 'x', 'duration' => 7_200)['finished_label']).to eq('finished in 2h')
+      expect(prepared('finished_at' => 1.minute.ago.iso8601,
+                      'duration' => 45)['finished_label']).to eq('finished in 45s')
+      expect(prepared('finished_at' => 1.minute.ago.iso8601,
+                      'duration' => 391)['finished_label']).to eq('finished in 6m 31s')
+      expect(prepared('finished_at' => 1.minute.ago.iso8601,
+                      'duration' => 7_530)['finished_label']).to eq('finished in 2h 5m')
+      expect(prepared('finished_at' => 1.minute.ago.iso8601,
+                      'duration' => 120)['finished_label']).to eq('finished in 2m')
+      expect(prepared('finished_at' => 1.minute.ago.iso8601,
+                      'duration' => 7_200)['finished_label']).to eq('finished in 2h')
     end
 
     it 'says finished with no duration, and nothing at all while running' do
-      expect(prepared('finished_at' => 'x')['finished_label']).to eq('finished')
+      expect(prepared('finished_at' => 1.minute.ago.iso8601)['finished_label']).to eq('finished')
       expect(prepared({})['finished_label']).to be_nil
     end
 
@@ -84,7 +104,7 @@ RSpec.describe Tasks::PrepareForDashboard do
     end
 
     it 'says nothing about a task that has finished, however long ago it reported' do
-      expect(prepared(reported(2.hours).merge('finished_at' => 'x'))['idle_label']).to be_nil
+      expect(prepared(reported(2.hours).merge('finished_at' => 1.minute.ago.iso8601))['idle_label']).to be_nil
     end
 
     it 'falls back to creation for an aggregate that has heard nothing' do

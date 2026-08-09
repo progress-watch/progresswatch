@@ -19,6 +19,9 @@
     <% if task['source'].present? %>
       <span class="font-mono text-xs text-zinc-400 dark:text-zinc-300"><%= task['source'] %></span>
     <% end %>
+    <% if task['finished_ago'] %>
+      <span class="text-xs text-zinc-400 dark:text-zinc-300" title="<%= task['finished_on'] %>"><%= task['finished_ago'] %></span>
+    <% end %>
   </div>
   <% if progress.nil? %>
     <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-300">Waiting for data…</p>

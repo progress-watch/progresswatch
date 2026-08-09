@@ -2,7 +2,7 @@
 
 module Tasks
   # Everything the dashboard decides about a task before rendering it: what order the
-  # rows come in, and the three strings that are not simply a field.
+  # rows come in, and the strings that are not simply a field.
   #
   # SerializeForApi keeps creation order and raw numbers for every client; what to do
   # with them is the web UI's business, and it happens once here rather than per row in
@@ -16,6 +16,8 @@ module Tasks
       order(tasks).each do |task|
         task['children'] = call(task['children'] || [])
         task['finished_label'] = finished_label(task)
+        task['finished_ago'] = finished_ago(task)
+        task['finished_on'] = finished_on(task)
         task['idle_label'] = idle_label(task)
         task['counts_label'] = counts_label(task['progress'])
       end
@@ -32,6 +34,33 @@ module Tasks
       return 'finished' if task['duration'].blank?
 
       "finished in #{duration(task['duration'])}"
+    end
+
+    # How long it took and when it happened are two different questions, and a board with
+    # a week of history answers only the first without this.
+    def finished_ago(task)
+      return nil if task['finished_at'].blank?
+
+      ago((Time.current - Time.zone.parse(task['finished_at'])).round)
+    end
+
+    # The tooltip, for when the coarse answer is not enough. UTC spelled out rather than
+    # localised: the server does not know the reader's zone, and guessing wrong about a
+    # timestamp is worse than making them do the arithmetic.
+    def finished_on(task)
+      return nil if task['finished_at'].blank?
+
+      Time.zone.parse(task['finished_at']).strftime('%-d %b %Y, %H:%M UTC')
+    end
+
+    # Coarser than `duration` on purpose: "when" is answered by an order of magnitude, and
+    # duration would say "72h" for something two days old.
+    def ago(seconds)
+      return 'just now' if seconds < 60
+      return "#{seconds / 60}m ago" if seconds < 3600
+      return "#{seconds / 3600}h ago" if seconds < 86_400
+
+      "#{seconds / 86_400}d ago"
     end
 
     def idle_label(task)
