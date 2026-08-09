@@ -10,6 +10,9 @@ Everything is an environment variable. There are no config files to edit and no 
 | `FORCE_SSL` | `false` | Set `true` when something in front terminates TLS. It also drives `assume_ssl`, so leaving it off keeps the app usable over plain HTTP instead of redirecting to a certificate you do not have. |
 | `PORT` | `3000` | The port Puma binds inside the container. `docker-compose.yml` publishes it on 7979, because a service you leave running for weeks should not hold the port your own dev servers want. |
 | `RAILS_LOG_LEVEL` | `info` | Logs go to stdout and nowhere else. This is how much of them. |
+| `RATE_LIMIT_PER_HOUR` | — | How many spaces and tasks one address may create per hour. Unset means no limit, which is the right answer for a server only you can reach. Reporting progress is never limited. |
+
+Behind a proxy, `RATE_LIMIT_PER_HOUR` is only as good as the address the app sees. Rails reads `X-Forwarded-For` and trusts it from private ranges, which is what a reverse proxy on the same host sends — but if the header does not arrive, every request looks like one client and the limit locks out everybody at once rather than nobody.
 
 ## Redis
 

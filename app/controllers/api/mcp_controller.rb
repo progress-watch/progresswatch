@@ -20,6 +20,8 @@ module Api
 
       return render(json: Mcp::HandleRequest.invalid_request, status: :bad_request) if message.nil?
 
+      RateLimit.call(request.remote_ip) if creating?(message)
+
       response_body = Mcp::HandleRequest.call(message, space_uuid: space_uuid, base_url: request.base_url)
 
       return head :accepted if response_body.nil?
@@ -28,6 +30,10 @@ module Api
     end
 
     private
+
+    def creating?(message)
+      message['method'] == 'tools/call' && %w[create_space create_task].include?(message.dig('params', 'name'))
+    end
 
     # The header is for clients that accept only a bare URL.
     def space_uuid

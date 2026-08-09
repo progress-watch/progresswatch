@@ -7,6 +7,8 @@ module Api
     end
 
     def create
+      RateLimit.call(request.remote_ip)
+
       space = Spaces::Create.call(title: params[:title], icon: params[:icon])
 
       render json: rendered(space), status: :created

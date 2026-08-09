@@ -30,7 +30,7 @@ export default class extends HTMLElement {
     const spaces = read()
 
     this.querySelector('[data-list]')?.remove()
-    if (spaces.length === 0) return this.createFirstSpace()
+    if (spaces.length === 0 && !this.refused) return this.createFirstSpace()
 
     // Only on arrival: forgetting one of two spaces re-renders, and being thrown into
     // the survivor is not what that click asked for.
@@ -55,7 +55,13 @@ export default class extends HTMLElement {
     fetch('/spaces', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
       .then((response) => (response.ok ? response.json() : Promise.reject(new Error(String(response.status)))))
       .then(({ uuid }) => this.open(uuid))
-      .catch(() => { this.creating = false })
+      .catch(() => {
+        // A rate-limited arrival must not be a blank page. Rendering the empty grid gives
+        // back New space and Add a space, which is a way in that does not mint anything.
+        this.creating = false
+        this.refused = true
+        this.render()
+      })
   }
 
   // replace, not href: with a normal navigation, Back from the space lands here and is

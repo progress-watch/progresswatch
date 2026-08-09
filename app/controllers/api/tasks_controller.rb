@@ -7,6 +7,8 @@ module Api
     end
 
     def create
+      RateLimit.call(request.remote_ip)
+
       task = Tasks::Create.call(
         space: Space.find(params[:space_uuid]),
         title: params[:title],
