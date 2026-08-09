@@ -54,7 +54,8 @@ module OpenApi
                     'description' => 'One character; an emoji reads best.'
                   }
                 }
-              }
+              },
+              'example' => { 'title' => 'Production', 'icon' => '🚀' }
             }
           }
         },
@@ -142,7 +143,8 @@ module OpenApi
                     'description' => 'A step of an existing task. One level only.'
                   }
                 }
-              }
+              },
+              'example' => { 'title' => 'Crawl docs', 'source' => 'crawler.py' }
             }
           }
         },
@@ -234,6 +236,11 @@ module OpenApi
                   },
                   'done' => { 'type' => 'boolean' }
                 }
+              },
+              'example' => {
+                'current' => 1200,
+                'end' => 50_000,
+                'values' => { 'pages' => 1200, 'errors' => 3 }
               }
             }
           }
@@ -255,6 +262,7 @@ module OpenApi
       },
       'patch' => {
         'operationId' => 'reportProgressPatch',
+        'deprecated' => true,
         'summary' => 'Rejected',
         'description' => 'PATCH promises a merge and a write here replaces everything, so it is refused ' \
                          'rather than quietly doing something else. Use PUT.',
@@ -298,7 +306,89 @@ module OpenApi
 
   module_function
 
-  # rubocop:disable Metrics/MethodLength -- the length is the document, not the logic
+  SCHEMAS = {
+    'Space' => {
+      'type' => 'object',
+      'properties' => {
+        'uuid' => { 'type' => 'string' },
+        'title' => { 'type' => %w[string null] },
+        'icon' => {
+          'type' => %w[string null],
+          'description' => 'One character. Counted in grapheme clusters.'
+        },
+        'tasks' => {
+          'type' => 'array',
+          'items' => { '$ref' => '#/components/schemas/Task' },
+          'description' => 'Top-level tasks, each with its children nested.'
+        }
+      },
+      'required' => %w[uuid title icon tasks]
+    },
+    'Task' => {
+      'type' => 'object',
+      'properties' => {
+        'uuid' => { 'type' => 'string' },
+        'space_uuid' => { 'type' => 'string' },
+        'parent_uuid' => { 'type' => %w[string null] },
+        'title' => { 'type' => %w[string null] },
+        'source' => { 'type' => %w[string null] },
+        'created_at' => {
+          'type' => 'string',
+          'format' => 'date-time'
+        },
+        'finished_at' => {
+          'type' => %w[string null],
+          'format' => 'date-time'
+        },
+        'duration' => {
+          'type' => %w[integer null],
+          'description' => 'Seconds, set once when the task completes.'
+        },
+        'progress' => { '$ref' => '#/components/schemas/Progress' },
+        'children' => {
+          'type' => 'array',
+          'items' => { '$ref' => '#/components/schemas/Task' },
+          'description' => 'One level only. A child is always empty here.'
+        }
+      },
+      'required' => %w[uuid space_uuid parent_uuid title source created_at finished_at duration progress children]
+    },
+    'Progress' => {
+      'type' => %w[object null],
+      'description' => 'Live state, held in memory and expired on inactivity. Null means the task is ' \
+                       'unfinished and has never reported, which is not the same as reporting zero. ' \
+                       'A finished task always has an object, whether or not it ever reported.',
+      'properties' => {
+        'current' => { 'type' => %w[number null] },
+        'end' => { 'type' => %w[number null] },
+        'ratio' => {
+          'type' => %w[number null],
+          'minimum' => 0,
+          'maximum' => 1,
+          'description' => '1 once the task is finished, whatever the counts say. Otherwise null when ' \
+                           '`end` is zero or missing: an unknown denominator, not zero progress.'
+        },
+        'values' => {
+          'type' => 'object',
+          'additionalProperties' => true,
+          'description' => 'Flat extras. A `log` key holds one line, the latest, never a history.'
+        },
+        'updated_at' => { 'type' => %w[string null] },
+        'aggregated' => {
+          'type' => 'boolean',
+          'description' => 'True on a parent, whose numbers count its finished children.'
+        }
+      },
+      'required' => %w[current end ratio values updated_at aggregated]
+    },
+    'Error' => {
+      'type' => 'object',
+      'properties' => { 'error' => { 'type' => 'string' } },
+      'required' => ['error']
+    }
+  }.freeze
+
+  # -- the length is the document, not the logic
   def call(base_url:)
     {
       'openapi' => '3.1.0',
@@ -314,89 +404,8 @@ module OpenApi
       'servers' => [{ 'url' => base_url }],
       'paths' => PATHS,
       'components' => {
-        'schemas' => {
-          'Space' => {
-            'type' => 'object',
-            'properties' => {
-              'uuid' => { 'type' => 'string' },
-              'title' => { 'type' => %w[string null] },
-              'icon' => {
-                'type' => %w[string null],
-                'description' => 'One character. Counted in grapheme clusters.'
-              },
-              'tasks' => {
-                'type' => 'array',
-                'items' => { '$ref' => '#/components/schemas/Task' },
-                'description' => 'Top-level tasks, each with its children nested.'
-              }
-            },
-            'required' => %w[uuid title icon tasks]
-          },
-          'Task' => {
-            'type' => 'object',
-            'properties' => {
-              'uuid' => { 'type' => 'string' },
-              'space_uuid' => { 'type' => 'string' },
-              'parent_uuid' => { 'type' => %w[string null] },
-              'title' => { 'type' => %w[string null] },
-              'source' => { 'type' => %w[string null] },
-              'created_at' => {
-                'type' => 'string',
-                'format' => 'date-time'
-              },
-              'finished_at' => {
-                'type' => %w[string null],
-                'format' => 'date-time'
-              },
-              'duration' => {
-                'type' => %w[integer null],
-                'description' => 'Seconds, set once when the task completes.'
-              },
-              'progress' => { '$ref' => '#/components/schemas/Progress' },
-              'children' => {
-                'type' => 'array',
-                'items' => { '$ref' => '#/components/schemas/Task' },
-                'description' => 'One level only. A child is always empty here.'
-              }
-            },
-            'required' => %w[uuid space_uuid parent_uuid title source created_at finished_at duration progress children]
-          },
-          'Progress' => {
-            'type' => %w[object null],
-            'description' => 'Live state, held in memory and expired on inactivity. Null means the task is ' \
-                             'unfinished and has never reported, which is not the same as reporting zero. ' \
-                             'A finished task always has an object, whether or not it ever reported.',
-            'properties' => {
-              'current' => { 'type' => %w[number null] },
-              'end' => { 'type' => %w[number null] },
-              'ratio' => {
-                'type' => %w[number null],
-                'minimum' => 0,
-                'maximum' => 1,
-                'description' => '1 once the task is finished, whatever the counts say. Otherwise null when ' \
-                                 '`end` is zero or missing: an unknown denominator, not zero progress.'
-              },
-              'values' => {
-                'type' => 'object',
-                'additionalProperties' => true,
-                'description' => 'Flat extras. A `log` key holds one line, the latest, never a history.'
-              },
-              'updated_at' => { 'type' => %w[string null] },
-              'aggregated' => {
-                'type' => 'boolean',
-                'description' => 'True on a parent, whose numbers count its finished children.'
-              }
-            },
-            'required' => %w[current end ratio values updated_at aggregated]
-          },
-          'Error' => {
-            'type' => 'object',
-            'properties' => { 'error' => { 'type' => 'string' } },
-            'required' => ['error']
-          }
-        }
+        'schemas' => SCHEMAS
       }
     }
   end
-  # rubocop:enable Metrics/MethodLength
 end

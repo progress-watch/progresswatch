@@ -33,8 +33,7 @@ module ConnectSnippets
   SECTIONS = {
     'cli' => {
       heading: 'Report progress from the command line',
-      description: 'Report progress from a script or a CI job with the progresswatch CLI: create a task, update ' \
-                   'it as the work moves, close it. Or wrap a command you cannot change in one line.',
+      description: 'Report progress from a shell, a script or a CI job with the Progress Watch CLI.',
       title: 'CLI',
       icon: 'terminal',
       steps: [
@@ -62,8 +61,7 @@ module ConnectSnippets
 
     'agent' => {
       heading: 'Give an AI agent a progress skill',
-      description: 'One command installs a skill your coding agent reads, and it reports its own long-running ' \
-                   'work — one task per job, one child task per step — so you can watch it from anywhere.',
+      description: 'Give an AI agent a skill for reporting its own progress into Progress Watch.',
       title: 'Agent skill',
       icon: 'robot',
       intro: 'The skill drives the CLI, so the agent needs no server or uuid of its own — it uses whatever this ' \
@@ -88,8 +86,7 @@ module ConnectSnippets
 
     'mcp' => {
       heading: 'Connect an agent over MCP',
-      description: 'Add Progress Watch as an MCP server and an agent gets four tools for creating tasks and ' \
-                   'reporting progress, deciding on its own when tracking is worth it.',
+      description: 'Connect an AI agent to Progress Watch over MCP.',
       title: 'MCP',
       icon: 'plug',
       steps: [
@@ -106,8 +103,7 @@ module ConnectSnippets
 
     'curl' => {
       heading: 'Try the API with curl',
-      description: 'See the whole API in four requests before you write it into anything: create a space, create a ' \
-                   'task, report progress, finish it. Nothing to install.',
+      description: 'Try the Progress Watch API with curl, with nothing to install.',
       title: 'curl',
       icon: 'globe',
       steps: [
@@ -131,8 +127,7 @@ module ConnectSnippets
 
     'docker' => {
       heading: 'Self-host Progress Watch with Docker',
-      description: 'One container and a Redis. Progress never touches the database, so the volume stays tiny and ' \
-                   'losing it costs you nothing but the space list.',
+      description: 'The Docker Compose file for running your own Progress Watch server.',
       title: 'Docker',
       icon: 'container',
       intro: 'Your own server, on your own box. Nothing here talks to progress.watch.',

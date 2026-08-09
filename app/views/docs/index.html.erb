@@ -1,6 +1,6 @@
 <% content_for :indexable, true %>
 <% content_for :html_title, 'Get started | Progress Watch' %>
-<% content_for :meta_description, 'A progress tracker for anything that runs without anyone watching: a script, a crawler, a CI job, an AI agent. It reports with one HTTP request and notifies you when it finishes. Open source, self-hostable, no accounts.' %>
+<% content_for :meta_description, 'An introduction to Progress Watch, an open source progress tracker for anything that runs without you.' %>
 <div class="flex flex-col gap-8 lg:flex-row lg:items-start">
   <%= render 'shared/docs_nav', current: :docs %>
   <div class="min-w-0 max-w-2xl flex-1">
@@ -18,7 +18,7 @@
     <div class="mt-4">
       <%= render 'shared/command', body: %(curl -X PUT https://progress.watch/tasks/$TASK -H 'Content-Type: application/json' -d '{"current": 1200, "end": 50000}') %>
     </div>
-    <p class="mt-3 text-sm text-zinc-600 dark:text-zinc-300">The <%= link_to 'HTTP API', docs_section_path('http-api'), class: 'text-brand-600 underline dark:text-brand-400' %> is the reference to build against, and pasting the <%= link_to 'curl', docs_section_path('curl'), class: 'text-brand-600 underline dark:text-brand-400' %> examples is the fastest way to see the thing work before you commit to it.</p>
+    <p class="mt-3 text-sm text-zinc-600 dark:text-zinc-300">The <%= link_to 'API reference', api_docs_path, class: 'text-brand-600 underline dark:text-brand-400' %> is the reference to build against, and pasting the <%= link_to 'curl', docs_section_path('curl'), class: 'text-brand-600 underline dark:text-brand-400' %> examples is the fastest way to see the thing work before you commit to it.</p>
     <h2 class="mt-10 text-lg font-medium">Agents report their own work</h2>
     <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300">An AI agent breaks a job into steps and then works for a long time with nothing to show for it. Connect one over <%= link_to 'MCP', docs_section_path('mcp'), class: 'text-brand-600 underline dark:text-brand-400' %> and it gets tools for creating a task and reporting against it: one task for the job, one child task per step, updated as it goes. MCP needs nothing installed anywhere; for a client that does not speak it, an <%= link_to 'agent skill', docs_section_path('agent'), class: 'text-brand-600 underline dark:text-brand-400' %> teaches the same thing through the CLI.</p>
     <p class="mt-3 text-sm text-zinc-600 dark:text-zinc-300">The agent decides when tracking is worth it and how often to report. The tool descriptions tell it what a task is for, not a schedule to follow.</p>

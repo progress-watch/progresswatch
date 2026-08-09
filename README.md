@@ -133,13 +133,13 @@ progresswatch run "python train.py"
 
 `run` creates the task, passes the command's output through untouched and closes it with the exit code, so a job that fails notifies too. It reports start and finish, not counts — nothing outside the process knows how far along it is.
 
-Underneath every one of these is a single request, so an AI agent connects over [MCP](https://progress.watch/docs/mcp) and anything else calls the [HTTP API](https://progress.watch/docs/http-api) directly.
+Underneath every one of these is a single request, so an AI agent connects over [MCP](https://progress.watch/docs/mcp) and anything else calls the [HTTP API](https://progress.watch/docs/api) directly.
 
 ## Documentation
 
 - [Get started](https://progress.watch/docs) — what it is and what it will not do
 - [CLI](https://progress.watch/docs/cli) · [Agent skill](https://progress.watch/docs/agent) · [MCP](https://progress.watch/docs/mcp) · [curl](https://progress.watch/docs/curl)
-- [HTTP API](https://progress.watch/docs/http-api) — every endpoint, and the semantics worth knowing first
+- [API Reference](https://progress.watch/docs/api) — every endpoint, with a sample in eight languages
 - [Self-hosting](https://progress.watch/docs/self-hosting) — what runs, what to put on a cron, deploying to a platform
 - [Notifications](https://progress.watch/docs/notifications) — Web Push, and what has to happen on a phone
 - [Environment variables](https://progress.watch/docs/environment-variables) — everything you can set

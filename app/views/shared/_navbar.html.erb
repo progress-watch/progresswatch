@@ -1,5 +1,5 @@
 <header class="sticky top-0 z-20 border-b border-zinc-200 bg-white md:static md:z-auto dark:border-zinc-600 dark:bg-zinc-800">
-  <nav class="mx-auto flex max-w-5xl items-center gap-1.5 px-4 py-3 md:gap-2">
+  <nav class="mx-auto flex <%= content_for(:container_width).presence || 'max-w-5xl' %> items-center gap-1.5 px-4 py-3 md:gap-2">
     <%= link_to root_path, class: 'flex items-center gap-2 font-semibold tracking-tight' do %>
       <%= svg_icon 'logo', class: 'h-6 w-6' %>
       <span>Progress Watch</span>

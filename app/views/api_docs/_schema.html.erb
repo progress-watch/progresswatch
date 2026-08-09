@@ -1,0 +1,25 @@
+<% properties = schema['properties'] || {} %>
+<% if properties.any? %>
+  <dl class="mt-3 divide-y divide-zinc-200 rounded-lg border border-zinc-200 dark:divide-zinc-600 dark:border-zinc-600">
+    <% properties.each do |name, property| %>
+      <div class="px-3 py-2.5">
+        <dt class="flex flex-wrap items-baseline gap-x-2">
+          <span class="font-mono text-xs font-medium text-zinc-900 dark:text-zinc-100"><%= name %></span>
+          <span class="font-mono text-xs text-zinc-500 dark:text-zinc-400"><%= OpenApi::Operations.type_label(property) %></span>
+          <% if request %>
+            <% if OpenApi::Operations.optional?(schema, name) %>
+              <span class="text-xs text-zinc-400 dark:text-zinc-500">optional</span>
+            <% else %>
+              <span class="text-xs font-medium text-rose-600 dark:text-rose-400">required</span>
+            <% end %>
+          <% end %>
+        </dt>
+        <% if property['description'].present? %>
+          <dd class="mt-1 text-xs leading-relaxed text-zinc-600 dark:text-zinc-300"><%= property['description'] %></dd>
+        <% end %>
+      </div>
+    <% end %>
+  </dl>
+<% elsif schema['description'].present? %>
+  <p class="mt-3 text-xs leading-relaxed text-zinc-600 dark:text-zinc-300"><%= schema['description'] %></p>
+<% end %>

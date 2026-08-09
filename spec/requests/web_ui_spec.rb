@@ -35,7 +35,8 @@ RSpec.describe 'Web UI' do
     # redirects a browser before it renders anything worth reading.
     it 'is not indexable, and only /docs and the Connect sections are' do
       hosted!
-      indexable = %w[/docs /docs/cli /docs/curl /docs/agent /docs/mcp /docs/docker /docs/environment-variables]
+      indexable = %w[/docs /docs/api /docs/cli /docs/curl /docs/agent /docs/mcp /docs/docker
+                     /docs/environment-variables]
       rest = ['/', '/s/new', "/s/#{create_space.uuid}/edit", "/s/#{create_space.uuid}", '/docs/nonsense']
 
       indexable.each do |path|
@@ -278,7 +279,8 @@ RSpec.describe 'Web UI' do
       get '/sitemap.xml'
       locs = response.body.scan(%r{<loc>(.*?)</loc>}).flatten
 
-      expect(locs).to contain_exactly(docs_url, *Docs::DOCUMENTS.map { |doc| docs_section_url(doc[:slug]) },
+      expect(locs).to contain_exactly(docs_url, api_docs_url,
+                                      *Docs::DOCUMENTS.map { |doc| docs_section_url(doc[:slug]) },
                                       *ConnectSnippets::SECTIONS.each_key.map { |s| docs_section_url(s) })
 
       locs.each do |loc|

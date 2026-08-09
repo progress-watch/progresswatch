@@ -16,6 +16,9 @@ Rails.application.routes.draw do
   post 's/:uuid/push', to: 'space_push_subscriptions#create', as: :space_push
   delete 's/:uuid/push', to: 'space_push_subscriptions#destroy'
 
+  # Before the :section catch-all, which would otherwise swallow it.
+  get 'docs/api', to: 'api_docs#index', as: :api_docs
+
   # No route constraint on :section — an unknown one is a page that does not exist,
   # and that is the not-found page rather than a bare routing error.
   get 'docs/:section', to: 'docs#show', as: :docs_section
