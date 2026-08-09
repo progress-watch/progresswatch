@@ -257,6 +257,24 @@ RSpec.describe 'Web UI' do
     end
   end
 
+  # Somebody's own box has no reason to advertise our repository, and the flag that means
+  # "this is the deployment with an audience" is the one that already exists.
+  describe 'the GitHub link' do
+    it 'is in the navbar on the hosted deployment, at both widths' do
+      hosted!
+
+      get docs_path
+
+      expect(response.body.scan(ProgressWatch::REPOSITORY_URL).size).to eq(2)
+    end
+
+    it 'is nowhere on a self-hosted instance' do
+      get docs_path
+
+      expect(response.body).not_to include(ProgressWatch::REPOSITORY_URL)
+    end
+  end
+
   describe 'GET /sitemap.xml' do
     it 'is valid and dates every entry' do
       hosted!

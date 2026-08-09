@@ -6,6 +6,12 @@
     <% end %>
     <div class="flex-1"></div>
     <%= link_to 'Docs', docs_path, class: 'btn-ghost hidden px-2 py-1.5 text-sm md:inline-flex' %>
+    <% if ProgressWatch.multitenant? %>
+      <%= link_to ProgressWatch::REPOSITORY_URL, target: '_blank', rel: 'noopener', class: 'btn-ghost hidden px-2 py-1.5 text-sm md:inline-flex', title: 'Progress Watch is open source. A star is how anyone else finds it.' do %>
+        <%= svg_icon 'github', class: 'h-4 w-4' %>
+        Star
+      <% end %>
+    <% end %>
     <space-backup class="hidden items-center gap-1 md:flex">
       <button type="button" data-action="click:space-backup#export" aria-label="Export spaces" class="btn-ghost px-2 py-1.5" title="Download the spaces this device knows about. It is the only backup there is.">
         <%= svg_icon 'download', class: 'h-4 w-4' %>
@@ -29,6 +35,12 @@
         <%= link_to docs_path, class: 'flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600' do %>
           <%= svg_icon 'book', class: 'h-4 w-4 shrink-0' %>
           Documentation
+        <% end %>
+        <% if ProgressWatch.multitenant? %>
+          <%= link_to ProgressWatch::REPOSITORY_URL, target: '_blank', rel: 'noopener', class: 'flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600' do %>
+            <%= svg_icon 'github', class: 'h-4 w-4 shrink-0' %>
+            Star on GitHub
+          <% end %>
         <% end %>
         <space-backup class="block">
           <button type="button" data-action="click:space-backup#export" class="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600">
