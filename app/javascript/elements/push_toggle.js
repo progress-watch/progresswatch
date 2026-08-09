@@ -1,6 +1,6 @@
 import { bind } from '@github/catalyst/lib/bind'
 import { pushEnabled, setPush } from '../lib/profile'
-import { disable, send, subscription, supported } from '../lib/push'
+import { disable, keepStorage, send, subscription, supported } from '../lib/push'
 
 export default class extends HTMLElement {
   async connectedCallback () {
@@ -35,6 +35,7 @@ export default class extends HTMLElement {
 
     await send(this.dataset.uuid, 'POST', { subscription: this.serialize(created) })
     setPush(this.dataset.uuid, true)
+    await keepStorage()
     this.render(true)
   }
 
