@@ -34,7 +34,7 @@ export default class extends HTMLElement {
 
     // Only on arrival: forgetting one of two spaces re-renders, and being thrown into
     // the survivor is not what that click asked for.
-    if (arriving && spaces.length === 1) return this.open(spaces[0].uuid)
+    if (arriving && spaces.length === 1) return this.open(linkTo(spaces[0]))
 
     const list = this.clone('list')
     const cards = list.querySelector('[data-cards]')
@@ -54,7 +54,7 @@ export default class extends HTMLElement {
 
     fetch('/spaces', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
       .then((response) => (response.ok ? response.json() : Promise.reject(new Error(String(response.status)))))
-      .then(({ uuid }) => this.open(uuid))
+      .then(({ uuid }) => this.open(`/s/${encodeURIComponent(uuid)}`))
       .catch(() => {
         // A rate-limited arrival must not be a blank page. Rendering the empty grid gives
         // back New space and Add a space, which is a way in that does not mint anything.
@@ -66,8 +66,8 @@ export default class extends HTMLElement {
 
   // replace, not href: with a normal navigation, Back from the space lands here and is
   // thrown straight forward again.
-  open (uuid) {
-    window.location.replace(`/s/${encodeURIComponent(uuid)}`)
+  open (url) {
+    window.location.replace(url)
   }
 
   confirmed (title) {
@@ -84,10 +84,15 @@ export default class extends HTMLElement {
     const node = this.clone('card')
     const title = space.title || 'Untitled space'
 
-    node.querySelector('[data-link]').href = `/s/${encodeURIComponent(space.uuid)}`
+    node.querySelector('[data-link]').href = linkTo(space)
     node.querySelector('[data-title]').textContent = title
     node.querySelector('[data-meta]').textContent = openedAgo(space.last_opened_at)
-    node.querySelector('[data-share]').dataset.text = linkTo(space)
+    const share = node.querySelector('[data-share]')
+
+    share.href = `${linkTo(space)}/link`
+    // The modal is a turbo-frame on this origin. A space on another server has its own,
+    // and Turbo cannot pull a cross-origin document into a frame, so that one navigates.
+    if (here(space)) share.dataset.turboFrame = 'modal'
 
     const icon = node.querySelector('[data-icon]')
     if (space.icon) icon.textContent = space.icon
@@ -121,4 +126,11 @@ function openedAgo (iso) {
 
 function linkTo (space) {
   return `${String(space.server || '').replace(/\/$/, '')}/s/${space.uuid}`
+}
+
+// A space entry carries the server it was created against, so a card for one on another
+// host has to leave this origin. Everything here used to build a relative path and send
+// those cards to a uuid this server has never heard of.
+function here (space) {
+  return linkTo(space).startsWith(`${window.location.origin}/`)
 }

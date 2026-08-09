@@ -17,12 +17,9 @@
       <clipboard-copy class="inline-flex" data-action="click:clipboard-copy#copy" data-text="<%= @space.uuid %>" title="Copy the space UUID">
         <code class="font-mono text-xs text-zinc-500 transition hover:text-zinc-800 dark:text-zinc-300 dark:hover:text-zinc-200"><%= @space.uuid %></code>
       </clipboard-copy>
-      <clipboard-copy class="inline-flex" data-action="click:clipboard-copy#copy" data-text="<%= space_url(@space.uuid) %>" title="Copy the link to this space. Whoever has it can read and write here.">
-        <button type="button" tabindex="-1" aria-label="Copy the link to this space" class="rounded-md p-1 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-600 dark:hover:text-zinc-200">
-          <%= svg_icon 'share', class: 'h-4 w-4', data: { copy_mark: true } %>
-          <%= svg_icon 'check', class: 'h-4 w-4 text-emerald-500', data: { copy_check: true } %>
-        </button>
-      </clipboard-copy>
+      <%= link_to space_link_path(@space.uuid), data: { turbo_frame: 'modal' }, 'aria-label': 'Share this space', title: 'The link, a QR code for a phone, and the uuid. Whoever has them can read and write here.', class: 'rounded-md p-1 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-600 dark:hover:text-zinc-200' do %>
+        <%= svg_icon 'share', class: 'h-4 w-4' %>
+      <% end %>
     </div>
   </div>
   <div class="flex items-center gap-3">

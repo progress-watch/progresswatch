@@ -15,12 +15,9 @@
         <span data-meta class="truncate text-xs text-zinc-500 dark:text-zinc-300"></span>
       </a>
       <div class="absolute right-3 top-3 flex flex-col gap-1 md:hidden md:group-hover:flex">
-        <clipboard-copy data-share data-action="click:clipboard-copy#copy" class="block" title="Copy the link to this space. Whoever has it can read and write here.">
-          <button type="button" tabindex="-1" aria-label="Copy the link to this space" class="card flex h-7 w-7 items-center justify-center rounded-full text-zinc-600 shadow-sm transition hover:text-zinc-900 dark:border-zinc-500 dark:bg-zinc-600 dark:text-zinc-200 dark:hover:text-white">
-            <%= svg_icon 'share', class: 'h-4 w-4', data: { copy_mark: true } %>
-            <%= svg_icon 'check', class: 'h-4 w-4 text-emerald-500', data: { copy_check: true } %>
-          </button>
-        </clipboard-copy>
+        <a data-share aria-label="Share this space" title="The link, a QR code for a phone, and the uuid. Whoever has them can read and write here." class="card flex h-7 w-7 items-center justify-center rounded-full text-zinc-600 shadow-sm transition hover:text-zinc-900 dark:border-zinc-500 dark:bg-zinc-600 dark:text-zinc-200 dark:hover:text-white">
+          <%= svg_icon 'share', class: 'h-4 w-4' %>
+        </a>
         <button type="button" data-forget data-action="click:space-list#forgetSpace" aria-label="Forget this space" class="card flex h-7 w-7 items-center justify-center rounded-full text-zinc-600 shadow-sm transition hover:text-red-600 dark:border-zinc-500 dark:bg-zinc-600 dark:text-zinc-200 dark:hover:text-red-300" title="Remove from this device. The space itself is not deleted.">
           <%= svg_icon 'trash', class: 'h-4 w-4' %>
         </button>

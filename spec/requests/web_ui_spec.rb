@@ -221,10 +221,30 @@ RSpec.describe 'Web UI' do
       expect(response.body).to include(%(href="#{docs_section_path('cli', space: space.uuid)}"))
     end
 
-    it 'offers the space link for copying, not just the uuid' do
+    # The link used to be a copy button and nothing else, which answered "send this to a
+    # colleague" and not "open this on my phone".
+    it 'opens a share modal rather than silently copying the link' do
       get space_path(space.uuid)
 
-      expect(response.body).to include(%(data-text="#{space_url(space.uuid)}"))
+      expect(response.body).to include(%(href="#{space_link_path(space.uuid)}"), 'data-turbo-frame="modal"')
+    end
+
+    it 'shows the link, the uuid and a QR of the link in that modal' do
+      get space_link_path(space.uuid), headers: { 'Turbo-Frame' => 'modal' }
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(%(value="#{space_url(space.uuid)}"))
+      expect(response.body).to include(%(value="#{space.uuid}"))
+      expect(response.body).to include('<svg viewBox=', 'aria-label="Link to this space"')
+    end
+
+    # Every modal is a route, so opening one in a tab must be a page rather than a bare
+    # fragment. The task frame learned this the hard way.
+    it 'answers a person with a whole page, not a fragment' do
+      get space_link_path(space.uuid)
+
+      expect(response.body).to include('<!DOCTYPE html>', 'Share this space')
+      expect(response.body).not_to include('<dialog')
     end
 
     # The snippets are onboarding. Once anything has reported they are noise, and the

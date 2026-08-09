@@ -12,6 +12,10 @@ Rails.application.routes.draw do
 
   get 's/:uuid/tasks', to: 'space_tasks#index', as: :space_tasks
 
+  # The share modal: the same link as a QR, a URL and a uuid. A route rather than markup
+  # on the page, like every other modal here.
+  get 's/:uuid/link', to: 'space_links#show', as: :space_link
+
   # Web-only, for the same reason renaming is: only a browser has a push endpoint.
   post 's/:uuid/push', to: 'space_push_subscriptions#create', as: :space_push
   delete 's/:uuid/push', to: 'space_push_subscriptions#destroy'
