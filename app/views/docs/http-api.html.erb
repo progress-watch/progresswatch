@@ -1,0 +1,145 @@
+<%= markdown do %>
+One POST creates a task, one PUT reports against it, one GET reads the whole space back. There is no SDK to install, because wrapping a single request would add nothing worth depending on.
+
+This is the page to build against. To report from a script or a CI job there is nothing to build — the <%= link_to 'CLI', docs_section_path('cli') %> does all of it, and an agent gets the same thing as tools over <%= link_to 'MCP', docs_section_path('mcp') %>.
+
+Paths below are relative to your server: `https://progress.watch` for the hosted service, or whatever you self-host on.
+
+## The whole surface
+
+~~~
+POST /spaces                     create a space
+POST /spaces/:space_uuid/tasks   create a task, returns its uuid
+PUT  /tasks/:task_uuid           overwrite the task's state
+GET  /spaces/:space_uuid         every task in the space, with current state
+GET  /tasks/:task_uuid           one task with its steps
+POST /mcp/:space_uuid            MCP over Streamable HTTP
+GET  /up                         health check
+~~~
+
+It is meant to stay this small. The same thing as OpenAPI 3.1 is at `/openapi.json`, or `/openapi.yml` if you would rather read it than generate from it.
+
+There is nothing to authenticate with, because there are no accounts. The space UUID is the credential: whoever has it can read and write that space and nothing else. Treat it like an API token — keep it out of anything public, and out of your logs.
+
+## Create a space
+
+~~~
+curl -X POST https://progress.watch/spaces \
+  -H 'Content-Type: application/json' \
+  -d '{"title": "Production", "icon": "🚀"}'
+
+{"uuid": "406d45fd-f623-472a-acac-eef9b5281549", "title": "Production", "icon": "🚀"}
+~~~
+
+`icon` is one emoji, and it is what makes a space findable in a list on a phone.
+
+## Create a task
+
+~~~
+curl -X POST https://progress.watch/spaces/406d45fd-.../tasks \
+  -H 'Content-Type: application/json' \
+  -d '{"title": "Crawl docs", "source": "crawler.py"}'
+
+{"uuid": "fee462f1-cd51-43ce-b4e1-c2d61687734a"}
+~~~
+
+Pass `parent_uuid` to make the task a step of another one. Nesting is one level deep: a step cannot have steps of its own, and a `parent_uuid` pointing at something that already has a parent is rejected.
+
+## Report progress
+
+~~~
+curl -X PUT https://progress.watch/tasks/fee462f1-... \
+  -H 'Content-Type: application/json' \
+  -d '{"current": 1200, "end": 50000, "values": {"pages": 1200, "errors": 3}}'
+~~~
+
+Counts, not a percentage: `1200 / 50000 pages` tells you something that `2.4%` does not. `end` may change while the job runs — a crawler that discovers more URLs sends a bigger number and the bar recalculates.
+
+`values` is a free-form flat object for everything else, and the client decides how to render each key. A `log` key is treated as the *latest* line rather than a history, because there is no history.
+
+## Finish it
+
+~~~
+curl -X PUT https://progress.watch/tasks/fee462f1-... \
+  -H 'Content-Type: application/json' -d '{"done": true}'
+~~~
+
+This is what sends the notification, so send it when the job fails too. A task also completes on its own once `current` reaches `end`.
+
+## Read a space
+
+~~~
+curl https://progress.watch/spaces/406d45fd-...
+
+{
+  "uuid": "406d45fd-f623-472a-acac-eef9b5281549",
+  "title": "Production",
+  "tasks": [
+    {
+      "uuid": "fee462f1-...",
+      "space_uuid": "406d45fd-...",
+      "parent_uuid": null,
+      "title": "Deploy",
+      "source": "ci",
+      "created_at": "2026-08-02T12:56:07Z",
+      "finished_at": null,
+      "duration": null,
+      "progress": {
+        "current": 1, "end": 2, "ratio": 0.6,
+        "values": {}, "updated_at": "2026-08-02T12:56:08Z",
+        "aggregated": true
+      },
+      "children": [
+        { "uuid": "06b1301b-...", "title": "Build",
+          "finished_at": "2026-08-02T12:56:08Z",
+          "progress": { "current": 100, "end": 100, "ratio": 1.0, "values": {},
+                        "updated_at": "2026-08-02T12:56:08Z", "aggregated": false },
+          "children": [] }
+      ]
+    }
+  ]
+}
+~~~
+
+`GET /tasks/:uuid` answers with one of those entries, steps included.
+
+## A write replaces the whole state
+
+`PUT` is not a patch. A request that omits `values` **clears** the stored `values` rather than leaving it alone, and the same goes for `current` and `end`:
+
+~~~
+curl -X PUT .../tasks/$T -d '{"current": 10, "end": 100, "values": {"pages": 10}}'
+curl -X PUT .../tasks/$T -d '{"current": 20, "end": 100}'
+
+values is now {} — not {"pages": 10}
+~~~
+
+This is deliberate. Whatever is reporting always knows its own complete state, so sending all of it every time is simpler than tracking what has already been sent — and it means one request fully restores a task after a server restart. `PATCH` on the same path is refused with a 405 rather than quietly behaving like `PUT`, because it would promise a merge that never happens.
+
+## `"progress": null` is not zero
+
+A task sitting at zero and a task that has never reported are different things, and the API keeps them apart:
+
+- `"progress": null` — nothing is stored. The task exists, with its title and its steps, but no process has written to it, or what it wrote has since expired. Render it as "waiting for data", not as an empty bar.
+- `"progress": {"current": 0, …}` — the process reported zero. That is an empty bar.
+
+Progress is volatile by design, so `null` is an ordinary state rather than an error, and the next write restores everything.
+
+## A parent's progress is derived
+
+When a task has steps, its own `current` and `end` are ignored and `"aggregated": true`:
+
+- `ratio` — the mean of its steps' ratios. This is the number to drive a smooth bar with.
+- `current` / `end` — finished steps out of total, the honest raw numbers behind "2 of 5 steps".
+- `values` — still the parent's own, so it can carry a log line of its own.
+
+A step that has reported nothing counts as not started. A step that finished counts as complete even if its progress has since expired, because completion is on disk. `end` of zero or missing means the denominator is unknown, so `ratio` is `null` rather than a division by zero, and the task will not complete on its own.
+
+## Completion is one-way
+
+Completing writes `finished_at` and `duration`, and enqueues the notification. Reporting afterwards still overwrites the progress, but `finished_at` does not move and no second notification is sent.
+
+## Progress is never written to disk
+
+The database holds spaces and the shape of each task — uuid, title, parent, and when it finished. Everything that changes while a job runs lives in Redis with a TTL, so a crawler reporting every second for three months does not grow anything. That is what makes it cheap enough to run, and it is why there is no history and no charts. See <%= link_to 'self-hosting', docs_section_path('self-hosting') %> if you are running it yourself.
+<% end %>

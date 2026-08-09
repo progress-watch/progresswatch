@@ -18,7 +18,7 @@
     <% Docs::DOCUMENTS.each do |doc| %>
       <li>
         <%= link_to docs_section_path(doc[:slug]), 'aria-current': ('page' if doc[:slug] == current), class: "flex items-center gap-2.5 rounded-lg px-3 py-2 text-base font-medium transition #{active.call(doc[:slug] == current)}" do %>
-          <%= svg_icon 'gear', class: 'h-4 w-4 shrink-0' %>
+          <%= svg_icon doc[:icon], class: 'h-4 w-4 shrink-0' %>
           <%= doc[:title] %>
         <% end %>
       </li>

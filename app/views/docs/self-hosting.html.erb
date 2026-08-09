@@ -1,0 +1,101 @@
+<%= markdown do %>
+The server is open source under the AGPL, and the hosted service runs the same image you would. Self-hosting costs one container and a Redis, and the database stays small forever because progress is never written to it.
+
+## One file
+
+`docker-compose.yml` is the whole install. It runs the published image, so there is nothing to clone and nothing to build — copy it from <%= link_to 'the Docker page', docs_section_path('docker') %>, which prints the current file, replace the placeholder secret, and start it:
+
+~~~
+openssl rand -hex 64
+docker compose up -d
+~~~
+
+That is the whole setup: the app on `http://localhost:7979`, a worker, a Redis, and a SQLite file on a named volume. Open it, create a space, and the Connect menu on that space hands you snippets with its UUID already filled in.
+
+## Configuring it
+
+The file is yours from the moment you save it, and it is the only place anything is configured — every setting is a line in an `environment:` block, so adding one is adding a line:
+
+~~~
+    environment:
+      - SECRET_KEY_BASE=8f3c…
+      - DATABASE_URL=postgresql://progresswatch:secret@db.internal/progresswatch
+      - VAPID_PUBLIC_KEY=BJ1w…
+      - VAPID_PRIVATE_KEY=xK2p…
+~~~
+
+Two services run the same image and both boot the whole application, so anything you add goes in **both** of them. The one that bites is a VAPID pair set on the app and forgotten on the worker: the button appears, somebody presses it, and nothing is ever delivered.
+
+<%= link_to 'Environment variables', docs_section_path('environment-variables') %> is the full list, and everything on it works here. To publish somewhere other than 7979, change the left-hand side of `7979:3000` — the app inside the container is always on 3000.
+
+~~~
+curl http://localhost:7979/up
+
+{"status":"ok","database":true,"redis":true}
+~~~
+
+## What is running
+
+Three processes and a file. The app answers requests; Redis holds the current progress of every task and the job queue; SQLite holds spaces and the shape of each task. The worker exists for exactly one job — sending a notification when a task finishes — so an install without it works in every other respect and quietly never notifies anyone.
+
+## Why 7979
+
+Not 3000. This is a service you leave running for weeks while you work, and 3000 is where your own dev servers land — Rails, Vite, Next, Grafana and half the `docker run` lines in other guides. A background service should not hold the most contended port on the machine, least of all one whose URL you paste into a CI secret and then forget about.
+
+Inside the container it is still 3000; only the published port moved, and that is the `7979:3000` line.
+
+## Losing the volume is recoverable
+
+Spaces and task structure are on it, and nothing else. If it goes, you create a new space and your reporting processes repopulate everything on their next request. Back it up if you would rather not redistribute a new space UUID to whatever reports into it — but there is nothing on it that cannot be rebuilt by running the jobs again.
+
+## SQLite or PostgreSQL
+
+Both, from the same image and the same migrations, chosen by `DATABASE_URL`. SQLite is the default and is the right answer for one box: two tables, primary-key lookups, almost never written. Point it at `postgresql://…` when you are running several app containers, because they cannot share a file.
+
+## Behind a proxy
+
+Set `FORCE_SSL=true` once something in front of the app terminates TLS. It is off by default so that an install reached over plain HTTP does not redirect you to a certificate you do not have.
+
+## Notifications
+
+Set a VAPID key pair and a "Notify me" button appears on every space; leave the keys unset and the feature does not exist. There is nothing to register with Apple or Google. See <%= link_to 'notifications', docs_section_path('notifications') %> for the whole story, including what has to happen on a phone.
+
+## Sweeping empty spaces
+
+Opening the site creates a space for you, so plenty get created and never used — including by anything that crawls the page. A space that has **ever** held a task is kept for good, however long nobody looks at it. Only ones that never held a single task are swept, and only once they are more than 30 days old.
+
+Nothing runs it for you. Schedule it however you already schedule things:
+
+~~~
+bin/rails sweep_empty_spaces
+~~~
+
+~~~
+# crontab, daily at 04:17
+17 4 * * * cd /path/to/progresswatch && docker compose exec -T progresswatch bin/rails sweep_empty_spaces
+~~~
+
+Because nothing is on a timer, 30 days is a floor rather than a schedule: run it daily and empty spaces go the day they qualify, run it once a year and they sit until then. Skipping it is safe for your data — the sweep only ever takes rows that were never used — it just means the table grows with spaces nobody ever opened.
+
+## Your instance is not indexable
+
+Every page of a self-hosted install is `noindex`, `robots.txt` disallows everything, and `/sitemap.xml` answers 404. There is no audience to reach from somebody's own box and nothing there that wants to be found in a search. `MULTITENANT=true` is what the hosted deployment sets to turn that on, and it is the only thing that flag does.
+
+## One-click platforms
+
+Three buttons on the README. Render and DigitalOcean read a spec from the repository rather than from a template repo somebody has to keep in step — `render.yaml` and `.do/deploy.template.yaml` — and each creates the app, the worker, a Redis and a Postgres in one pass. Fill in `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` afterwards if you want notifications; everything else is wired up already.
+
+Railway is the exception, because its button resolves a template published from Railway's own dashboard and no file here can express one. Same four pieces, defined there instead.
+
+It is the convenient option rather than the cheap one — four billable components on a managed platform costs several times what the same thing costs as `docker compose up` on the smallest VPS anyone sells.
+
+DigitalOcean App Platform runs its own `redis:8-alpine` as an internal component rather than attaching a managed one, because its development databases are Postgres only and its Valkey is a cluster you would have to create before the button could run. Nothing is persisted there in any case.
+
+**Heroku** is deliberately absent, and not for the reason it looks like: `app.json` with `"stack": "container"` alongside a `heroku.yml` is supported and would live here like the others. It is out because Heroku's Redis is TLS-only with self-signed certificates, so a Ruby client has to pass `ssl_params: { verify_mode: OpenSSL::SSL::VERIFY_NONE }`, and this server does not. That is a change to the application in service of one platform's button, which is the wrong way round.
+
+## Running more than one of it
+
+Nothing in the app knows where it is, and that is worth keeping. Containers are stateless — no local writes outside the SQLite volume, no in-process cache holding task state, because Redis is the shared store precisely so any container can answer any request. `GET /up` checks the database and Redis, so a box with a dead Redis is pulled out of rotation instead of answering every poll with a 500. Logs are structured JSON on stdout and there are no log files. Both Puma and Sidekiq handle SIGTERM inside a 25-second drain.
+
+Redis holds two unrelated things and they are kept apart: task state on logical database 0, the Sidekiq queue on database 1. Flushing stale progress can never take the queue with it, and `PROGRESS_REDIS_URL` and `SIDEKIQ_REDIS_URL` point them at separate instances when that matters. Redis is not durable and does not need to be — a failover that loses keys costs one "waiting for data" cycle, not a task.
+<% end %>

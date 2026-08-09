@@ -1,0 +1,56 @@
+spec:
+  name: progresswatch
+  services:
+    - name: progresswatch
+      github:
+        repo: progress-watch/progresswatch
+        branch: master
+      dockerfile_path: Dockerfile
+      http_port: 3000
+      instance_count: 1
+      health_check:
+        http_path: /up
+      envs:
+        - key: SECRET_KEY_BASE
+          type: SECRET
+        - key: DATABASE_URL
+          value: ${db.DATABASE_URL}
+        - key: REDIS_URL
+          value: redis://${redis.PRIVATE_DOMAIN}:${redis.PRIVATE_PORT}
+        - key: FORCE_SSL
+          value: "true"
+
+    # Our own Redis rather than a managed one: App Platform creates development
+    # databases for Postgres only, and its Valkey is a cluster you have to create
+    # before the button runs, which is not one click. Nothing is persisted here
+    # anyway — losing the keys costs one "waiting for data" cycle.
+    - name: redis
+      image:
+        registry_type: DOCKER_HUB
+        registry: docker.io
+        repository: library/redis
+        tag: 8-alpine
+      internal_ports:
+        - 6379
+      instance_count: 1
+
+  workers:
+    - name: progresswatch-worker
+      github:
+        repo: progress-watch/progresswatch
+        branch: master
+      dockerfile_path: Dockerfile
+      run_command: bundle exec sidekiq -C config/sidekiq.yml
+      instance_count: 1
+      envs:
+        - key: SECRET_KEY_BASE
+          type: SECRET
+        - key: DATABASE_URL
+          value: ${db.DATABASE_URL}
+        - key: REDIS_URL
+          value: redis://${redis.PRIVATE_DOMAIN}:${redis.PRIVATE_PORT}
+
+  databases:
+    - name: db
+      engine: PG
+      production: false

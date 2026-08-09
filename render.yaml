@@ -1,0 +1,75 @@
+services:
+  - type: web
+    name: progresswatch
+    runtime: docker
+    plan: starter
+    healthCheckPath: /up
+    envVars:
+      - fromGroup: progresswatch
+      - key: DATABASE_URL
+        fromDatabase:
+          name: progresswatch-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: progresswatch-keyvalue
+          property: connectionString
+      # Pinned to the same instance rather than left to derive db 1, because a managed
+      # Redis is not obliged to have one. Sidekiq's keys and ours do not collide.
+      - key: SIDEKIQ_REDIS_URL
+        fromService:
+          type: keyvalue
+          name: progresswatch-keyvalue
+          property: connectionString
+
+  # Only ever sends notifications. Without it everything else works and nothing
+  # arrives, which is why it is not a plan you can drop to free.
+  - type: worker
+    name: progresswatch-sidekiq
+    runtime: docker
+    plan: starter
+    dockerCommand: bundle exec sidekiq -C config/sidekiq.yml
+    envVars:
+      - fromGroup: progresswatch
+      - key: DATABASE_URL
+        fromDatabase:
+          name: progresswatch-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: progresswatch-keyvalue
+          property: connectionString
+      # Pinned to the same instance rather than left to derive db 1, because a managed
+      # Redis is not obliged to have one. Sidekiq's keys and ours do not collide.
+      - key: SIDEKIQ_REDIS_URL
+        fromService:
+          type: keyvalue
+          name: progresswatch-keyvalue
+          property: connectionString
+
+  - type: keyvalue
+    name: progresswatch-keyvalue
+    plan: free
+    # Sidekiq shares this instance and will not run under an eviction policy.
+    maxmemoryPolicy: noeviction
+    ipAllowList: []
+
+databases:
+  - name: progresswatch-db
+    plan: basic-256mb
+
+envVarGroups:
+  - name: progresswatch
+    envVars:
+      - key: SECRET_KEY_BASE
+        generateValue: true
+      - key: FORCE_SSL
+        value: true
+      # Filled in after the first deploy, from both halves of one generated pair:
+      # bin/rails runner 'k = WebPush.generate_key; puts k.public_key, k.private_key'
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false

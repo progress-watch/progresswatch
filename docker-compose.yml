@@ -1,54 +1,44 @@
+# Progress Watch. Everything is an environment variable, and the whole list — Postgres,
+# notifications, TLS, process sizing — is at https://progress.watch/docs/environment-variables
 services:
-  app:
-    build: .
+  progresswatch:
+    image: progresswatch/progresswatch:latest
+    container_name: progresswatch
+    restart: unless-stopped
     ports:
-      - "${PORT:-7979}:3000"
+      - 7979:3000
     volumes:
       - storage:/rails/storage
     environment:
-      DATABASE_URL: sqlite3:storage/production.sqlite3?timeout=5000
-      REDIS_URL: redis://redis:6379
-      SECRET_KEY_BASE: ${SECRET_KEY_BASE:-change-me-in-production-0000000000000000000000000000000000000000}
-      # Web Push. Unset means the feature is not offered and nothing is stored about
-      # anyone; both services need them, since one renders the button and the other sends.
-      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
-      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+      - SECRET_KEY_BASE=replace-me-with-openssl-rand-hex-64
+      - DATABASE_URL=sqlite3:storage/production.sqlite3?timeout=5000
+      - REDIS_URL=redis://redis:6379
     depends_on:
-      redis:
-        condition: service_healthy
-    restart: unless-stopped
+      - redis
 
-  sidekiq:
-    build: .
+  # Sends the notifications and does nothing else. Whatever you add above, add here too:
+  # a VAPID key set on one and not the other renders the button and never delivers.
+  progresswatch-worker:
+    image: progresswatch/progresswatch:latest
+    container_name: progresswatch-worker
+    restart: unless-stopped
     command: bundle exec sidekiq -C config/sidekiq.yml
     volumes:
       - storage:/rails/storage
     environment:
-      DATABASE_URL: sqlite3:storage/production.sqlite3?timeout=5000
-      REDIS_URL: redis://redis:6379
-      SECRET_KEY_BASE: ${SECRET_KEY_BASE:-change-me-in-production-0000000000000000000000000000000000000000}
-      # Web Push. Unset means the feature is not offered and nothing is stored about
-      # anyone; both services need them, since one renders the button and the other sends.
-      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
-      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+      - SECRET_KEY_BASE=replace-me-with-openssl-rand-hex-64
+      - DATABASE_URL=sqlite3:storage/production.sqlite3?timeout=5000
+      - REDIS_URL=redis://redis:6379
     depends_on:
-      redis:
-        condition: service_healthy
-      app:
-        condition: service_started
-    restart: unless-stopped
+      - redis
 
   redis:
     image: redis:8-alpine
+    container_name: progresswatch-redis
+    restart: unless-stopped
     # No persistence: progress is volatile by design, and a restart costs one
     # "Waiting for data..." cycle.
     command: redis-server --save "" --appendonly no
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-    restart: unless-stopped
 
 volumes:
   storage:

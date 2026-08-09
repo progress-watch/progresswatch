@@ -11,15 +11,15 @@
         <%= render template: "docs/#{@doc[:slug]}" %>
       </div>
     <% else %>
-      <% if @space_uuid %>
-        <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
+      <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
+        <% if ConnectSnippets::SECTIONS[@section][:intro] %>
+          <%= ConnectSnippets::SECTIONS[@section][:intro] %>
+        <% elsif @space_uuid %>
           Ready to paste, with your space UUID already in it.
-        </p>
-      <% else %>
-        <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
+        <% else %>
           These create a space and report into it. Already have one? Open it and come back through the Connect menu, and its UUID is filled in for you.
-        </p>
-      <% end %>
+        <% end %>
+      </p>
       <div class="mt-6">
         <%= render 'shared/snippet', steps: ConnectSnippets.call(@section, base_url: request.base_url, space_uuid: @space_uuid) %>
       </div>

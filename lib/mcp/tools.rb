@@ -63,7 +63,7 @@ module Mcp
           'required' => ['title']
         },
         'description' => <<~TEXT
-          Create a task the user can watch on their phone.
+          Create a task the user can watch from anywhere while it runs.
 
           Call this when you are starting a long-running operation the user might want to
           track — anything with many steps, or that will take more than a minute. Returns

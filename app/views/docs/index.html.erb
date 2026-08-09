@@ -6,18 +6,21 @@
   <div class="min-w-0 max-w-2xl flex-1">
     <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">Watch any process</h1>
     <p class="mt-4 text-base text-zinc-600 dark:text-zinc-300">Some things run for hours with nobody watching: a nightly crawl, a training run, a migration, a CI pipeline, an agent working through a long task. Progress Watch gives them one place to report to, and gives you one place to look — plus a notification when they finish.</p>
-    <h2 class="mt-10 text-lg font-medium">One request, no library</h2>
-    <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300">Reporting is an HTTP request. There is no SDK to install and nothing to import, because wrapping a single <code class="font-mono text-xs">PUT</code> would add nothing.</p>
+    <h2 class="mt-10 text-lg font-medium">Three commands from inside the work</h2>
+    <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300">Create a task where the job starts, report against it as it moves, close it when it is done. The middle one is the call that goes in your loop, and it is the only thing that knows the numbers.</p>
+    <div class="mt-4">
+      <%= render 'shared/command', body: 'progresswatch update $TASK --current 1200 --end 50000' %>
+    </div>
+    <p class="mt-3 text-sm text-zinc-600 dark:text-zinc-300">Counts, not percentages: the screen shows <span class="font-mono text-xs">1200 / 50000 pages</span>, which tells you something that <span class="font-mono text-xs">2.4%</span> does not. The total may change as a job discovers more work — send the new number and the bar recalculates. The <%= link_to 'CLI', docs_section_path('cli'), class: 'text-brand-600 underline dark:text-brand-400' %> page has all three, ready to paste.</p>
+    <p class="mt-3 text-sm text-zinc-600 dark:text-zinc-300">When the process is not yours to change, <span class="font-mono text-xs">progresswatch run "python train.py"</span> wraps it whole — it creates the task, passes the output through untouched and closes it with the exit code, so a job that fails still notifies you. It reports start and finish rather than counts, because nothing outside a process knows how far along it is.</p>
+    <h2 class="mt-10 text-lg font-medium">Or one request, from anything</h2>
+    <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300">Underneath all of it is a single HTTP request, and that is the whole API. There is no SDK to install and nothing to import, because wrapping one <code class="font-mono text-xs">PUT</code> would add nothing you could not write yourself in less time than reading its documentation.</p>
     <div class="mt-4">
       <%= render 'shared/command', body: %(curl -X PUT https://progress.watch/tasks/$TASK -H 'Content-Type: application/json' -d '{"current": 1200, "end": 50000}') %>
     </div>
-    <p class="mt-4 text-sm text-zinc-600 dark:text-zinc-300">There is a command line tool as well, and wrapping a command is the whole integration — it creates the task, streams the output through untouched, and closes the task with the exit code:</p>
-    <div class="mt-4">
-      <%= render 'shared/command', body: 'progresswatch run "python train.py"' %>
-    </div>
-    <p class="mt-3 text-sm text-zinc-600 dark:text-zinc-300">Counts, not percentages: the screen shows <span class="font-mono text-xs">1200 / 50000 pages</span>, which tells you something that <span class="font-mono text-xs">2.4%</span> does not. The total may change as a job discovers more work — send the new number and the bar recalculates. Full <%= link_to 'CLI', docs_section_path('cli'), class: 'text-brand-600 underline dark:text-brand-400' %> and <%= link_to 'curl', docs_section_path('curl'), class: 'text-brand-600 underline dark:text-brand-400' %> examples are one click away.</p>
+    <p class="mt-3 text-sm text-zinc-600 dark:text-zinc-300">The <%= link_to 'HTTP API', docs_section_path('http-api'), class: 'text-brand-600 underline dark:text-brand-400' %> is the reference to build against, and pasting the <%= link_to 'curl', docs_section_path('curl'), class: 'text-brand-600 underline dark:text-brand-400' %> examples is the fastest way to see the thing work before you commit to it.</p>
     <h2 class="mt-10 text-lg font-medium">Agents report their own work</h2>
-    <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300">An AI agent breaks a job into steps and then works for a long time with nothing to show for it. Connect one over <%= link_to 'MCP', docs_section_path('mcp'), class: 'text-brand-600 underline dark:text-brand-400' %> and it gets tools for creating a task and reporting against it: one task for the job, one child task per step, updated as it goes. There is an <%= link_to 'agent skill', docs_section_path('agent'), class: 'text-brand-600 underline dark:text-brand-400' %> for the same thing without MCP.</p>
+    <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300">An AI agent breaks a job into steps and then works for a long time with nothing to show for it. Connect one over <%= link_to 'MCP', docs_section_path('mcp'), class: 'text-brand-600 underline dark:text-brand-400' %> and it gets tools for creating a task and reporting against it: one task for the job, one child task per step, updated as it goes. MCP needs nothing installed anywhere; for a client that does not speak it, an <%= link_to 'agent skill', docs_section_path('agent'), class: 'text-brand-600 underline dark:text-brand-400' %> teaches the same thing through the CLI.</p>
     <p class="mt-3 text-sm text-zinc-600 dark:text-zinc-300">The agent decides when tracking is worth it and how often to report. The tool descriptions tell it what a task is for, not a schedule to follow.</p>
     <h2 class="mt-10 text-lg font-medium">No accounts</h2>
     <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300">A space is a container for tasks, and its UUID is the credential. Whoever has the link can read and write it; sharing is giving someone the link. There is nothing to sign up for, nothing to log into, and no password to lose — which also means the link is the only way back to a space, so it is worth keeping like an API token.</p>
@@ -30,7 +33,7 @@
       <li><span class="font-medium text-zinc-900 dark:text-zinc-100">Nest more than one level.</span> A task may have steps; a step may not.</li>
     </ul>
     <h2 class="mt-10 text-lg font-medium">Run it yourself</h2>
-    <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300">The server is open source and self-hosting is one container plus a Redis — see <%= link_to 'the Docker snippet', docs_section_path('docker'), class: 'text-brand-600 underline dark:text-brand-400' %>, and <%= link_to 'the environment variables', docs_section_path('environment-variables'), class: 'text-brand-600 underline dark:text-brand-400' %> for everything you can set. The hosted service exists so you do not have to, not because the software is crippled without it.</p>
+    <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300">The server is open source and self-hosting is one container plus a Redis — see <%= link_to 'the Docker snippet', docs_section_path('docker'), class: 'text-brand-600 underline dark:text-brand-400' %> to start it and <%= link_to 'self-hosting', docs_section_path('self-hosting'), class: 'text-brand-600 underline dark:text-brand-400' %> for running it properly. The hosted service exists so you do not have to, not because the software is crippled without it.</p>
     <div class="card mt-12 p-8 text-center">
       <p class="text-base font-medium">Nothing to sign up for</p>
       <p class="mx-auto mt-2 max-w-sm text-sm text-zinc-600 dark:text-zinc-300">Make a space, keep its link, and start reporting into it from anything.</p>

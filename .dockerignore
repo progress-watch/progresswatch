@@ -7,6 +7,8 @@
 /spec
 .DS_Store
 .github
+.do
+/render.yaml
 /config/master.key
 /config/credentials.yml.enc
 /node_modules

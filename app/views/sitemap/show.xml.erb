@@ -2,14 +2,10 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc><%= docs_url %></loc>
-    <lastmod>2026-08-02</lastmod>
+    <lastmod>2026-08-07</lastmod>
   </url>
   <url>
     <loc><%= docs_section_url('cli') %></loc>
-    <lastmod>2026-08-02</lastmod>
-  </url>
-  <url>
-    <loc><%= docs_section_url('curl') %></loc>
     <lastmod>2026-08-02</lastmod>
   </url>
   <url>
@@ -21,8 +17,12 @@
     <lastmod>2026-08-02</lastmod>
   </url>
   <url>
+    <loc><%= docs_section_url('curl') %></loc>
+    <lastmod>2026-08-07</lastmod>
+  </url>
+  <url>
     <loc><%= docs_section_url('docker') %></loc>
-    <lastmod>2026-08-02</lastmod>
+    <lastmod>2026-08-07</lastmod>
   </url>
   <% Docs::DOCUMENTS.each do |doc| %>
     <url>
