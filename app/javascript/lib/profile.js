@@ -45,6 +45,12 @@ export function pushEnabled (uuid) {
   return read().some((s) => s.uuid === uuid && s.push === true)
 }
 
+// Not remember(): that stamps last_opened_at, and a space whose name was fetched has not
+// been opened. Merges, so nothing else on the entry is disturbed.
+export function describe (uuid, { title, icon }) {
+  write(read().map((space) => (space.uuid === uuid ? { ...space, title: title || null, icon: icon || null } : space)))
+}
+
 export function setPush (uuid, on) {
   write(read().map((s) => (s.uuid === uuid ? { ...s, push: on } : s)))
 }
@@ -65,28 +71,32 @@ export function writeSetting (name, value) {
   writeProfile({ ...profile, settings: { ...profile.settings, [name]: value } })
 }
 
+// Only what cannot be recovered. A title and an icon come back from the server the first
+// time the space is opened; last_opened_at and push describe this device; settings are a
+// preference. What is left is the pair that nothing else in the world can reconstruct.
 export function exportBlob () {
-  return new Blob([JSON.stringify(readProfile(), null, 2)], { type: 'application/json' })
+  const entries = read().map(({ uuid, server }) => ({ uuid, server }))
+
+  return new Blob([JSON.stringify(entries, null, 2)], { type: 'application/json' })
 }
 
 export function importProfile (json) {
-  const incoming = normalise(parse(json) ?? {})
-  if (incoming.spaces.length === 0 && Object.keys(incoming.settings).length === 0) {
-    throw new Error('expected a { "spaces": [...] } object')
-  }
+  const incoming = parse(json)
+  if (!Array.isArray(incoming)) throw new Error('expected a list of { "uuid": ..., "server": ... }')
 
-  const current = readProfile()
-  const byUuid = new Map(current.spaces.map((s) => [s.uuid, s]))
+  const entries = incoming.filter((entry) => typeof entry?.uuid === 'string' && typeof entry?.server === 'string')
+  if (entries.length === 0) throw new Error('no spaces in that file')
 
-  incoming.spaces.forEach((entry) => byUuid.set(entry.uuid, entry))
+  const byUuid = new Map(read().map((space) => [space.uuid, space]))
 
-  const merged = {
-    spaces: [...byUuid.values()],
-    settings: { ...current.settings, ...incoming.settings }
-  }
-  writeProfile(merged)
+  // Merge rather than replace: a space this browser already knows keeps the title, icon
+  // and push flag it has, and the file carries none of those to overwrite them with.
+  entries.forEach((entry) => byUuid.set(entry.uuid, { ...byUuid.get(entry.uuid), ...entry }))
 
-  return merged
+  const spaces = [...byUuid.values()]
+  write(spaces)
+
+  return spaces
 }
 
 function parse (value) {

@@ -82,7 +82,9 @@ export default class extends HTMLElement {
 
   card (space) {
     const node = this.clone('card')
-    const title = space.title || 'Untitled space'
+    // The uuid, not "Untitled space": an imported file carries no titles, and a screen of
+    // identical cards is worse than a screen of ugly ones.
+    const title = space.title || space.uuid
 
     node.querySelector('[data-link]').href = linkTo(space)
     node.querySelector('[data-title]').textContent = title
