@@ -59,14 +59,17 @@ RSpec.describe 'OpenAPI' do
     end
   end
 
-  it 'declares a parameter for every placeholder in a path' do
+  # Path parameters only: query ones are a separate list and the first of them arrived with
+  # GET /tasks/{task_uuid}/report, which made this fail for saying the right thing.
+  it 'declares a parameter for every placeholder in a path, and no path parameter that is not one' do
     document['paths'].each do |path, verbs|
       placeholders = path.scan(/\{(\w+)\}/).flatten
 
       verbs.each do |verb, operation|
-        declared = operation.fetch('parameters', []).map { |parameter| parameter['name'] }
+        declared = operation.fetch('parameters', []).select { |parameter| parameter['in'] == 'path' }
 
-        expect(declared).to match_array(placeholders), "#{verb.upcase} #{path} declares #{declared}"
+        expect(declared.pluck('name')).to match_array(placeholders), "#{verb.upcase} #{path} declares #{declared}"
+        expect(declared).to all(include('required' => true)), "#{verb.upcase} #{path} has an optional path parameter"
       end
     end
   end

@@ -6,7 +6,7 @@ module OpenApi
   module Operations
     # Reading order, not method order: this is the sequence somebody integrating actually
     # calls them in. Anything not listed lands at the end rather than disappearing.
-    ORDER = %w[create-space create-task report-progress get-space get-task health].freeze
+    ORDER = %w[create-space create-task report-progress report-progress-from-url get-space get-task health].freeze
 
     # PATCH is routed on purpose so it can answer 405 with a reason instead of a bare 404,
     # and it is in the document because the spec walks routes in both directions. It is not

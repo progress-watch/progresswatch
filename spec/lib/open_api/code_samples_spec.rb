@@ -13,8 +13,12 @@ RSpec.describe OpenApi::CodeSamples do
   it 'writes every operation in every language that can express it' do
     described_class::SAMPLES.each do |id, samples|
       expect(samples.keys - described_class::LANGUAGES.keys).to be_empty, id
-      expect(samples.keys).to include(*described_class::HTTP_LANGUAGES), id
       expect(samples.values).to all(be_present), id
+      expect(samples.keys).to include('curl'), id
+
+      next if described_class::URL_ONLY.include?(id)
+
+      expect(samples.keys).to include(*described_class::HTTP_LANGUAGES), id
     end
   end
 

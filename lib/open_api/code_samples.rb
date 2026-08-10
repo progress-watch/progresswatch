@@ -13,6 +13,11 @@ module OpenApi
       'csharp' => 'C#'
     }.freeze
 
+    # curl and nothing else, because the whole reason this operation exists is a client that
+    # can only fire a URL. A Java or Python author has PUT, and showing them a GET that
+    # writes would be documenting the wrong choice.
+    URL_ONLY = ['report-progress-from-url'].freeze
+
     # The CLI is not a transport: `progresswatch list` reads a space without naming a URL,
     # so only these can be checked against the document. A command that means the same
     # thing as the request is not guaranteed to exist for every endpoint either, which is
@@ -234,6 +239,10 @@ module OpenApi
               values = new { pages = 1200, errors = 3 }
           });
         TEXT
+      },
+
+      'report-progress-from-url' => {
+        'curl' => %(curl -g "{{server}}/tasks/$TASK/report?current=1200&end=50000&values[errors]=3")
       },
 
       'get-space' => {

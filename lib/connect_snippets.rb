@@ -103,7 +103,7 @@ module ConnectSnippets
 
     'curl' => {
       heading: 'Try the API with curl',
-      description: 'Try the Progress Watch API with curl, with nothing to install.',
+      description: 'Try the Progress Watch API with curl, and report from a client that can only fire a URL.',
       title: 'curl',
       icon: 'globe',
       steps: [
@@ -121,7 +121,17 @@ module ConnectSnippets
           body: "curl -X PUT {{server}}/tasks/$TASK -H 'Content-Type: application/json' -d '{\"done\": true}'" },
         { label: 'That is the whole surface, and it is what the CLI and the MCP tools call. For something you ' \
                  'run every day the CLI is one line instead of four; to build on it, the API reference and ' \
-                 'OpenAPI 3.1 are at /openapi.json.' }
+                 'OpenAPI 3.1 are at /openapi.json.' },
+        { label: 'One more, for a client that cannot do the above. Some things can only be handed a URL — an ' \
+                 'uptime pinger, a webhook field in somebody else\'s product, a router or a sensor, a cron line ' \
+                 'with a bare curl. They cannot choose a method or send a body, so the same write is reachable ' \
+                 'as a plain GET.',
+          body: 'curl -g "{{server}}/tasks/$TASK/report?current=1200&end=50000&values[errors]=3"' },
+        { label: 'The -g is for curl, not for us: curl reads square brackets in a URL as a range and refuses ' \
+                 'the address without it. Anything that simply fires a URL needs nothing special.' },
+        { label: 'Use it only when there is no alternative. It is a GET that writes, so anything that follows ' \
+                 'the URL performs the write: paste it into a chat and the link preview reports for you. If ' \
+                 'your client can send a request body at all, the PUT above is the one to use.' }
       ]
     },
 

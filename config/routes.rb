@@ -49,6 +49,12 @@ Rails.application.routes.draw do
     # because a write replaces the entire volatile state and PATCH promises a merge.
     resources :tasks, only: %i[show update], param: :uuid
 
+    # A GET that writes, which is a thing to do on purpose and nowhere else. It exists for
+    # clients that can fire a URL and nothing else — an uptime pinger, a webhook field in
+    # somebody else's product, a device. Its own path, because GET /tasks/:uuid must stay a
+    # read: browsers prefetch links and chat apps unfurl them.
+    get 'tasks/:uuid/report', to: 'tasks#report', as: :report_task
+
     # MCP over Streamable HTTP. One endpoint answering POST and GET, with the space
     # either in the path or in an X-Space-Uuid header.
     post 'mcp(/:space_uuid)', to: 'mcp#create', as: :mcp

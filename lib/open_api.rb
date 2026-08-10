@@ -285,6 +285,66 @@ module OpenApi
         }
       }
     },
+    '/tasks/{task_uuid}/report' => {
+      'get' => {
+        'operationId' => 'reportProgressFromUrl',
+        'summary' => 'Report progress from a URL',
+        'description' => 'The same write as PUT, reachable by anything that can only fire a URL: an uptime ' \
+                         'pinger, a webhook field in somebody else\'s product, a device, a cron line with a bare ' \
+                         'curl. If your client can send a request body, use PUT instead. This one is a GET that ' \
+                         'writes, so anything that follows the URL performs the write — a link unfurler in a chat ' \
+                         'app will report on your behalf. Keep it out of anywhere a machine might click it.',
+        'parameters' => [
+          {
+            'name' => 'task_uuid',
+            'in' => 'path',
+            'required' => true,
+            'schema' => { 'type' => 'string', 'format' => 'uuid' }
+          },
+          {
+            'name' => 'current',
+            'in' => 'query',
+            'description' => 'A count, not a percentage.',
+            'schema' => { 'type' => 'number' }
+          },
+          {
+            'name' => 'end',
+            'in' => 'query',
+            'description' => 'May change between calls.',
+            'schema' => { 'type' => 'number' }
+          },
+          {
+            'name' => 'done',
+            'in' => 'query',
+            'description' => 'Finish the task. It also finishes on its own once current reaches end.',
+            'schema' => { 'type' => 'boolean' }
+          },
+          {
+            'name' => 'values',
+            'in' => 'query',
+            'style' => 'deepObject',
+            'explode' => true,
+            'description' => 'Flat extras, as values[pages]=1200. They arrive as text, since a query string ' \
+                             'carries no types.',
+            'schema' => { 'type' => 'object', 'additionalProperties' => true }
+          }
+        ],
+        'responses' => {
+          '200' => {
+            'description' => 'The task as it now stands',
+            'content' => { 'application/json' => { 'schema' => { '$ref' => '#/components/schemas/Task' } } }
+          },
+          '400' => {
+            'description' => 'values was not a flat object of numbers, strings or booleans',
+            'content' => { 'application/json' => { 'schema' => { '$ref' => '#/components/schemas/Error' } } }
+          },
+          '404' => {
+            'description' => 'No such task',
+            'content' => { 'application/json' => { 'schema' => { '$ref' => '#/components/schemas/Error' } } }
+          }
+        }
+      }
+    },
     '/up' => {
       'get' => {
         'operationId' => 'health',
