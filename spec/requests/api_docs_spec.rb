@@ -33,6 +33,16 @@ RSpec.describe 'API reference' do
     expect(response.body).not_to include('id="report-progress-patch"')
   end
 
+  # The count is prose and nothing recomputes it, so adding an endpoint leaves it wrong on
+  # the one page a reader is counting from.
+  it 'counts the operations correctly in its own opening line' do
+    get '/docs/api'
+
+    words = %w[zero one two three four five six seven eight nine ten]
+
+    expect(response.body).to include("#{words.fetch(OpenApi::Operations.call.size).capitalize} operations")
+  end
+
   it 'lists them in the order it was told to, not hash order' do
     expect(OpenApi::Operations.call.pluck(:id))
       .to eq(OpenApi::Operations::ORDER)

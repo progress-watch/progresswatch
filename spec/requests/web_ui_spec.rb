@@ -107,6 +107,17 @@ RSpec.describe 'Web UI' do
   # MULTITENANT is the hosted deployment. Self-hosted is the default, and everything
   # written for a stranger who found us in a search is off there.
   describe 'self-hosted, which is the default' do
+    # The flag configures the deployment we run, not the one the reader is setting up.
+    # Naming it in the docs invites somebody to set it on their own box, where the only
+    # thing it does is put a private instance in a search index.
+    it 'never names the flag in anything written for a reader' do
+      pages = Dir['app/views/docs/*.html.erb'] + ['README.md']
+
+      pages.each do |page|
+        expect(File.read(page)).not_to include('MULTITENANT'), "#{page} names an internal flag"
+      end
+    end
+
     # The docs are how somebody sets up their own box, so they are linked here too. What
     # stays behind the flag is being found from outside: a private instance has no
     # audience to reach.

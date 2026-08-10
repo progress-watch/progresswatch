@@ -79,23 +79,5 @@ Because nothing is on a timer, 30 days is a floor rather than a schedule: run it
 
 ## Your instance is not indexable
 
-Every page of a self-hosted install is `noindex`, `robots.txt` disallows everything, and `/sitemap.xml` answers 404. There is no audience to reach from somebody's own box and nothing there that wants to be found in a search. `MULTITENANT=true` is what the hosted deployment sets to turn that on, and it is the only thing that flag does.
-
-## One-click platforms
-
-Three buttons on the README. Render and DigitalOcean read a spec from the repository rather than from a template repo somebody has to keep in step — `render.yaml` and `.do/deploy.template.yaml` — and each creates the app, the worker, a Redis and a Postgres in one pass. Fill in `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` afterwards if you want notifications; everything else is wired up already.
-
-Railway is the exception, because its button resolves a template published from Railway's own dashboard and no file here can express one. Same four pieces, defined there instead.
-
-It is the convenient option rather than the cheap one — four billable components on a managed platform costs several times what the same thing costs as `docker compose up` on the smallest VPS anyone sells.
-
-DigitalOcean App Platform runs its own `redis:8-alpine` as an internal component rather than attaching a managed one, because its development databases are Postgres only and its Valkey is a cluster you would have to create before the button could run. Nothing is persisted there in any case.
-
-**Heroku** is deliberately absent, and not for the reason it looks like: `app.json` with `"stack": "container"` alongside a `heroku.yml` is supported and would live here like the others. It is out because Heroku's Redis is TLS-only with self-signed certificates, so a Ruby client has to pass `ssl_params: { verify_mode: OpenSSL::SSL::VERIFY_NONE }`, and this server does not. That is a change to the application in service of one platform's button, which is the wrong way round.
-
-## Running more than one of it
-
-Nothing in the app knows where it is, and that is worth keeping. Containers are stateless — no local writes outside the SQLite volume, no in-process cache holding task state, because Redis is the shared store precisely so any container can answer any request. `GET /up` checks the database and Redis, so a box with a dead Redis is pulled out of rotation instead of answering every poll with a 500. Logs are structured JSON on stdout and there are no log files. Both Puma and Sidekiq handle SIGTERM inside a 25-second drain.
-
-Redis holds two unrelated things and they are kept apart: task state on logical database 0, the Sidekiq queue on database 1. Flushing stale progress can never take the queue with it, and `PROGRESS_REDIS_URL` and `SIDEKIQ_REDIS_URL` point them at separate instances when that matters. Redis is not durable and does not need to be — a failover that loses keys costs one "waiting for data" cycle, not a task.
+Every page of a self-hosted install is `noindex`, `robots.txt` disallows everything, and `/sitemap.xml` answers 404. There is no audience to reach from somebody's own box and nothing there that wants to be found in a search, and nothing has to be configured for it — it is what you get.
 <% end %>

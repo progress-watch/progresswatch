@@ -59,6 +59,18 @@ RSpec.describe 'OpenAPI' do
     end
   end
 
+  # Half of them had one and half did not, which on the reference page reads as an unfinished
+  # document — and the two without were create-task and get-task, the second and fourth
+  # things anybody calls.
+  it 'gives every operation a description, not just a summary' do
+    document['paths'].each do |path, verbs|
+      verbs.each do |verb, operation|
+        expect(operation['description']).to be_present, "#{verb.upcase} #{path} has no description"
+        expect(operation['summary']).to be_present, "#{verb.upcase} #{path} has no summary"
+      end
+    end
+  end
+
   # Path parameters only: query ones are a separate list and the first of them arrived with
   # GET /tasks/{task_uuid}/report, which made this fail for saying the right thing.
   it 'declares a parameter for every placeholder in a path, and no path parameter that is not one' do

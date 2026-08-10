@@ -43,7 +43,7 @@ This repository is the server. The command line client is <a href="https://githu
 
 Render and DigitalOcean read a spec from this repository — `render.yaml` and `.do/deploy.template.yaml` — so each button creates the app, the worker, a Redis and a Postgres in one pass, with nothing to fork and nothing to keep in step. Railway is the exception: its button resolves a template held in Railway rather than a file here.
 
-They are the convenient option rather than the cheap one: four billable components on a managed platform is several times the same thing as `docker compose up` on the smallest VPS anyone sells. [Self-hosting](https://progress.watch/docs/self-hosting) has the numbers, and why Heroku is not up there.
+They are the convenient option rather than the cheap one: four billable components on a managed platform is several times the same thing as `docker compose up` on the smallest VPS anyone sells.
 
 #### Docker Compose
 
@@ -140,7 +140,7 @@ Underneath every one of these is a single request, so an AI agent connects over 
 - [Get started](https://progress.watch/docs) — what it is and what it will not do
 - [CLI](https://progress.watch/docs/cli) · [Agent skill](https://progress.watch/docs/agent) · [MCP](https://progress.watch/docs/mcp) · [curl](https://progress.watch/docs/curl)
 - [API Reference](https://progress.watch/docs/api) — every endpoint, with a sample in eight languages
-- [Self-hosting](https://progress.watch/docs/self-hosting) — what runs, what to put on a cron, deploying to a platform
+- [Self-hosting](https://progress.watch/docs/self-hosting) — what runs, what to configure, what to put on a cron
 - [Notifications](https://progress.watch/docs/notifications) — Web Push, and what has to happen on a phone
 - [Environment variables](https://progress.watch/docs/environment-variables) — everything you can set
 

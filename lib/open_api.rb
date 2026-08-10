@@ -87,7 +87,9 @@ module OpenApi
       'get' => {
         'operationId' => 'getSpace',
         'summary' => 'Read a space and every task in it',
-        'description' => 'One query and one Redis MGET whatever the task count. Safe to poll every few seconds.',
+        'description' => 'One query and one Redis MGET whatever the task count. Safe to poll every few seconds. ' \
+                         'Tasks and their children come back in creation order, oldest first. ' \
+                         'Any other order is a display decision and belongs to the client.',
         'parameters' => [
           {
             'name' => 'space_uuid',
@@ -115,6 +117,9 @@ module OpenApi
       'post' => {
         'operationId' => 'createTask',
         'summary' => 'Create a task',
+        'description' => 'The returned uuid is the only handle on the task. Until something reports against it ' \
+                         'the task reads as waiting for data, which looks the same as a reporter that died — so ' \
+                         'write to it when the work starts, even with nothing to count.',
         'parameters' => [
           {
             'name' => 'space_uuid',
@@ -176,6 +181,8 @@ module OpenApi
       'get' => {
         'operationId' => 'getTask',
         'summary' => 'Read one task and its children',
+        'description' => 'The same shape as one entry in a space, steps nested. Cheaper to poll than the whole ' \
+                         'space when only one thing is running.',
         'parameters' => [
           {
             'name' => 'task_uuid',
