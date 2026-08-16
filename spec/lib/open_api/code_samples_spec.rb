@@ -48,4 +48,34 @@ RSpec.describe OpenApi::CodeSamples do
     expect(samples['ruby']).to include("/spaces/\#{space_uuid}")
     expect(samples['csharp']).to include('$"/spaces/{spaceUuid}"')
   end
+
+  # The page's opening block. It is the one sample that is not an operation, so nothing
+  # else checks it — and a language missing from it silently falls back to another tab.
+  describe 'the lifecycle block' do
+    it 'covers every language the switcher offers' do
+      expect(described_class::LIFECYCLE.keys).to match_array(described_class::LANGUAGES.keys)
+    end
+
+    # Paths only for the transports: the CLI names no URL, which is the same reason
+    # HTTP_LANGUAGES exists for the per-operation samples.
+    it 'walks create, report and close, in that order' do
+      samples = described_class.lifecycle(base_url: 'https://progress.watch')
+
+      described_class::HTTP_LANGUAGES.each do |language|
+        code = samples.fetch(language)
+
+        expect(code).to include('/spaces'), language
+        expect(code.index('/spaces')).to be < code.index('/tasks'), language
+        expect(code.index('/tasks')).to be < code.rindex('done'), language
+      end
+    end
+
+    # It closes with done and nothing else, which is what keeps the last counts. Repeating
+    # current here would teach the workaround for a bug that no longer exists.
+    it 'closes with a bare done' do
+      described_class.lifecycle(base_url: 'https://progress.watch').each do |language, code|
+        expect(code.lines.last).not_to include('current'), language
+      end
+    end
+  end
 end

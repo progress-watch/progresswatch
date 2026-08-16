@@ -24,6 +24,194 @@ module OpenApi
     # why a CLI sample is optional and the tab row is built per operation.
     HTTP_LANGUAGES = (LANGUAGES.keys - ['cli']).freeze
 
+    # One task from nothing to finished, because the reference shows each operation alone
+    # and the shape only becomes obvious when you see the loop. It closes with a bare
+    # `done`, which keeps the last counts.
+    LIFECYCLE = {
+      'cli' => <<~'TEXT',
+        progresswatch space new "Crawler"
+        TASK=$(progresswatch new "Crawl example.com")
+
+        for pages in 0 250 500 750; do
+          progresswatch update "$TASK" \
+            --current "$pages" --end 1000 --values pages="$pages"
+        done
+
+        progresswatch done "$TASK"
+      TEXT
+      'curl' => <<~'TEXT',
+        SPACE=$(curl -s -X POST "{{server}}/spaces" \
+          -H 'Content-Type: application/json' \
+          -d '{"title": "Crawler"}' | jq -r .uuid)
+
+        TASK=$(curl -s -X POST "{{server}}/spaces/$SPACE/tasks" \
+          -H 'Content-Type: application/json' \
+          -d '{"title": "Crawl example.com"}' | jq -r .uuid)
+
+        for pages in 0 250 500 750; do
+          curl -s -X PUT "{{server}}/tasks/$TASK" \
+            -H 'Content-Type: application/json' \
+            -d "{\"current\": $pages, \"end\": 1000}"
+        done
+
+        curl -s -X PUT "{{server}}/tasks/$TASK" \
+          -H 'Content-Type: application/json' -d '{"done": true}'
+      TEXT
+      'javascript' => <<~TEXT,
+        const send = (method, path, body) =>
+          fetch(`{{server}}${path}`, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          }).then((response) => response.json())
+
+        const { uuid: space } = await send('POST', '/spaces', {
+          title: 'Crawler'
+        })
+
+        const { uuid: task } = await send(
+          'POST', `/spaces/${space}/tasks`, { title: 'Crawl example.com' }
+        )
+
+        for (let pages = 0; pages < 1000; pages += 250) {
+          await send('PUT', `/tasks/${task}`, {
+            current: pages,
+            end: 1000,
+            values: { pages }
+          })
+        }
+
+        await send('PUT', `/tasks/${task}`, { done: true })
+      TEXT
+      'python' => <<~TEXT,
+        import requests
+
+        server = "{{server}}"
+
+        space = requests.post(
+            f"{server}/spaces", json={"title": "Crawler"}
+        ).json()["uuid"]
+
+        task = requests.post(
+            f"{server}/spaces/{space}/tasks",
+            json={"title": "Crawl example.com"},
+        ).json()["uuid"]
+
+        for pages in range(0, 1000, 250):
+            requests.put(
+                f"{server}/tasks/{task}",
+                json={
+                    "current": pages,
+                    "end": 1000,
+                    "values": {"pages": pages},
+                },
+            )
+
+        requests.put(f"{server}/tasks/{task}", json={"done": True})
+      TEXT
+      'php' => <<~'TEXT',
+        use GuzzleHttp\Client;
+
+        $client = new Client(['base_uri' => '{{server}}']);
+
+        $space = json_decode($client->post('/spaces', [
+            'json' => ['title' => 'Crawler'],
+        ])->getBody())->uuid;
+
+        $task = json_decode($client->post("/spaces/{$space}/tasks", [
+            'json' => ['title' => 'Crawl example.com'],
+        ])->getBody())->uuid;
+
+        for ($pages = 0; $pages < 1000; $pages += 250) {
+            $client->put("/tasks/{$task}", ['json' => [
+                'current' => $pages,
+                'end' => 1000,
+                'values' => ['pages' => $pages],
+            ]]);
+        }
+
+        $client->put("/tasks/{$task}", ['json' => ['done' => true]]);
+      TEXT
+      'ruby' => <<~'TEXT',
+        require 'faraday'
+
+        conn = Faraday.new('{{server}}') do |f|
+          f.request :json
+          f.response :json
+        end
+
+        space = conn.post('/spaces', { title: 'Crawler' }).body['uuid']
+
+        task = conn.post("/spaces/#{space}/tasks",
+                         { title: 'Crawl example.com' }).body['uuid']
+
+        0.step(750, 250) do |pages|
+          conn.put("/tasks/#{task}",
+                   { current: pages, end: 1000, values: { pages: } })
+        end
+
+        conn.put("/tasks/#{task}", { done: true })
+      TEXT
+      'java' => <<~TEXT,
+        var client = HttpClient.newHttpClient();
+        var mapper = new ObjectMapper();
+
+        var space = mapper.readTree(send(client, "POST", "/spaces", """
+            {"title": "Crawler"}""")).get("uuid").asText();
+
+        var task = mapper.readTree(send(client, "POST",
+            "/spaces/" + space + "/tasks", """
+            {"title": "Crawl example.com"}""")).get("uuid").asText();
+
+        for (var pages = 0; pages < 1000; pages += 250) {
+            send(client, "PUT", "/tasks/" + task, """
+                {"current": %d, "end": 1000}""".formatted(pages));
+        }
+
+        send(client, "PUT", "/tasks/" + task, """
+            {"done": true}""");
+
+        static String send(HttpClient client, String method,
+                String path, String body) throws Exception {
+            var request = HttpRequest.newBuilder()
+                .uri(URI.create("{{server}}" + path))
+                .header("Content-Type", "application/json")
+                .method(method, HttpRequest.BodyPublishers.ofString(body))
+                .build();
+
+            return client.send(request,
+                HttpResponse.BodyHandlers.ofString()).body();
+        }
+      TEXT
+      'csharp' => <<~TEXT
+        using System.Net.Http.Json;
+        using System.Text.Json;
+
+        var client = new HttpClient
+        {
+            BaseAddress = new Uri("{{server}}")
+        };
+
+        var created = await client.PostAsJsonAsync("/spaces",
+            new { title = "Crawler" });
+        var space = (await created.Content.ReadFromJsonAsync<JsonElement>())
+            .GetProperty("uuid").GetString();
+
+        var opened = await client.PostAsJsonAsync($"/spaces/{space}/tasks",
+            new { title = "Crawl example.com" });
+        var task = (await opened.Content.ReadFromJsonAsync<JsonElement>())
+            .GetProperty("uuid").GetString();
+
+        for (var pages = 0; pages < 1000; pages += 250)
+        {
+            await client.PutAsJsonAsync($"/tasks/{task}",
+                new { current = pages, end = 1000, values = new { pages } });
+        }
+
+        await client.PutAsJsonAsync($"/tasks/{task}", new { done = true });
+      TEXT
+    }.freeze
+
     SAMPLES = {
       'create-space' => {
         'cli' => %(progresswatch space new "Production"),
@@ -370,7 +558,15 @@ module OpenApi
     module_function
 
     def call(operation, base_url:)
-      SAMPLES.fetch(operation[:id], {}).transform_values { |code| code.strip.gsub('{{server}}', base_url) }
+      resolve(SAMPLES.fetch(operation[:id], {}), base_url)
+    end
+
+    def lifecycle(base_url:)
+      resolve(LIFECYCLE, base_url)
+    end
+
+    def resolve(samples, base_url)
+      samples.transform_values { |code| code.strip.gsub('{{server}}', base_url) }
     end
   end
 end
