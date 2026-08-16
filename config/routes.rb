@@ -67,6 +67,7 @@ Rails.application.routes.draw do
   get 'openapi.yml', to: 'open_api#show', as: :openapi_yaml, format: false, defaults: { format: :yaml }
   get 'sitemap.xml', to: 'sitemap#show', as: :sitemap, format: false, defaults: { format: :xml }
   get 'robots.txt', to: 'robots#show', as: :robots, format: false
+  get 'llms.txt', to: 'llms#show', as: :llms, format: false, defaults: { format: :text }
 
   get 'up', to: 'health#show'
 end

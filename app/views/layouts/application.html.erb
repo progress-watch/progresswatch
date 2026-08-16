@@ -10,6 +10,9 @@
     <% else %>
       <meta name="robots" content="noindex, nofollow">
     <% end %>
+    <% if ProgressWatch.multitenant? %>
+      <link rel="describedby" href="<%= llms_url %>">
+    <% end %>
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/icons/icon-180.png">
     <link rel="icon" href="/icons/logo.svg" type="image/svg+xml">

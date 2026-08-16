@@ -1,0 +1,72 @@
+# Progress Watch
+
+> Progress tracking for anything that runs without you. A script, crawler, CI job or agent
+> reports its progress with one HTTP request; you watch it from anywhere and get a push
+> notification when it finishes.
+
+There are no accounts. A space UUID is the credential: whoever has it can read and write
+that space, and nothing on the server can recover it once lost.
+
+## The model
+
+- A **space** holds tasks. Created by POST, identified by a UUID.
+- A **task** belongs to a space and reports `current` / `end` / `values` — counts, never a
+  percentage, because `1200 / 50000 pages` says something and `2.4%` does not.
+- Tasks nest **exactly one level**. A parent's progress is the aggregate of its children,
+  so never report against a parent.
+- Progress lives in Redis under a 24-hour TTL and is never written to the database. There
+  is no history to read back, only what is happening now.
+
+## Endpoints
+
+Base URL: <%= request.base_url %>
+
+    POST /spaces                      create a space
+    POST /spaces/{space}/tasks        create a task, optionally with parent_uuid
+    PUT  /tasks/{task}                report progress
+    GET  /tasks/{task}/report         the same write from a query string, for clients
+                                      that can only fire a URL
+    GET  /spaces/{space}              read a space and its tasks
+    GET  /tasks/{task}                read one task and its children
+    GET  /up                          health
+
+Full reference: <%= api_docs_url %> · OpenAPI 3.1: <%= openapi_url %> · MCP: <%= request.base_url %>/mcp
+
+## One task, start to finish
+
+    space=$(curl -s -X POST "<%= request.base_url %>/spaces" \
+      -H 'Content-Type: application/json' \
+      -d '{"title": "Crawler"}' | jq -r .uuid)
+
+    task=$(curl -s -X POST "<%= request.base_url %>/spaces/$space/tasks" \
+      -H 'Content-Type: application/json' \
+      -d '{"title": "Crawl example.com"}' | jq -r .uuid)
+
+    for pages in 0 250 500 750; do
+      curl -s -X PUT "<%= request.base_url %>/tasks/$task" \
+        -H 'Content-Type: application/json' \
+        -d "{\"current\": $pages, \"end\": 1000}"
+    done
+
+    curl -s -X PUT "<%= request.base_url %>/tasks/$task" \
+      -H 'Content-Type: application/json' -d '{"done": true}'
+
+## What will catch you out
+
+- **A write replaces the whole state.** Omitting `values` clears it rather than leaving it
+  alone, and PATCH is refused with a 405 rather than quietly promising a merge. The one
+  exception is a body of just `{"done": true}`, which closes the task and keeps the last
+  numbers.
+- **`progress: null` is not zero.** It means nothing has been reported, or what was
+  reported has expired. A task at zero reports an object with `current: 0`.
+- **Omitting `end` is a supported shape.** `current` rises, `ratio` stays null, and the
+  task reads as a counter rather than a bar.
+- **Completion is one-way.** It fires the notification once. Reporting afterwards still
+  overwrites progress, but nothing completes twice.
+- **A space is created by arrival**, so an empty one that has never held a task may be
+  swept after 30 days. One task keeps it for good.
+
+## Reporting without writing HTTP
+
+- CLI: `npm install -g progresswatch`, then `progresswatch new` / `update` / `done`
+- Agents: `npx skills add progress-watch/progresswatch-cli`, or MCP at `/mcp/{space}`

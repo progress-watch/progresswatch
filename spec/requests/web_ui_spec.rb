@@ -137,6 +137,16 @@ RSpec.describe 'Web UI' do
       expect(response).to have_http_status(:not_found)
     end
 
+    # Same reason as the sitemap: a private instance publishing a summary of itself is
+    # advertising to crawlers, and its own agent has /docs and /openapi.json anyway.
+    it '404s llms.txt, and does not point at it from the head' do
+      get '/llms.txt'
+      expect(response).to have_http_status(:not_found)
+
+      get '/docs'
+      expect(response.body).not_to include('rel="describedby"')
+    end
+
     # Pointing at a sitemap that 404s is worse than not having the line.
     it 'tells crawlers to stay out entirely, and names no sitemap' do
       get '/robots.txt'
@@ -322,6 +332,39 @@ RSpec.describe 'Web UI' do
 
     # The list is written by hand, so the thing that rots is the list itself: a page that
     # stops being indexable, or one that is added and never listed.
+    # Hand-written like the sitemap, so it drifts the same way: an endpoint added and
+    # never mentioned leaves an agent building against a surface that is missing a
+    # quarter of itself.
+    it 'names every operation the document defines' do
+      hosted!
+
+      get '/llms.txt'
+
+      OpenApi::Operations.call.each do |operation|
+        expect(response.body).to include(operation[:path].gsub(/\{(\w+?)_uuid\}/, '{\\1}')),
+                                 "#{operation[:path]} is in the document but not in llms.txt"
+      end
+    end
+
+    # The spec defines two ways to find it: the well-known path and rel="describedby".
+    # Serving the file without the link implements half a convention.
+    it 'is pointed at from the head of every page' do
+      hosted!
+
+      get '/docs'
+
+      expect(response.body).to include(%(<link rel="describedby" href="#{llms_url}">))
+    end
+
+    it 'is served as plain text from the host that answered' do
+      hosted!
+
+      get '/llms.txt'
+
+      expect(response.media_type).to eq('text/plain')
+      expect(response.body).to include('http://www.example.com/spaces')
+    end
+
     it 'lists every indexable page, and only pages that are indexable' do
       hosted!
 
