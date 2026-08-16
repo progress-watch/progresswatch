@@ -75,6 +75,14 @@ RSpec.describe 'Task state' do
       expect(json['progress']['ratio']).to be_nil
     end
 
+    # A counter with no total is a supported shape, not a half-filled write: the number
+    # rises and the ratio stays null, which is what tells a client to draw no bar.
+    it 'counts without a total when end is never sent' do
+      put_json "/tasks/#{task.uuid}", { current: 1200 }
+
+      expect(json['progress']).to include('current' => 1200, 'end' => nil, 'ratio' => nil)
+    end
+
     it 'accepts end changing mid-flight' do
       put_json "/tasks/#{task.uuid}", { current: 30, end: 100 }
       expect(json['progress']['ratio']).to be_within(0.0001).of(0.3)

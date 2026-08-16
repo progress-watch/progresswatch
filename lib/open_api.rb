@@ -267,7 +267,8 @@ module OpenApi
                   },
                   'end' => {
                     'type' => 'number',
-                    'description' => 'May change between calls.'
+                    'description' => 'May change between calls. Omit it for a count with no total: `current` ' \
+                                     'rises, `ratio` stays null, and the task reads as a counter rather than a bar.'
                   },
                   'values' => {
                     'type' => 'object',
@@ -353,7 +354,7 @@ module OpenApi
           {
             'name' => 'end',
             'in' => 'query',
-            'description' => 'May change between calls.',
+            'description' => 'May change between calls. Omit it for a count with no total.',
             'schema' => { 'type' => 'number' }
           },
           {
