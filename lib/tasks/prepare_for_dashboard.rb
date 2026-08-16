@@ -23,6 +23,14 @@ module Tasks
       end
     end
 
+    # By created_at and never finished_at, or the buckets interleave. Months and not days
+    # because the server does not know the reader's timezone and must not learn it.
+    def sections(tasks)
+      call(tasks)
+        .group_by { |task| Time.zone.parse(task['created_at']).strftime('%B %Y') }
+        .map { |heading, group| { 'heading' => heading, 'tasks' => group } }
+    end
+
     # reverse, not sort_by(created_at): sort_by is not stable, so tasks created in the
     # same second would swap places on every poll.
     def order(tasks)

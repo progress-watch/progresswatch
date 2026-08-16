@@ -6,7 +6,7 @@ class WebController < ActionController::Base
 
   protect_from_forgery with: :exception
 
-  helper_method :turbo_frame_request?, :svg_icon
+  helper_method :turbo_frame_request?, :frame_id, :svg_icon
 
   # Real view helpers and not helper_method: capture and content_for both work against
   # the state of the view that is rendering, and helper_method runs on the controller.
@@ -43,6 +43,12 @@ class WebController < ActionController::Base
   # its we actually use is spelled out here.
   def turbo_frame_request?
     request.headers['Turbo-Frame'].present?
+  end
+
+  # The history chain asks from a different frame at every page, so the response cannot
+  # name one in the template.
+  def frame_id
+    request.headers['Turbo-Frame']
   end
 
   def not_found(heading: nil, explanation: nil)

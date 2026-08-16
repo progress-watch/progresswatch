@@ -87,9 +87,9 @@ module OpenApi
       'get' => {
         'operationId' => 'getSpace',
         'summary' => 'Read a space and every task in it',
-        'description' => 'One query and one Redis MGET whatever the task count. Safe to poll every few seconds. ' \
-                         'Tasks and their children come back in creation order, oldest first. ' \
-                         'Any other order is a display decision and belongs to the client.',
+        'description' => 'Returns every task by default. Tasks and their children come back in creation order, ' \
+                         'oldest first; any other order is a display decision and belongs to the client. ' \
+                         'A space that has run for months is worth paging through — see the three parameters below.',
         'parameters' => [
           {
             'name' => 'space_uuid',
@@ -99,12 +99,42 @@ module OpenApi
               'type' => 'string',
               'format' => 'uuid'
             }
+          },
+          {
+            'name' => 'limit',
+            'in' => 'query',
+            'required' => false,
+            'description' => 'How many top-level tasks to return. Counts back from the newest, so a bare limit ' \
+                             'gives the recent end of the space rather than its oldest rows. Children never ' \
+                             'count against it and are never cut off.',
+            'schema' => { 'type' => 'integer', 'minimum' => 1 }
+          },
+          {
+            'name' => 'before',
+            'in' => 'query',
+            'required' => false,
+            'description' => 'Only tasks created strictly before this instant, newest first, for walking back ' \
+                             'through history. Pass the created_at of the oldest task you hold; it round-trips ' \
+                             'exactly and is never returned again.',
+            'schema' => { 'type' => 'string', 'format' => 'date-time' }
+          },
+          {
+            'name' => 'after',
+            'in' => 'query',
+            'required' => false,
+            'description' => 'Only tasks created strictly after this instant, oldest first, for asking what is ' \
+                             'new. Pass the created_at of the newest task you hold.',
+            'schema' => { 'type' => 'string', 'format' => 'date-time' }
           }
         ],
         'responses' => {
           '200' => {
             'description' => 'The space',
             'content' => { 'application/json' => { 'schema' => { '$ref' => '#/components/schemas/Space' } } }
+          },
+          '400' => {
+            'description' => 'A cursor that is not a timestamp, or a limit that is not a whole number',
+            'content' => { 'application/json' => { 'schema' => { '$ref' => '#/components/schemas/Error' } } }
           },
           '404' => {
             'description' => 'No such space, or the uuid is wrong',

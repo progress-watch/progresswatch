@@ -5,7 +5,9 @@
 class SpacesController < WebController
   def show
     @space = Space.find(params[:uuid])
-    @tasks = Tasks::PrepareForDashboard.call(Spaces::SerializeForApi.call(@space)['tasks'])
+    @tasks = Spaces::ReadActiveTasks.call(@space)
+    @history = Spaces::ReadFinishedTasks.call(@space)
+    @page = 0
   end
 
   def new

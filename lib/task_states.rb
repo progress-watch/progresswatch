@@ -29,7 +29,7 @@ module TaskStates
       'current' => numeric(current, :current),
       'end' => numeric(end_value, :end),
       'values' => normalize_values(values),
-      'updated_at' => Time.current.utc.iso8601
+      'updated_at' => Time.current.utc.iso8601(6)
     }
 
     ProgressWatch::PROGRESS_REDIS.with do |redis|

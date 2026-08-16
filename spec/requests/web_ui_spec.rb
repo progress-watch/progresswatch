@@ -422,6 +422,9 @@ RSpec.describe 'Web UI' do
       expect(response).to have_http_status(:ok)
       expect(response.body).to include('Waiting for data…')
       expect(response.body).to include('0.0%')
+
+      get space_tasks_path(space.uuid, state: 'finished'), headers: frame_request
+
       expect(response.body).to include('finished in')
     end
 
@@ -448,17 +451,20 @@ RSpec.describe 'Web UI' do
       Tasks::Report.call(done, done: true)
 
       get space_tasks_path(space.uuid), headers: frame_request
+      running_steps = response.body.scan(/<details[^>]*>/).first
 
-      running_steps, done_steps = response.body.scan(/<details[^>]*>/)
+      get space_tasks_path(space.uuid, state: 'finished'), headers: frame_request
+      done_steps = response.body.scan(/<details[^>]*>/).first
 
       expect(running_steps).to include('open')
       expect(done_steps).not_to include('open')
     end
 
-    # Ordering is the client's job — the serializer keeps creation order, so both rules
-    # have to be applied here: finished last, and newest first inside each group.
-    it 'renders active before finished, and newest first within each' do
-      # Interleaved on purpose: creation order alone must not decide the grouping.
+    # The two frames are the whole optimisation: what can still change is polled every
+    # 2.5s, what cannot is a separate frame on a long interval. A finished task appearing
+    # in the live frame would put the history back on the fast poll.
+    it 'keeps finished tasks out of the polled frame, newest first in both' do
+      # Interleaved on purpose: creation order alone must not decide the split.
       %w[first second].each do |title|
         create_task(space, title: "Running #{title}")
         Tasks::Report.call(create_task(space, title: "Done #{title}"), done: true)
@@ -467,7 +473,42 @@ RSpec.describe 'Web UI' do
       get space_tasks_path(space.uuid), headers: frame_request
 
       expect(response.body.scan(/(?:Running|Done) (?:first|second)/))
-        .to eq(['Running second', 'Running first', 'Done second', 'Done first'])
+        .to eq(['Running second', 'Running first'])
+
+      get space_tasks_path(space.uuid, state: 'finished'), headers: frame_request
+
+      expect(response.body.scan(/(?:Running|Done) (?:first|second)/))
+        .to eq(['Done second', 'Done first'])
+    end
+
+    it 'heads the history with the month a task was created in' do
+      task = create_task(space, title: 'Ancient')
+      Tasks::Report.call(task, done: true)
+      task.update!(created_at: Time.utc(2026, 3, 4))
+
+      get space_tasks_path(space.uuid, state: 'finished'), headers: frame_request
+
+      expect(response.body).to include('March 2026')
+    end
+
+    # The link is inside the frame that polls, so it has to point at one that does not —
+    # otherwise the next poll wipes whatever was loaded under it.
+    it 'pages the history into a frame outside the polled one' do
+      (Spaces::ReadFinishedTasks::PAGE + 1).times do |index|
+        Tasks::Report.call(create_task(space, title: "Task #{index}"), done: true)
+      end
+
+      get space_tasks_path(space.uuid, state: 'finished'), headers: frame_request
+
+      expect(response.body).to include('Older tasks')
+      expect(response.body).to include('<turbo-frame id="history"')
+      expect(response.body).to include('data-turbo-frame="history"')
+    end
+
+    it 'refuses a history cursor it cannot read' do
+      get space_tasks_path(space.uuid, state: 'finished', before: 'whenever'), headers: frame_request
+
+      expect(response).to have_http_status(:bad_request)
     end
   end
 

@@ -4,21 +4,14 @@ module Spaces
   module SerializeForApi
     module_function
 
-    # One query and one MGET whatever the task count: this is polled every 2-3 seconds.
-    def call(space)
-      tasks = space.tasks.order(:created_at).to_a
-      states = TaskStates.read_many(tasks.map(&:uuid))
-      children_by_parent = tasks.group_by(&:parent_uuid)
-
+    # One MGET whatever the task count: this is polled every 2-3 seconds. The window is
+    # unset by default, so the plain read still returns the whole space.
+    def call(space, before: nil, after: nil, limit: nil)
       {
         'uuid' => space.uuid,
         'title' => space.title,
         'icon' => space.icon,
-        'tasks' => tasks.filter_map do |task|
-          next unless task.parent_uuid.nil?
-
-          Tasks::SerializeForApi.render(task, children_by_parent[task.uuid] || [], states)
-        end
+        'tasks' => ReadTasks.call(space, before:, after:, limit:)
       }
     end
   end

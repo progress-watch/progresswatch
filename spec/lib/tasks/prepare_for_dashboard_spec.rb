@@ -112,4 +112,31 @@ RSpec.describe Tasks::PrepareForDashboard do
                       'created_at' => 40.minutes.ago.iso8601)['idle_label']).to eq('waiting 40m')
     end
   end
+
+  describe '.sections' do
+    def finished(title, at)
+      { 'title' => title, 'created_at' => at.utc.iso8601(6), 'finished_at' => at.utc.iso8601(6),
+        'duration' => 1, 'children' => [] }
+    end
+
+    it 'buckets by month, newest month first, newest task first inside one' do
+      sections = described_class.sections([
+                                            finished('March one', Time.utc(2026, 3, 1)),
+                                            finished('March two', Time.utc(2026, 3, 20)),
+                                            finished('April', Time.utc(2026, 4, 2))
+                                          ])
+
+      expect(sections.pluck('heading')).to eq(['April 2026', 'March 2026'])
+      expect(sections.last['tasks'].pluck('title')).to eq(['March two', 'March one'])
+    end
+
+    # created_at, not finished_at: the list is already sorted by creation, and grouping on
+    # another key lets a bucket appear twice.
+    it 'buckets on when a task was created, not when it ended' do
+      sections = described_class.sections([finished('Started in March', Time.utc(2026, 3, 31))
+                                             .merge('finished_at' => Time.utc(2026, 4, 1).utc.iso8601(6))])
+
+      expect(sections.pluck('heading')).to eq(['March 2026'])
+    end
+  end
 end

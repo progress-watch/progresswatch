@@ -3,7 +3,13 @@
 module Api
   class SpacesController < ApplicationController
     def show
-      render json: Spaces::SerializeForApi.call(Space.find(params[:uuid]))
+      space = Space.find(params[:uuid])
+      window = params.permit(:before, :after, :limit)
+
+      render json: Spaces::SerializeForApi.call(space, before: window[:before], after: window[:after],
+                                                       limit: window[:limit])
+    rescue Spaces::ReadTasks::InvalidWindow => e
+      render json: { error: e.message }, status: :bad_request
     end
 
     def create

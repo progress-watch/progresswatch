@@ -55,6 +55,51 @@ RSpec.describe 'Spaces' do
 
     # find rather than find_by!, because the uuid is the primary key and the message a
     # caller gets back says so — find_by! answers with the SQL fragment instead.
+    # The default has to stay everything: the CLI and every published snippet read this
+    # endpoint without a window, and bounding it silently would be a breaking change.
+    it 'returns every task when no window is asked for' do
+      space = create_space
+      3.times { |index| create_task(space, title: "Task #{index}") }
+
+      get "/spaces/#{space.uuid}"
+
+      expect(json['tasks'].pluck('title')).to eq(['Task 0', 'Task 1', 'Task 2'])
+    end
+
+    it 'takes the newest when given a bare limit' do
+      space = create_space
+      3.times { |index| create_task(space, title: "Task #{index}") }
+
+      get "/spaces/#{space.uuid}", params: { limit: 2 }
+
+      expect(json['tasks'].pluck('title')).to eq(['Task 1', 'Task 2'])
+    end
+
+    # The cursor is the created_at this endpoint just returned, so it has to round-trip.
+    # Truncated to the second it would not: `after` would hand back the row it names.
+    it 'pages both ways from a timestamp it returned itself' do
+      space = create_space
+      3.times { |index| create_task(space, title: "Task #{index}") }
+
+      get "/spaces/#{space.uuid}"
+      middle = json['tasks'][1]['created_at']
+
+      get "/spaces/#{space.uuid}", params: { before: middle }
+      expect(json['tasks'].pluck('title')).to eq(['Task 0'])
+
+      get "/spaces/#{space.uuid}", params: { after: middle }
+      expect(json['tasks'].pluck('title')).to eq(['Task 2'])
+    end
+
+    it '400s on a window it cannot read, rather than quietly returning everything' do
+      space = create_space
+
+      get "/spaces/#{space.uuid}", params: { before: 'last tuesday' }
+
+      expect(response).to have_http_status(:bad_request)
+      expect(json['error']).to include('ISO 8601')
+    end
+
     it '404s for an unknown space, and says which uuid it could not find' do
       uuid = SecureRandom.uuid
 

@@ -65,7 +65,12 @@
 <turbo-frame id="tasks" src="<%= space_tasks_path(@space.uuid) %>">
   <%= render 'spaces/tasks_list' %>
 </turbo-frame>
-<% if @tasks.empty? %>
+<poll-frame data-frame="finished" data-interval="20000"></poll-frame>
+<turbo-frame id="finished" src="<%= space_tasks_path(@space.uuid, state: 'finished') %>">
+  <%= render 'spaces/history', history: @history, page: @page %>
+</turbo-frame>
+<turbo-frame id="history"></turbo-frame>
+<% if @tasks.empty? && @history['sections'].empty? %>
   <section class="mt-10">
     <h2 class="mb-1 text-sm font-medium text-zinc-500 dark:text-zinc-300">Report into this space</h2>
     <% if ProgressWatch.multitenant? %>

@@ -22,6 +22,9 @@ module Tasks
 
     # Children are passed in empty because nesting is one level: this never recurses
     # more than once.
+    #
+    # iso8601(6) because created_at is the pagination cursor: truncated to the second,
+    # `after=` hands back the row it was built from.
     def render(task, children, states)
       {
         'uuid' => task.uuid,
@@ -29,8 +32,8 @@ module Tasks
         'parent_uuid' => task.parent_uuid,
         'title' => task.title,
         'source' => task.source,
-        'created_at' => task.created_at.utc.iso8601,
-        'finished_at' => task.finished_at&.utc&.iso8601,
+        'created_at' => task.created_at.utc.iso8601(6),
+        'finished_at' => task.finished_at&.utc&.iso8601(6),
         'duration' => task.duration,
         'progress' => progress(task, children, states),
         'children' => children.map { |child| render(child, [], states) }
