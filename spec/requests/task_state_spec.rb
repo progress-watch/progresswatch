@@ -172,4 +172,40 @@ RSpec.describe 'Task state' do
       expect(json['progress']).to be_nil
     end
   end
+
+  # Reported from outside on 2026-08-16: a task at 900/1000 closed with a bare `done`
+  # came back null/null, so the dashboard drew a full green bar with no numbers under it.
+  # Completion is a disk fact; a call that carries no progress field writes no progress.
+  describe 'closing a task without counting' do
+    it 'keeps the last numbers it was told' do
+      task = create_task(create_space)
+      put_json("/tasks/#{task.uuid}", { current: 900, end: 1000, values: { errors: 3 } })
+
+      put_json("/tasks/#{task.uuid}", { done: true })
+
+      expect(json['finished_at']).to be_present
+      expect(json['progress']).to include('current' => 900, 'end' => 1000, 'ratio' => 1.0)
+      expect(json['progress']['values']).to eq('errors' => 3)
+    end
+
+    it 'still reads as complete when there was never anything to keep' do
+      task = create_task(create_space)
+
+      put_json("/tasks/#{task.uuid}", { done: true })
+
+      expect(json['progress']).to include('current' => nil, 'end' => nil, 'ratio' => 1.0)
+    end
+
+    # The overwrite rule is untouched: naming any progress field still replaces all of
+    # them, `done` or not.
+    it 'overwrites as usual when the same call carries a number' do
+      task = create_task(create_space)
+      put_json("/tasks/#{task.uuid}", { current: 900, end: 1000, values: { errors: 3 } })
+
+      put_json("/tasks/#{task.uuid}", { current: 1000, done: true })
+
+      expect(json['progress']).to include('current' => 1000, 'end' => nil)
+      expect(json['progress']['values']).to eq({})
+    end
+  end
 end

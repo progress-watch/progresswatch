@@ -240,7 +240,9 @@ module OpenApi
         'summary' => 'Report progress',
         'description' => 'Replaces the whole state. Omitting `values` clears it. Completing is one-way: it ' \
                          'happens when `current` reaches a positive `end` or when `done` is true, sends the ' \
-                         'notification once, and later writes do not move the finish time.',
+                         'notification once, and later writes do not move the finish time. A body of just ' \
+                         '`{"done": true}` is the exception to the overwrite: it closes the task and keeps ' \
+                         'the last numbers reported, so a finished task still shows what it counted.',
         'parameters' => [
           {
             'name' => 'task_uuid',
@@ -271,7 +273,11 @@ module OpenApi
                     'type' => 'object',
                     'additionalProperties' => true
                   },
-                  'done' => { 'type' => 'boolean' }
+                  'done' => {
+                    'type' => 'boolean',
+                    'description' => 'Finish the task. Send it alone to keep the last numbers; send it ' \
+                                     'beside a count and the usual overwrite applies.'
+                  }
                 }
               },
               'example' => {
@@ -353,7 +359,8 @@ module OpenApi
           {
             'name' => 'done',
             'in' => 'query',
-            'description' => 'Finish the task. It also finishes on its own once current reaches end.',
+            'description' => 'Finish the task. Alone, it keeps the last numbers reported. It also finishes ' \
+                             'on its own once current reaches end.',
             'schema' => { 'type' => 'boolean' }
           },
           {

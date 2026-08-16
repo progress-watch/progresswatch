@@ -31,7 +31,7 @@
         <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-zinc-100 font-mono text-xs font-semibold text-zinc-500 dark:bg-zinc-600 dark:text-zinc-300">1</span>
         <div class="min-w-0">
           <p class="text-sm font-medium text-zinc-900 dark:text-zinc-100">A write replaces the whole state</p>
-          <p class="mt-1 text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">Omitting <code class="font-mono text-xs">values</code> clears it rather than leaving it alone. <code class="font-mono text-xs">PATCH</code> is refused with a 405 rather than quietly promising a merge.</p>
+          <p class="mt-1 text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">Omitting <code class="font-mono text-xs">values</code> clears it rather than leaving it alone, and <code class="font-mono text-xs">PATCH</code> is refused with a 405 rather than quietly promising a merge. The one exception is a body of just <code class="font-mono text-xs">{"done": true}</code>, which closes the task and keeps the last numbers.</p>
         </div>
       </li>
       <li class="card flex gap-3 p-4">
