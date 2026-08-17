@@ -3,14 +3,14 @@
 module OpenApi
   module CodeSamples
     LANGUAGES = {
-      'cli' => 'CLI',
-      'curl' => 'curl',
       'javascript' => 'JavaScript',
+      'curl' => 'curl',
       'python' => 'Python',
       'php' => 'PHP',
       'ruby' => 'Ruby',
       'java' => 'Java',
-      'csharp' => 'C#'
+      'csharp' => 'C#',
+      'cli' => 'CLI'
     }.freeze
 
     # curl and nothing else, because the whole reason this operation exists is a client that
@@ -563,6 +563,10 @@ module OpenApi
 
     def lifecycle(base_url:)
       resolve(LIFECYCLE, base_url)
+    end
+
+    def tabs(samples)
+      LANGUAGES.slice(*(LANGUAGES.keys & samples.keys))
     end
 
     def resolve(samples, base_url)

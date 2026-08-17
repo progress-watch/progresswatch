@@ -1,6 +1,6 @@
 <code-samples class="block">
   <div class="flex flex-wrap gap-1 border border-zinc-200 p-1 dark:border-zinc-600 <%= samples.any? ? 'rounded-t-lg border-b-0' : 'rounded-lg' %>">
-    <% OpenApi::CodeSamples::LANGUAGES.slice(*(samples.any? ? samples.keys : OpenApi::CodeSamples::LANGUAGES.keys)).each do |language, label| %>
+    <% OpenApi::CodeSamples.tabs(samples).each do |language, label| %>
       <button type="button" data-action="click:code-samples#select" data-language="<%= language %>" aria-selected="false" class="rounded-md px-2.5 py-1 text-xs font-medium text-zinc-600 transition aria-selected:bg-zinc-100 aria-selected:text-zinc-900 dark:text-zinc-300 dark:aria-selected:bg-zinc-600 dark:aria-selected:text-zinc-100"><%= label %></button>
     <% end %>
   </div>

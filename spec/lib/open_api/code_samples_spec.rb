@@ -49,6 +49,16 @@ RSpec.describe OpenApi::CodeSamples do
     expect(samples['csharp']).to include('$"/spaces/{spaceUuid}"')
   end
 
+  it 'puts the tabs in the order LANGUAGES gives, whatever order the samples are in' do
+    samples = { 'cli' => 'x', 'javascript' => 'y', 'python' => 'z' }
+
+    expect(described_class.tabs(samples).keys).to eq(%w[javascript python cli])
+  end
+
+  it 'offers no tabs at all when an operation has no samples' do
+    expect(described_class.tabs({})).to be_empty
+  end
+
   # The page's opening block. It is the one sample that is not an operation, so nothing
   # else checks it — and a language missing from it silently falls back to another tab.
   describe 'the lifecycle block' do
