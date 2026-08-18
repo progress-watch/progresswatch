@@ -6,7 +6,7 @@
       <% if @space.icon.present? %>
         <span class="text-2xl" aria-hidden="true"><%= @space.icon %></span>
       <% end %>
-      <h1 class="min-w-0 break-words text-2xl font-semibold tracking-tight">
+      <h1 class="min-w-0 break-words text-2xl font-semibold tracking-tight sm:text-3xl">
         <%= @space.title.presence || 'Untitled space' %>
       </h1>
       <%= link_to edit_space_path(@space.uuid), data: { turbo_frame: 'modal' }, 'aria-label': 'Rename this space', class: 'mt-1 flex shrink-0 text-zinc-400 transition hover:text-zinc-700 dark:hover:text-zinc-200' do %>
