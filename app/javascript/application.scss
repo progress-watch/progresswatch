@@ -42,8 +42,11 @@
            dark:border-zinc-600 dark:bg-zinc-700 dark:shadow-none;
   }
 
+  // text-base below sm: iOS Safari zooms the viewport when a field it focuses is under
+  // 16px, and the way back is a pinch. The alternative — maximum-scale on the viewport —
+  // takes zoom away from everybody to fix it for one browser.
   .input {
-    @apply h-10 w-full rounded-lg border border-zinc-300 bg-white px-3 text-sm
+    @apply h-10 w-full rounded-lg border border-zinc-300 bg-white px-3 text-base sm:text-sm
            text-zinc-900 placeholder:text-zinc-400
            focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40
            dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100;

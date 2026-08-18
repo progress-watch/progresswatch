@@ -71,11 +71,11 @@ export function writeSetting (name, value) {
   writeProfile({ ...profile, settings: { ...profile.settings, [name]: value } })
 }
 
-// Only what cannot be recovered. A title and an icon come back from the server the first
-// time the space is opened; last_opened_at and push describe this device; settings are a
-// preference. What is left is the pair that nothing else in the world can reconstruct.
+// A backup, so it carries what a reader needs to tell the spaces apart: the identity pair
+// and the labels. last_opened_at and push describe this device and would be a lie
+// elsewhere; settings is a preference, not a space.
 export function exportBlob () {
-  const entries = read().map(({ uuid, server }) => ({ uuid, server }))
+  const entries = read().map(({ uuid, server, title, icon }) => ({ uuid, server, title, icon }))
 
   return new Blob([JSON.stringify(entries, null, 2)], { type: 'application/json' })
 }
@@ -89,9 +89,14 @@ export function importProfile (json) {
 
   const byUuid = new Map(read().map((space) => [space.uuid, space]))
 
-  // Merge rather than replace: a space this browser already knows keeps the title, icon
-  // and push flag it has, and the file carries none of those to overwrite them with.
-  entries.forEach((entry) => byUuid.set(entry.uuid, { ...byUuid.get(entry.uuid), ...entry }))
+  // The file fills gaps, it does not overwrite. Its labels may be a year old, while a
+  // local entry was refreshed from the server on the last visit — so uuid and server come
+  // from the file, which is the identity it carries, and a title already here survives.
+  entries.forEach((entry) => {
+    const known = byUuid.get(entry.uuid)
+
+    byUuid.set(entry.uuid, { ...entry, ...known, uuid: entry.uuid, server: entry.server })
+  })
 
   const spaces = [...byUuid.values()]
   write(spaces)
