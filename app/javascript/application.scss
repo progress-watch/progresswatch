@@ -34,9 +34,12 @@
            dark:text-zinc-300 dark:hover:bg-zinc-600 dark:hover:text-zinc-100;
   }
 
+  // Light separates by shadow, dark by fill. At the top of the luminance range there is
+  // no room left for a fill step — white on zinc-100 is 1.10, under the 1.12 floor — while
+  // dark has zinc-700 on zinc-800 at 1.43 and needs no shadow to be read as raised.
   .card {
-    @apply rounded-xl border border-zinc-200 bg-white
-           dark:border-zinc-600 dark:bg-zinc-700;
+    @apply rounded-xl border border-zinc-200 bg-white shadow-sm
+           dark:border-zinc-600 dark:bg-zinc-700 dark:shadow-none;
   }
 
   .input {
@@ -49,6 +52,15 @@
   .badge {
     @apply inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium;
   }
+
+  // Which icon the theme trigger shows, driven by the attribute rather than by script, so
+  // it is right in the first paint and without JavaScript at all. No attribute means the
+  // stylesheet's own prefers-color-scheme is deciding, which is what "system" names.
+  .theme-icon { @apply hidden; }
+  .theme-icon-system { @apply block; }
+  [data-theme] .theme-icon-system { @apply hidden; }
+  [data-theme='light'] .theme-icon-light { @apply block; }
+  [data-theme='dark'] .theme-icon-dark { @apply block; }
 
   .snippet {
     @apply relative overflow-x-auto rounded-b-lg bg-zinc-900 p-4 font-mono text-xs

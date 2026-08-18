@@ -3,7 +3,12 @@ module.exports = {
     './app/javascript/**/*.{js,vue}',
     './app/views/**/*.erb'
   ],
-  darkMode: 'media',
+  // Media query is the base, so the default theme needs no JavaScript and cannot flash.
+  // The attribute only overrides it, and only when somebody has chosen.
+  darkMode: ['variant', [
+    '&:where([data-theme="dark"] *)',
+    '@media (prefers-color-scheme: dark) { &:where(html:not([data-theme="light"]) *) }'
+  ]],
   theme: {
     extend: {
       colors: {

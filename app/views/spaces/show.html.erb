@@ -79,7 +79,7 @@
     <tab-panels class="card block overflow-hidden">
       <div class="flex flex-wrap gap-1 border-b border-zinc-200 p-1 dark:border-zinc-600">
         <% ConnectSnippets::SECTIONS.each_with_index do |(section, config), index| %>
-          <button type="button" data-action="click:tab-panels#select" data-tab="<%= section %>" aria-selected="<%= index.zero? %>" class="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-zinc-600 aria-selected:bg-zinc-100 aria-selected:text-zinc-900 dark:text-zinc-300 dark:aria-selected:bg-zinc-600 dark:aria-selected:text-zinc-100">
+          <button type="button" data-action="click:tab-panels#select" data-tab="<%= section %>" aria-selected="<%= index.zero? %>" class="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-zinc-600 aria-selected:bg-zinc-200 aria-selected:text-zinc-900 dark:text-zinc-300 dark:aria-selected:bg-zinc-600 dark:aria-selected:text-zinc-100">
             <%= svg_icon config[:icon], class: 'h-4 w-4 shrink-0' %>
             <%= config[:title] %>
           </button>

@@ -95,6 +95,15 @@ RSpec.describe 'Web UI' do
     # Twice: the row that shows from md up, and the menu it folds into below that. The
     # link went missing from the mobile one once, because both halves are edited
     # separately and a blind edit landed in the wrong one.
+    # One control, in the header at every width. Folding it into the menu below md would
+    # bury the one setting somebody reaches for in the dark.
+    it 'keeps the theme in the header rather than the phone menu' do
+      get '/docs'
+
+      expect(response.body.scan('<theme-toggle').size).to eq(1)
+      expect(response.body.index('<theme-toggle')).to be < response.body.index('<details class="relative md:hidden">')
+    end
+
     it 'is reachable from both navbars, so it is not only in the sitemap' do
       hosted!
 

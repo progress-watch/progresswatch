@@ -12,17 +12,20 @@
         Star
       <% end %>
     <% end %>
-    <space-backup class="hidden items-center gap-1 md:flex">
-      <button type="button" data-action="click:space-backup#export" aria-label="Export spaces" class="btn-ghost px-2 py-1.5" title="Download the spaces this device knows about. It is the only backup there is.">
-        <%= svg_icon 'download', class: 'h-4 w-4' %>
-      </button>
-      <label class="btn-ghost px-2 py-1.5" title="Merge a previously exported list into this device">
-        <span class="sr-only">Import spaces</span>
-        <%= svg_icon 'upload', class: 'h-4 w-4' %>
-        <input type="file" accept="application/json" data-action="change:space-backup#import" class="hidden">
-      </label>
-      <span data-import-error class="text-xs text-red-600 dark:text-red-400"></span>
-    </space-backup>
+    <div class="flex items-center gap-1">
+      <space-backup class="hidden items-center gap-1 md:flex">
+        <button type="button" data-action="click:space-backup#export" aria-label="Export spaces" class="btn-ghost px-2 py-1.5" title="Download the spaces this device knows about. It is the only backup there is.">
+          <%= svg_icon 'download', class: 'h-4 w-4' %>
+        </button>
+        <label class="btn-ghost px-2 py-1.5" title="Merge a previously exported list into this device">
+          <span class="sr-only">Import spaces</span>
+          <%= svg_icon 'upload', class: 'h-4 w-4' %>
+          <input type="file" accept="application/json" data-action="change:space-backup#import" class="hidden">
+        </label>
+        <span data-import-error class="text-xs text-red-600 dark:text-red-400"></span>
+      </space-backup>
+      <%= render 'shared/theme_toggle', wrapper: 'block', trigger: 'btn-ghost list-none px-2 py-1.5', label: nil %>
+    </div>
     <%= link_to new_space_path, data: { turbo_frame: 'modal' }, 'aria-label': 'New space', class: 'btn-primary px-2 py-1.5 text-sm md:px-3' do %>
       <%= svg_icon 'plus', class: 'h-4 w-4' %>
       <span class="hidden md:inline">New space</span>
