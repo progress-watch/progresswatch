@@ -6,8 +6,6 @@ Rails.application.routes.draw do
   # action on someone else's.
   root 'home#show'
 
-  get 'docs', to: 'docs#index'
-
   resources :spaces, only: %i[show new create edit update], param: :uuid, path: 's'
 
   get 's/:uuid/tasks', to: 'space_tasks#index', as: :space_tasks
@@ -20,12 +18,12 @@ Rails.application.routes.draw do
   post 's/:uuid/push', to: 'space_push_subscriptions#create', as: :space_push
   delete 's/:uuid/push', to: 'space_push_subscriptions#destroy'
 
-  # Before the :section catch-all, which would otherwise swallow it.
   get 'docs/api', to: 'api_docs#index', as: :api_docs
 
-  # No route constraint on :section — an unknown one is a page that does not exist,
-  # and that is the not-found page rather than a bare routing error.
-  get 'docs/:section', to: 'docs#show', as: :docs_section
+  scope '(:locale)', constraints: { locale: Regexp.union(Locales::ALTERNATES) } do
+    get 'docs', to: 'docs#index'
+    get 'docs/:section', to: 'docs#show', as: :docs_section
+  end
 
   # JSON API. The whole surface — resist adding to it. Pinned to JSON so a browser
   # hitting these paths cannot negotiate its way into an HTML response the CLI and

@@ -49,6 +49,8 @@ module Progresswatch
     # ActionController::API and are pinned to format: :json in the routes, so a
     # browser's Accept header can never turn them into HTML under the CLI's feet.
     config.api_only = false
+    config.i18n.available_locales = %i[en de es fr it nl pt]
+    config.i18n.fallbacks = [:en]
 
     # Sessions exist for one reason: CSRF tokens on the two web forms. There are no
     # accounts and nothing else is ever stored in them.

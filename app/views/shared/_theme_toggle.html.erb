@@ -1,18 +1,20 @@
 <theme-toggle class="<%= wrapper %>">
-  <details class="relative">
-    <summary class="<%= trigger %>" aria-label="Theme">
-      <span class="theme-icon theme-icon-system"><%= svg_icon 'monitor', class: 'h-4 w-4 shrink-0' %></span>
-      <span class="theme-icon theme-icon-light"><%= svg_icon 'sun', class: 'h-4 w-4 shrink-0' %></span>
-      <span class="theme-icon theme-icon-dark"><%= svg_icon 'moon', class: 'h-4 w-4 shrink-0' %></span>
-      <%= label %>
-    </summary>
-    <div class="card absolute right-0 z-10 mt-2 w-40 overflow-hidden p-1 shadow-lg">
-      <% { 'system' => 'monitor', 'light' => 'sun', 'dark' => 'moon' }.each do |choice, icon| %>
-        <button type="button" data-choice="<%= choice %>" data-action="click:theme-toggle#select" aria-selected="false" class="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 aria-selected:bg-zinc-100 aria-selected:font-medium dark:text-zinc-300 dark:hover:bg-zinc-600 dark:aria-selected:bg-zinc-600">
-          <%= svg_icon icon, class: 'h-4 w-4 shrink-0' %>
-          <%= choice.capitalize %>
-        </button>
-      <% end %>
-    </div>
-  </details>
+  <dropdown-menu class="contents">
+    <details class="relative">
+      <summary class="<%= trigger %>" aria-label="<%= t('theme') %>">
+        <span class="theme-icon theme-icon-system"><%= svg_icon 'monitor', class: 'h-4 w-4 shrink-0' %></span>
+        <span class="theme-icon theme-icon-light"><%= svg_icon 'sun', class: 'h-4 w-4 shrink-0' %></span>
+        <span class="theme-icon theme-icon-dark"><%= svg_icon 'moon', class: 'h-4 w-4 shrink-0' %></span>
+        <%= label %>
+      </summary>
+      <div class="card absolute right-0 z-10 mt-2 w-40 overflow-hidden p-1 shadow-lg">
+        <% { 'system' => 'monitor', 'light' => 'sun', 'dark' => 'moon' }.each do |choice, icon| %>
+          <button type="button" data-choice="<%= choice %>" data-action="click:theme-toggle#select" aria-selected="false" class="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 aria-selected:bg-zinc-100 aria-selected:font-medium dark:text-zinc-300 dark:hover:bg-zinc-600 dark:aria-selected:bg-zinc-600">
+            <%= svg_icon icon, class: 'h-4 w-4 shrink-0' %>
+            <%= t(choice) %>
+          </button>
+        <% end %>
+      </div>
+    </details>
+  </dropdown-menu>
 </theme-toggle>

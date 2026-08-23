@@ -27,7 +27,7 @@ module Tasks
     # because the server does not know the reader's timezone and must not learn it.
     def sections(tasks)
       call(tasks)
-        .group_by { |task| Time.zone.parse(task['created_at']).strftime('%B %Y') }
+        .group_by { |task| I18n.l(Time.zone.parse(task['created_at']), format: '%B %Y') }
         .map { |heading, group| { 'heading' => heading, 'tasks' => group } }
     end
 
@@ -39,9 +39,9 @@ module Tasks
 
     def finished_label(task)
       return nil if task['finished_at'].blank?
-      return 'finished' if task['duration'].blank?
+      return I18n.t('finished') if task['duration'].blank?
 
-      "finished in #{duration(task['duration'])}"
+      I18n.t('finished_in_duration', duration: duration(task['duration']))
     end
 
     # How long it took and when it happened are two different questions, and a board with
@@ -52,23 +52,22 @@ module Tasks
       ago((Time.current - Time.zone.parse(task['finished_at'])).round)
     end
 
-    # The tooltip, for when the coarse answer is not enough. UTC spelled out rather than
-    # localised: the server does not know the reader's zone, and guessing wrong about a
-    # timestamp is worse than making them do the arithmetic.
+    # The month name follows the locale, the zone never does: the server does not know
+    # the reader's, and a timestamp quietly three hours out is worse than arithmetic.
     def finished_on(task)
       return nil if task['finished_at'].blank?
 
-      Time.zone.parse(task['finished_at']).strftime('%-d %b %Y, %H:%M UTC')
+      I18n.l(Time.zone.parse(task['finished_at']), format: '%-d %b %Y, %H:%M UTC')
     end
 
     # Coarser than `duration` on purpose: "when" is answered by an order of magnitude, and
     # duration would say "72h" for something two days old.
     def ago(seconds)
-      return 'just now' if seconds < 60
-      return "#{seconds / 60}m ago" if seconds < 3600
-      return "#{seconds / 3600}h ago" if seconds < 86_400
+      return I18n.t('just_now') if seconds < 60
+      return I18n.t('count_m_ago', count: seconds / 60) if seconds < 3600
+      return I18n.t('count_h_ago', count: seconds / 3600) if seconds < 86_400
 
-      "#{seconds / 86_400}d ago"
+      I18n.t('count_d_ago', count: seconds / 86_400)
     end
 
     def idle_label(task)
@@ -77,10 +76,10 @@ module Tasks
       reported = task['progress'] && task['progress']['updated_at']
       seconds = (Time.current - Time.zone.parse(reported || task['created_at'])).round
 
-      return "waiting #{duration(seconds)}" if reported.nil?
+      return I18n.t('waiting_duration', duration: duration(seconds)) if reported.nil?
       return nil if seconds < IDLE_AFTER
 
-      "idle #{duration(seconds)}"
+      I18n.t('idle_duration', duration: duration(seconds))
     end
 
     def duration(seconds)
@@ -98,7 +97,7 @@ module Tasks
       ending = progress['end']
       return current.to_s if ending.nil?
 
-      progress['aggregated'] ? "#{current}/#{ending} done" : "#{current}/#{ending}"
+      progress['aggregated'] ? I18n.t('current_total_done', current:, total: ending) : "#{current}/#{ending}"
     end
   end
 end

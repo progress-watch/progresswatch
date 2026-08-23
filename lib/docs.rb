@@ -5,29 +5,26 @@ module Docs
     {
       id: 1,
       slug: 'self-hosting',
-      title: 'Self-hosting',
+      title: 'self_hosting',
       icon: 'server',
-      heading: 'Running your own Progress Watch',
-      meta_description: 'How to run and configure your own Progress Watch server.',
-      date: '2026-08-07'
+      heading: 'running_your_own_progress_watch',
+      meta_description: 'how_to_run_and_configure_your_own_progress_watch_server'
     },
     {
       id: 2,
       slug: 'notifications',
-      title: 'Notifications',
+      title: 'notifications',
       icon: 'bell',
-      heading: 'Getting notified when something finishes',
-      meta_description: 'How Progress Watch notifies you when work finishes, and how to turn it on.',
-      date: '2026-08-07'
+      heading: 'getting_notified_when_something_finishes',
+      meta_description: 'how_progress_watch_notifies_you_when_work_finishes_and_how_to_turn_it_on'
     },
     {
       id: 3,
       slug: 'environment-variables',
-      title: 'Environment variables',
+      title: 'environment_variables',
       icon: 'gear',
-      heading: 'Configuring Progress Watch via environment variables',
-      meta_description: 'Every environment variable a self-hosted Progress Watch reads.',
-      date: '2026-08-04'
+      heading: 'configuring_progress_watch_via_environment_variables',
+      meta_description: 'every_environment_variable_a_self_hosted_progress_watch_reads'
     }
   ].freeze
 end

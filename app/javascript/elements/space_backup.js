@@ -58,12 +58,14 @@ export default class extends HTMLElement {
     file.text()
       .then((text) => fetchNames(importProfile(text)))
       .then(() => window.location.reload())
-      .catch((error) => this.report(`Could not import: ${error.message}`))
+      .catch((error) => this.report(error.message))
       .finally(() => { input.value = '' })
   }
 
   report (message) {
     const target = this.querySelector('[data-import-error]')
-    if (target) target.textContent = message
+    const text = JSON.parse(this.dataset.i18n)
+
+    if (target) target.textContent = text.could_not_import_message.replace('%{message}', message)
   }
 }

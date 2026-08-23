@@ -5,33 +5,77 @@
     <lastmod>2026-08-07</lastmod>
   </url>
   <url>
-    <loc><%= docs_section_url('cli') %></loc>
+    <loc><%= docs_section_url(section: 'cli') %></loc>
     <lastmod>2026-08-02</lastmod>
   </url>
   <url>
-    <loc><%= docs_section_url('agent') %></loc>
+    <loc><%= docs_section_url(section: 'agent') %></loc>
     <lastmod>2026-08-02</lastmod>
   </url>
   <url>
-    <loc><%= docs_section_url('mcp') %></loc>
+    <loc><%= docs_section_url(section: 'mcp') %></loc>
     <lastmod>2026-08-02</lastmod>
   </url>
   <url>
-    <loc><%= docs_section_url('curl') %></loc>
+    <loc><%= docs_section_url(section: 'curl') %></loc>
     <lastmod>2026-08-07</lastmod>
   </url>
   <url>
-    <loc><%= docs_section_url('docker') %></loc>
+    <loc><%= docs_section_url(section: 'docker') %></loc>
     <lastmod>2026-08-07</lastmod>
   </url>
   <url>
     <loc><%= api_docs_url %></loc>
     <lastmod>2026-08-09</lastmod>
   </url>
-  <% Docs::DOCUMENTS.each do |doc| %>
+  <url>
+    <loc><%= docs_section_url(section: 'self-hosting') %></loc>
+    <lastmod>2026-08-07</lastmod>
+  </url>
+  <url>
+    <loc><%= docs_section_url(section: 'notifications') %></loc>
+    <lastmod>2026-08-07</lastmod>
+  </url>
+  <url>
+    <loc><%= docs_section_url(section: 'environment-variables') %></loc>
+    <lastmod>2026-08-04</lastmod>
+  </url>
+  <% Locales::ALTERNATES.each do |locale| %>
     <url>
-      <loc><%= docs_section_url(doc[:slug]) %></loc>
-      <lastmod><%= doc[:date] %></lastmod>
+      <loc><%= docs_url(locale:) %></loc>
+      <lastmod>2026-08-23</lastmod>
+    </url>
+    <url>
+      <loc><%= docs_section_url(section: 'cli', locale:) %></loc>
+      <lastmod>2026-08-23</lastmod>
+    </url>
+    <url>
+      <loc><%= docs_section_url(section: 'agent', locale:) %></loc>
+      <lastmod>2026-08-23</lastmod>
+    </url>
+    <url>
+      <loc><%= docs_section_url(section: 'mcp', locale:) %></loc>
+      <lastmod>2026-08-23</lastmod>
+    </url>
+    <url>
+      <loc><%= docs_section_url(section: 'curl', locale:) %></loc>
+      <lastmod>2026-08-23</lastmod>
+    </url>
+    <url>
+      <loc><%= docs_section_url(section: 'docker', locale:) %></loc>
+      <lastmod>2026-08-23</lastmod>
+    </url>
+    <url>
+      <loc><%= docs_section_url(section: 'self-hosting', locale:) %></loc>
+      <lastmod>2026-08-23</lastmod>
+    </url>
+    <url>
+      <loc><%= docs_section_url(section: 'notifications', locale:) %></loc>
+      <lastmod>2026-08-23</lastmod>
+    </url>
+    <url>
+      <loc><%= docs_section_url(section: 'environment-variables', locale:) %></loc>
+      <lastmod>2026-08-23</lastmod>
     </url>
   <% end %>
 </urlset>

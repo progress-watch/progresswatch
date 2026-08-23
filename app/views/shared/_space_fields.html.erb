@@ -1,15 +1,15 @@
 <div class="flex gap-3">
   <div class="w-16 shrink-0">
-    <%= f.label :icon, 'Icon', class: 'mb-1.5 block text-sm font-medium' %>
+    <%= f.label :icon, t('icon'), class: 'mb-1.5 block text-sm font-medium' %>
     <icon-input>
-      <%= f.text_field :icon, value: local_assigns[:icon], maxlength: 16, autocomplete: 'off', data: { action: 'input:icon-input#trim' }, placeholder: '🚀', 'aria-label': 'Icon', class: 'input px-1 text-center text-xl' %>
+      <%= f.text_field :icon, value: local_assigns[:icon], maxlength: 16, autocomplete: 'off', data: { action: 'input:icon-input#trim' }, placeholder: '🚀', 'aria-label': t('icon'), class: 'input px-1 text-center text-xl' %>
     </icon-input>
   </div>
   <div class="min-w-0 flex-1">
-    <%= f.label :title, 'Name', class: 'mb-1.5 block text-sm font-medium' %>
-    <%= f.text_field :title, value: local_assigns[:title], required: true, autocomplete: 'off', data: { autofocus: true }, placeholder: 'Production', class: 'input' %>
+    <%= f.label :title, t('name'), class: 'mb-1.5 block text-sm font-medium' %>
+    <%= f.text_field :title, value: local_assigns[:title], required: true, autocomplete: 'off', data: { autofocus: true }, placeholder: t('production'), class: 'input' %>
   </div>
 </div>
 <p class="text-xs text-zinc-500 dark:text-zinc-300">
-  For telling your spaces apart. Neither is a credential, and neither has to be unique.
+  <%= t('for_telling_your_spaces_apart_neither_is_a_credential_and_neither_has_to_be_unique') %>
 </p>

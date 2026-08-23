@@ -1,45 +1,47 @@
 <% content_for :indexable, true %>
-<% content_for :html_title, 'Get started | Progress Watch' %>
-<% content_for :meta_description, 'An introduction to Progress Watch, an open source progress tracker for anything that runs without you.' %>
+<% content_for :html_title, "#{t('get_started')} | Progress Watch" %>
+<% content_for :meta_description, t('an_introduction_to_progress_watch_an_open_source_progress_tracker') %>
+<% mono = ->(text) { tag.span(text, class: 'font-mono text-xs') } %>
+<% link = ->(text, path) { link_to(text, path, class: 'text-brand-600 underline dark:text-brand-400') } %>
 <div class="flex flex-col gap-8 lg:flex-row lg:items-start">
   <%= render 'shared/docs_nav', current: :docs %>
   <div class="min-w-0 max-w-2xl flex-1">
-    <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">Watch any process</h1>
-    <p class="mt-4 text-base text-zinc-600 dark:text-zinc-300">Some things run for hours with nobody watching: a nightly crawl, a training run, a migration, a CI pipeline, an agent working through a long task. Progress Watch gives them one place to report to, and gives you one place to look — plus a notification when they finish.</p>
-    <h2 class="mt-10 text-lg font-medium">Three commands from inside the work</h2>
-    <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300">Create a task where the job starts, report against it as it moves, close it when it is done. The middle one is the call that goes in your loop, and it is the only thing that knows the numbers.</p>
+    <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl"><%= t('watch_any_process') %></h1>
+    <p class="mt-4 text-base text-zinc-600 dark:text-zinc-300"><%= t('some_things_run_for_hours_with_nobody_watching') %></p>
+    <h2 class="mt-10 text-lg font-medium"><%= t('three_commands_from_inside_the_work') %></h2>
+    <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300"><%= t('create_a_task_where_the_job_starts_report_against_it_as_it_moves') %></p>
     <div class="mt-4">
       <%= render 'shared/command', body: 'progresswatch update $TASK --current 1200 --end 50000' %>
     </div>
-    <p class="mt-3 text-sm text-zinc-600 dark:text-zinc-300">Counts, not percentages: the screen shows <span class="font-mono text-xs">1200 / 50000 pages</span>, which tells you something that <span class="font-mono text-xs">2.4%</span> does not. The total may change as a job discovers more work — send the new number and the bar recalculates. The <%= link_to 'CLI', docs_section_path('cli'), class: 'text-brand-600 underline dark:text-brand-400' %> page has all three, ready to paste.</p>
-    <p class="mt-3 text-sm text-zinc-600 dark:text-zinc-300">When the process is not yours to change, <span class="font-mono text-xs">progresswatch run "python train.py"</span> wraps it whole — it creates the task, passes the output through untouched and closes it with the exit code, so a job that fails still notifies you. It reports start and finish rather than counts, because nothing outside a process knows how far along it is.</p>
-    <h2 class="mt-10 text-lg font-medium">Or one request, from anything</h2>
-    <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300">Underneath all of it is a single HTTP request, and that is the whole API. There is no SDK to install and nothing to import, because wrapping one <code class="font-mono text-xs">PUT</code> would add nothing you could not write yourself in less time than reading its documentation.</p>
+    <p class="mt-3 text-sm text-zinc-600 dark:text-zinc-300"><%= t('counts_not_percentages_the_screen_shows_html', counts: mono.call('1200 / 50000 pages'), percent: mono.call('2.4%'), cli: link.call(t('cli'), docs_section_path(section: 'cli'))) %></p>
+    <p class="mt-3 text-sm text-zinc-600 dark:text-zinc-300"><%= t('when_the_process_is_not_yours_to_change_html', run: mono.call('progresswatch run "python train.py"')) %></p>
+    <h2 class="mt-10 text-lg font-medium"><%= t('or_one_request_from_anything') %></h2>
+    <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300"><%= t('underneath_all_of_it_is_a_single_http_request_html', put: tag.code('PUT', class: 'font-mono text-xs')) %></p>
     <div class="mt-4">
       <%= render 'shared/command', body: %(curl -X PUT https://progress.watch/tasks/$TASK -H 'Content-Type: application/json' -d '{"current": 1200, "end": 50000}') %>
     </div>
-    <p class="mt-3 text-sm text-zinc-600 dark:text-zinc-300">The <%= link_to 'API reference', api_docs_path, class: 'text-brand-600 underline dark:text-brand-400' %> is the reference to build against, and pasting the <%= link_to 'curl', docs_section_path('curl'), class: 'text-brand-600 underline dark:text-brand-400' %> examples is the fastest way to see the thing work before you commit to it.</p>
-    <h2 class="mt-10 text-lg font-medium">Agents report their own work</h2>
-    <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300">An AI agent breaks a job into steps and then works for a long time with nothing to show for it. Connect one over <%= link_to 'MCP', docs_section_path('mcp'), class: 'text-brand-600 underline dark:text-brand-400' %> and it gets tools for creating a task and reporting against it: one task for the job, one child task per step, updated as it goes. MCP needs nothing installed anywhere; for a client that does not speak it, an <%= link_to 'agent skill', docs_section_path('agent'), class: 'text-brand-600 underline dark:text-brand-400' %> teaches the same thing through the CLI.</p>
-    <p class="mt-3 text-sm text-zinc-600 dark:text-zinc-300">The agent decides when tracking is worth it and how often to report. The tool descriptions tell it what a task is for, not a schedule to follow.</p>
-    <h2 class="mt-10 text-lg font-medium">No accounts</h2>
-    <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300">A space is a container for tasks, and its UUID is the credential. Whoever has the link can read and write it; sharing is giving someone the link. There is nothing to sign up for, nothing to log into, and no password to lose — which also means the link is the only way back to a space, so it is worth keeping like an API token.</p>
-    <h2 class="mt-10 text-lg font-medium">Progress is not stored</h2>
-    <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300">Current state lives in memory and expires on its own. A crawler reporting every second for three months does not grow a database, and there is nothing to clean up afterwards. The trade is deliberate: there is no history and no charts, only what is happening now.</p>
-    <h2 class="mt-10 text-lg font-medium">What it will not do</h2>
+    <p class="mt-3 text-sm text-zinc-600 dark:text-zinc-300"><%= t('the_api_reference_is_the_reference_to_build_against_html', api: link.call(t('api_reference'), api_docs_path), curl: link.call(t('curl'), docs_section_path(section: 'curl'))) %></p>
+    <h2 class="mt-10 text-lg font-medium"><%= t('agents_report_their_own_work') %></h2>
+    <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300"><%= t('an_ai_agent_breaks_a_job_into_steps_html', mcp: link.call(t('mcp'), docs_section_path(section: 'mcp')), skill: link.call(t('agent_skill_lowercase'), docs_section_path(section: 'agent'))) %></p>
+    <p class="mt-3 text-sm text-zinc-600 dark:text-zinc-300"><%= t('the_agent_decides_when_tracking_is_worth_it_and_how_often_to_report') %></p>
+    <h2 class="mt-10 text-lg font-medium"><%= t('no_accounts') %></h2>
+    <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300"><%= t('a_space_is_a_container_for_tasks_and_its_uuid_is_the_credential') %></p>
+    <h2 class="mt-10 text-lg font-medium"><%= t('progress_is_not_stored') %></h2>
+    <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300"><%= t('current_state_lives_in_memory_and_expires_on_its_own') %></p>
+    <h2 class="mt-10 text-lg font-medium"><%= t('what_it_will_not_do') %></h2>
     <ul class="mt-2 space-y-2 text-sm text-zinc-600 dark:text-zinc-300">
-      <li><span class="font-medium text-zinc-900 dark:text-zinc-100">Send commands back.</span> It is a departures board, not an orchestrator. A process reports; nothing reports to it.</li>
-      <li><span class="font-medium text-zinc-900 dark:text-zinc-100">Keep a log.</span> One line, the latest, per task. Log storage is a solved problem and this is not it.</li>
-      <li><span class="font-medium text-zinc-900 dark:text-zinc-100">Nest more than one level.</span> A task may have steps; a step may not.</li>
+      <li><span class="font-medium text-zinc-900 dark:text-zinc-100"><%= t('send_commands_back') %></span> <%= t('it_is_a_departures_board_not_an_orchestrator') %></li>
+      <li><span class="font-medium text-zinc-900 dark:text-zinc-100"><%= t('keep_a_log') %></span> <%= t('one_line_the_latest_per_task') %></li>
+      <li><span class="font-medium text-zinc-900 dark:text-zinc-100"><%= t('nest_more_than_one_level') %></span> <%= t('a_task_may_have_steps_a_step_may_not') %></li>
     </ul>
-    <h2 class="mt-10 text-lg font-medium">Run it yourself</h2>
-    <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300">The server is open source and self-hosting is one container plus a Redis — see <%= link_to 'the Docker snippet', docs_section_path('docker'), class: 'text-brand-600 underline dark:text-brand-400' %> to start it and <%= link_to 'self-hosting', docs_section_path('self-hosting'), class: 'text-brand-600 underline dark:text-brand-400' %> for running it properly. The hosted service exists so you do not have to, not because the software is crippled without it.</p>
+    <h2 class="mt-10 text-lg font-medium"><%= t('run_it_yourself') %></h2>
+    <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300"><%= t('the_server_is_open_source_and_self_hosting_is_one_container_html', docker: link.call(t('the_docker_snippet'), docs_section_path(section: 'docker')), self_hosting: link.call(t('self_hosting_lowercase'), docs_section_path(section: 'self-hosting'))) %></p>
     <div class="card mt-12 p-8 text-center">
-      <p class="text-base font-medium">Nothing to sign up for</p>
-      <p class="mx-auto mt-2 max-w-sm text-sm text-zinc-600 dark:text-zinc-300">Make a space, keep its link, and start reporting into it from anything.</p>
+      <p class="text-base font-medium"><%= t('nothing_to_sign_up_for') %></p>
+      <p class="mx-auto mt-2 max-w-sm text-sm text-zinc-600 dark:text-zinc-300"><%= t('make_a_space_keep_its_link_and_start_reporting_into_it') %></p>
       <%= link_to new_space_path, data: { turbo_frame: 'modal' }, class: 'btn-primary mt-6' do %>
         <%= svg_icon 'plus', class: 'h-4 w-4' %>
-        Create a space
+        <%= t('create_a_space') %>
       <% end %>
     </div>
   </div>

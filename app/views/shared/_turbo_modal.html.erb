@@ -6,13 +6,13 @@
           <div class="flex items-center justify-between gap-4 border-b border-zinc-200 px-5 py-2.5 dark:border-zinc-600">
             <h2 id="modal-title" class="text-sm font-medium"><%= title %></h2>
             <form method="dialog">
-              <button class="btn-ghost h-7 w-7 p-0 text-xl leading-none" aria-label="Close">&times;</button>
+              <button class="btn-ghost h-7 w-7 p-0 text-xl leading-none" aria-label="<%= t('close') %>">&times;</button>
             </form>
           </div>
           <div class="px-5 py-4"><%= yield %></div>
         </div>
         <form method="dialog" class="modal-backdrop">
-          <button aria-label="Close"></button>
+          <button aria-label="<%= t('close') %>"></button>
         </form>
       </dialog>
     </turbo-modal>

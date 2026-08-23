@@ -5,59 +5,62 @@
       <span>Progress Watch</span>
     <% end %>
     <div class="flex-1"></div>
-    <%= link_to 'Docs', docs_path, class: 'btn-ghost hidden px-2 py-1.5 text-sm md:inline-flex' %>
+    <%= link_to t('docs'), docs_path(locale: docs_locale), class: 'btn-ghost hidden px-2 py-1.5 text-sm md:inline-flex' %>
     <% if ProgressWatch.multitenant? %>
-      <%= link_to ProgressWatch::REPOSITORY_URL, target: '_blank', rel: 'noopener', class: 'btn-ghost hidden px-2 py-1.5 text-sm md:inline-flex', title: 'Progress Watch is open source. A star is how anyone else finds it.' do %>
+      <%= link_to ProgressWatch::REPOSITORY_URL, target: '_blank', rel: 'noopener', class: 'btn-ghost hidden px-2 py-1.5 text-sm md:inline-flex', title: t('progress_watch_is_open_source_a_star_is_how_anyone_else_finds_it') do %>
         <%= svg_icon 'github', class: 'h-4 w-4' %>
-        Star
+        <%= t('star') %>
       <% end %>
     <% end %>
     <div class="flex items-center gap-1">
-      <space-backup class="hidden items-center gap-1 md:flex">
-        <button type="button" data-action="click:space-backup#export" aria-label="Export spaces" class="btn-ghost px-2 py-1.5" title="Download the spaces this device knows about. It is the only backup there is.">
+      <space-backup class="hidden items-center gap-1 md:flex" data-i18n="<%= translations(:could_not_import_message) %>">
+        <button type="button" data-action="click:space-backup#export" aria-label="<%= t('export_spaces') %>" class="btn-ghost px-2 py-1.5" title="<%= t('download_the_spaces_this_device_knows_about_it_is_the_only_backup_there_is') %>">
           <%= svg_icon 'download', class: 'h-4 w-4' %>
         </button>
-        <label class="btn-ghost px-2 py-1.5" title="Merge a previously exported list into this device">
-          <span class="sr-only">Import spaces</span>
+        <label class="btn-ghost px-2 py-1.5" title="<%= t('merge_a_previously_exported_list_into_this_device') %>">
+          <span class="sr-only"><%= t('import_spaces') %></span>
           <%= svg_icon 'upload', class: 'h-4 w-4' %>
           <input type="file" accept="application/json" data-action="change:space-backup#import" class="hidden">
         </label>
         <span data-import-error class="text-xs text-red-600 dark:text-red-400"></span>
       </space-backup>
+      <%= render 'shared/locale_switcher' %>
       <%= render 'shared/theme_toggle', wrapper: 'block', trigger: 'btn-ghost list-none px-2 py-1.5', label: nil %>
     </div>
-    <%= link_to new_space_path, data: { turbo_frame: 'modal' }, 'aria-label': 'New space', class: 'btn-primary px-2 py-1.5 text-sm md:px-3' do %>
+    <%= link_to new_space_path, data: { turbo_frame: 'modal' }, 'aria-label': t('new_space'), class: 'btn-primary px-2 py-1.5 text-sm md:px-3' do %>
       <%= svg_icon 'plus', class: 'h-4 w-4' %>
-      <span class="hidden md:inline">New space</span>
+      <span class="hidden md:inline"><%= t('new_space') %></span>
     <% end %>
-    <details class="relative md:hidden">
-      <summary class="btn-secondary list-none px-2 py-1.5 text-sm" aria-label="Menu">
-        <%= svg_icon 'menu', class: 'h-4 w-4' %>
-      </summary>
-      <div class="card absolute right-0 z-10 mt-2 w-56 overflow-hidden p-1 shadow-lg">
-        <%= link_to docs_path, class: 'flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600' do %>
-          <%= svg_icon 'book', class: 'h-4 w-4 shrink-0' %>
-          Documentation
-        <% end %>
-        <% if ProgressWatch.multitenant? %>
-          <%= link_to ProgressWatch::REPOSITORY_URL, target: '_blank', rel: 'noopener', class: 'flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600' do %>
-            <%= svg_icon 'github', class: 'h-4 w-4 shrink-0' %>
-            Star on GitHub
+    <dropdown-menu class="contents">
+      <details class="relative md:hidden">
+        <summary class="btn-secondary list-none px-2 py-1.5 text-sm" aria-label="<%= t('menu') %>">
+          <%= svg_icon 'menu', class: 'h-4 w-4' %>
+        </summary>
+        <div class="card absolute right-0 z-10 mt-2 w-56 overflow-hidden p-1 shadow-lg">
+          <%= link_to docs_path(locale: docs_locale), class: 'flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600' do %>
+            <%= svg_icon 'book', class: 'h-4 w-4 shrink-0' %>
+            <%= t('documentation') %>
           <% end %>
-        <% end %>
-        <space-backup class="block">
-          <button type="button" data-action="click:space-backup#export" class="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600">
-            <%= svg_icon 'download', class: 'h-4 w-4 shrink-0' %>
-            Export spaces
-          </button>
-          <label class="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600">
-            <%= svg_icon 'upload', class: 'h-4 w-4 shrink-0' %>
-            Import spaces
-            <input type="file" accept="application/json" data-action="change:space-backup#import" class="hidden">
-          </label>
-          <span data-import-error class="block px-3 text-xs text-red-600 dark:text-red-400"></span>
-        </space-backup>
-      </div>
-    </details>
+          <% if ProgressWatch.multitenant? %>
+            <%= link_to ProgressWatch::REPOSITORY_URL, target: '_blank', rel: 'noopener', class: 'flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600' do %>
+              <%= svg_icon 'github', class: 'h-4 w-4 shrink-0' %>
+              <%= t('star_on_github') %>
+            <% end %>
+          <% end %>
+          <space-backup class="block" data-i18n="<%= translations(:could_not_import_message) %>">
+            <button type="button" data-action="click:space-backup#export" class="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600">
+              <%= svg_icon 'download', class: 'h-4 w-4 shrink-0' %>
+              <%= t('export_spaces') %>
+            </button>
+            <label class="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600">
+              <%= svg_icon 'upload', class: 'h-4 w-4 shrink-0' %>
+              <%= t('import_spaces') %>
+              <input type="file" accept="application/json" data-action="change:space-backup#import" class="hidden">
+            </label>
+            <span data-import-error class="block px-3 text-xs text-red-600 dark:text-red-400"></span>
+          </space-backup>
+        </div>
+      </details>
+    </dropdown-menu>
   </nav>
 </header>

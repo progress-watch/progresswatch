@@ -7,6 +7,7 @@ import { disable } from '../lib/push'
 // filling happens here, but the markup is a <template> in the view like everything else.
 export default class extends HTMLElement {
   connectedCallback () {
+    this.text = JSON.parse(this.dataset.i18n)
     this.templates = {}
     this.querySelectorAll('template[data-template]').forEach((template) => {
       this.templates[template.dataset.template] = template
@@ -71,13 +72,9 @@ export default class extends HTMLElement {
   }
 
   confirmed (title) {
-    const what = title ? `"${title}"` : 'this space'
+    const what = title ? `"${title}"` : this.text.this_space
 
-    return window.confirm(
-      `Remove ${what} from this device?\n\n` +
-      'The space and its tasks are not deleted, but its UUID is the only way back to it ' +
-      'and nothing on the server can recover it.'
-    )
+    return window.confirm(this.text.remove_what_from_this_device.replace('%{what}', what))
   }
 
   card (space) {
@@ -88,7 +85,7 @@ export default class extends HTMLElement {
 
     node.querySelector('[data-link]').href = linkTo(space)
     node.querySelector('[data-title]').textContent = title
-    node.querySelector('[data-meta]').textContent = openedAgo(space.last_opened_at)
+    node.querySelector('[data-meta]').textContent = openedAgo(this.text, space.last_opened_at)
     const share = node.querySelector('[data-share]')
 
     share.href = `${linkTo(space)}/link`
@@ -112,18 +109,18 @@ export default class extends HTMLElement {
   }
 }
 
-function openedAgo (iso) {
+function openedAgo (text, iso) {
   const at = Date.parse(iso)
-  if (!at) return 'never opened'
+  if (!at) return text.never_opened
 
   const minutes = Math.round((Date.now() - at) / 60000)
-  if (minutes < 1) return 'opened just now'
-  if (minutes < 60) return `opened ${minutes}m ago`
+  if (minutes < 1) return text.opened_just_now
+  if (minutes < 60) return text.opened_count_m_ago.replace('%{count}', minutes)
 
   const hours = Math.round(minutes / 60)
-  if (hours < 24) return `opened ${hours}h ago`
+  if (hours < 24) return text.opened_count_h_ago.replace('%{count}', hours)
 
-  return `opened ${Math.round(hours / 24)}d ago`
+  return text.opened_count_d_ago.replace('%{count}', Math.round(hours / 24))
 }
 
 function linkTo (space) {

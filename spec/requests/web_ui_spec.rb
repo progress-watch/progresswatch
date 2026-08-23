@@ -101,7 +101,7 @@ RSpec.describe 'Web UI' do
       get '/docs'
 
       expect(response.body.scan('<theme-toggle').size).to eq(1)
-      expect(response.body.index('<theme-toggle')).to be < response.body.index('<details class="relative md:hidden">')
+      expect(response.body.index('<theme-toggle')).to be < response.body.index('class="relative md:hidden"')
     end
 
     it 'is reachable from both navbars, so it is not only in the sitemap' do
@@ -248,7 +248,7 @@ RSpec.describe 'Web UI' do
     it 'links to its own connect instructions, uuid already filled in' do
       get space_path(space.uuid)
 
-      expect(response.body).to include(%(href="#{docs_section_path('cli', space: space.uuid)}"))
+      expect(response.body).to include(%(href="#{docs_section_path(section: 'cli', space: space.uuid)}"))
     end
 
     # The link used to be a copy button and nothing else, which answered "send this to a
@@ -380,9 +380,13 @@ RSpec.describe 'Web UI' do
       get '/sitemap.xml'
       locs = response.body.scan(%r{<loc>(.*?)</loc>}).flatten
 
-      expect(locs).to contain_exactly(docs_url, api_docs_url,
-                                      *Docs::DOCUMENTS.map { |doc| docs_section_url(doc[:slug]) },
-                                      *ConnectSnippets::SECTIONS.each_key.map { |s| docs_section_url(s) })
+      wanted = [api_docs_url] + [nil, *Locales::ALTERNATES].flat_map do |locale|
+        [docs_url(locale:),
+         *Docs::DOCUMENTS.map { |doc| docs_section_url(section: doc[:slug], locale:) },
+         *ConnectSnippets::SECTIONS.each_key.map { |s| docs_section_url(section: s, locale:) }]
+      end
+
+      expect(locs).to match_array(wanted)
 
       locs.each do |loc|
         get URI.parse(loc).path
@@ -570,14 +574,14 @@ RSpec.describe 'Web UI' do
     it 'omits configure on the hosted site' do
       hosted!
 
-      get docs_section_path('cli')
+      get docs_section_path(section: 'cli')
 
       expect(response.body).to include('progresswatch space new')
       expect(response.body).not_to include('progresswatch configure')
     end
 
     it 'teaches configure everywhere else, naming this host' do
-      get docs_section_path('cli')
+      get docs_section_path(section: 'cli')
 
       expect(response.body).to include('progresswatch configure --server http://www.example.com')
     end
@@ -587,14 +591,14 @@ RSpec.describe 'Web UI' do
   # to hand them `space use <uuid>` for a uuid they do not have.
   describe 'GET /docs, for a reader with no space yet' do
     it 'shows how to create one instead of assuming it' do
-      get docs_section_path('cli')
+      get docs_section_path(section: 'cli')
 
       expect(response.body).to include('progresswatch space new')
       expect(response.body).not_to include('progresswatch space use')
     end
 
     it 'creates one with curl too, into the variable the rest of the section uses' do
-      get docs_section_path('curl')
+      get docs_section_path(section: 'curl')
 
       expect(response.body).to include('SPACE_UUID=$(curl -s -X POST')
       expect(response.body).to include('/spaces/$SPACE_UUID/tasks')
@@ -603,7 +607,7 @@ RSpec.describe 'Web UI' do
     it 'switches to the space it was given once there is one' do
       space = create_space
 
-      get docs_section_path('cli', space: space.uuid)
+      get docs_section_path(section: 'cli', space: space.uuid)
 
       expect(response.body).to include("progresswatch space use #{space.uuid}")
       expect(response.body).not_to include('progresswatch space new')
@@ -615,7 +619,7 @@ RSpec.describe 'Web UI' do
     # default repeated — a duplicate description is the whole set treated as one page.
     it 'gives every section its own title and description' do
       seen = ConnectSnippets::SECTIONS.keys.map do |section|
-        get docs_section_path(section)
+        get docs_section_path(section: section)
 
         [response.body[%r{<title>(.*?)</title>}, 1], response.body[/<meta name="description" content="(.*?)"/, 1]]
       end
@@ -628,14 +632,14 @@ RSpec.describe 'Web UI' do
     it 'fills the space uuid into the snippet when one is given' do
       space = create_space
 
-      get docs_section_path('cli', space: space.uuid)
+      get docs_section_path(section: 'cli', space: space.uuid)
 
       expect(response).to have_http_status(:ok)
       expect(response.body).to include(space.uuid)
     end
 
     it 'stops being indexable once a real uuid is in the query' do
-      get docs_section_path('cli', space: create_space.uuid)
+      get docs_section_path(section: 'cli', space: create_space.uuid)
 
       expect(response.body).to include('<meta name="robots" content="noindex, nofollow">')
       expect(response.body).not_to include('rel="canonical"')
@@ -644,7 +648,7 @@ RSpec.describe 'Web UI' do
     # Without a space the snippets still show, with a placeholder a shell can take: an
     # angle bracket is a redirect and would fail on the first line pasted.
     it 'falls back to a shell variable when there is no space' do
-      get docs_section_path('curl')
+      get docs_section_path(section: 'curl')
 
       expect(response).to have_http_status(:ok)
       expect(response.body).to include('curl -X PUT')

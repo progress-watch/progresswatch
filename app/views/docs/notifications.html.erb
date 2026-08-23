@@ -1,49 +1,23 @@
-<%= markdown do %>
-The point of the whole product is the moment a job finishes while you are somewhere else. Progress Watch delivers that through Web Push, straight from the server to your browser — desktop and phone through one mechanism, with nothing in between that belongs to us.
-
-## Turning it on
-
-Push is opt-in per space. Open a space, press **Notify me**, and that browser is registered for that space and no other. Nothing about you is stored until you press it, and forgetting the space unregisters it again.
-
-## On a phone, install the site first
-
-iOS delivers Web Push only to a site added to the Home Screen, and there is no way around it: open the space in Safari, Share, **Add to Home Screen**, and press Notify me from there. Android and desktop work from an ordinary tab.
-
-Installing has a second benefit on iOS. Safari clears an ordinary site's local storage after seven days without a visit, and an installed web app is exempt — and that storage is where your list of spaces lives. There is no account to restore it from.
-
-## A tree of steps is one notification
-
-Every task that finishes notifies, including each step of a job. They do not stack: a step replaces its job's previous notification in place rather than adding to it, so a ten-step deploy reads as one line that keeps changing, and only the job's own completion buzzes again.
-
-## What each party learns
-
-Payloads are encrypted for the browser that subscribed, with keys only it holds. Google, Mozilla and Apple relay ciphertext and cannot read your task titles. What they do learn is that a particular browser received something, and when.
-
-Your own server learns one thing it otherwise would not: that a browser opted in on a given space. That is the reason it is a button per space rather than a global setting — the list of spaces a browser holds lives in that browser and nowhere else, and a subscription is the one thing that puts a space in the server's records.
-
-If you are self-hosting, `PUSH_CONTENT=minimal` sends "Task completed" with no title. The payload is encrypted either way; this is for the lock screen of a phone somebody else can see.
-
-## Self-hosting: it has to be HTTPS
-
-A browser hands out a service worker only on a secure origin, and Web Push needs one. On `http://192.168.1.50:7979` the button does not appear at all, whatever your keys say — and nothing explains why, because as far as the page is concerned the feature does not exist on that browser. `localhost` is the one exception, which is exactly why this works while you are trying it out and stops the moment you move it to a box on the network.
-
-So notifications mean a certificate: something in front that terminates TLS — Caddy, Traefik, nginx, a Cloudflare tunnel — and `FORCE_SSL=true` set on both services once it is there.
-
-## Self-hosting: generating the keys
-
-Both keys unset means the feature does not exist — no button, and nothing stored about anyone. Generate a pair once:
-
-~~~
-docker compose exec -T progresswatch ./bin/rails runner 'k = WebPush.generate_key; puts k.public_key, k.private_key'
-~~~
-
-Put both into the `environment:` block of **both** services in `docker-compose.yml` and `docker compose up -d` again. Not `restart` — that reuses the configuration the containers already have. Setting them on the app and not on the worker is the failure worth naming: the button appears, somebody presses it, and nothing is ever delivered.
-
-**There is nothing to register anywhere** — no Firebase project, no Apple developer account, no API key. Whoever made the browser runs the push service; its address arrives inside the subscription the browser hands your server, and the VAPID pair is self-signed proof that every notification came from the same sender. `VAPID_SUBJECT` is only a contact address and nobody verifies it.
-
-Do not rotate the keys. Existing subscriptions are bound to them, browsers are not told, and they simply stop receiving.
-
-## Why there is no mobile app
-
-A React Native app was designed for this and has not been built, because Web Push covers what it was for. The one thing it would still do better is watching several servers at once: a browser is bound to one origin, so a space on another server opens on that server rather than joining a single list. If you watch a hosted space and a self-hosted one, install the site from each.
-<% end %>
+<p><%= t('the_point_of_the_whole_product_is_the_moment_a_job_finishes') %></p>
+<h2><%= t('turning_it_on') %></h2>
+<p><%= t('push_is_opt_in_per_space_open_a_space_press_html', notify: tag.strong(t('notify_me'))) %></p>
+<h2><%= t('on_a_phone_install_the_site_first') %></h2>
+<p><%= t('ios_delivers_web_push_only_to_a_site_added_to_the_home_screen_html', add: tag.strong(t('add_to_home_screen'))) %></p>
+<p><%= t('installing_has_a_second_benefit_on_ios') %></p>
+<h2><%= t('a_tree_of_steps_is_one_notification') %></h2>
+<p><%= t('every_task_that_finishes_notifies_including_each_step_of_a_job') %></p>
+<h2><%= t('what_each_party_learns') %></h2>
+<p><%= t('payloads_are_encrypted_for_the_browser_that_subscribed') %></p>
+<p><%= t('your_own_server_learns_one_thing_it_otherwise_would_not') %></p>
+<p><%= t('if_you_are_self_hosting_push_content_minimal_html', minimal: tag.code('PUSH_CONTENT=minimal')) %></p>
+<h2><%= t('self_hosting_it_has_to_be_https') %></h2>
+<p><%= t('a_browser_hands_out_a_service_worker_only_on_a_secure_origin_html', address: tag.code('http://192.168.1.50:7979'), localhost: tag.code('localhost')) %></p>
+<p><%= t('so_notifications_mean_a_certificate_html', force_ssl: tag.code('FORCE_SSL=true')) %></p>
+<h2><%= t('self_hosting_generating_the_keys') %></h2>
+<p><%= t('both_keys_unset_means_the_feature_does_not_exist_generate_a_pair_once') %></p>
+<%= render 'shared/command', body: %(docker compose exec -T progresswatch ./bin/rails runner 'k = WebPush.generate_key; puts k.public_key, k.private_key') %>
+<p><%= t('put_both_into_the_environment_block_of_both_services_html', environment: tag.code('environment:'), both: tag.strong(t('both_services')), up: tag.code('docker compose up -d'), restart: tag.code('restart')) %></p>
+<p><%= t('there_is_nothing_to_register_anywhere_html', nothing: tag.strong(t('there_is_nothing_to_register_anywhere_lead')), subject: tag.code('VAPID_SUBJECT')) %></p>
+<p><%= t('do_not_rotate_the_keys_existing_subscriptions_are_bound_to_them') %></p>
+<h2><%= t('why_there_is_no_mobile_app') %></h2>
+<p><%= t('a_react_native_app_was_designed_for_this_and_has_not_been_built') %></p>

@@ -1,0 +1,12 @@
+<dropdown-menu class="contents">
+  <details class="relative">
+    <summary class="btn-ghost list-none px-2 py-1.5" aria-label="<%= t('language') %>" title="<%= t('language') %>">
+      <%= svg_icon 'globe', class: 'h-4 w-4 shrink-0' %>
+    </summary>
+    <div class="card absolute right-0 z-10 mt-2 w-40 overflow-hidden p-1 shadow-lg">
+      <% Locales::NAMES.each do |code, name| %>
+        <%= link_to name, url_for(request.query_parameters.merge(locale: (code unless code == I18n.default_locale))), 'aria-current': I18n.locale == code, class: 'flex w-full items-center rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 aria-[current=true]:bg-zinc-100 aria-[current=true]:font-medium dark:text-zinc-300 dark:hover:bg-zinc-600 dark:aria-[current=true]:bg-zinc-600' %>
+      <% end %>
+    </div>
+  </details>
+</dropdown-menu>

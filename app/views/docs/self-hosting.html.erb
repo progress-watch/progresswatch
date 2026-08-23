@@ -1,83 +1,32 @@
-<%= markdown do %>
-The server is open source under the AGPL, and the hosted service runs the same image you would. Self-hosting costs one container and a Redis, and the database stays small forever because progress is never written to it.
-
-## One file
-
-`docker-compose.yml` is the whole install. It runs the published image, so there is nothing to clone and nothing to build — copy it from <%= link_to 'the Docker page', docs_section_path('docker') %>, which prints the current file, replace the placeholder secret, and start it:
-
-~~~
-openssl rand -hex 64
-docker compose up -d
-~~~
-
-That is the whole setup: the app on `http://localhost:7979`, a worker, a Redis, and a SQLite file on a named volume. Open it, create a space, and the Connect menu on that space hands you snippets with its UUID already filled in.
-
-## Configuring it
-
-The file is yours from the moment you save it, and it is the only place anything is configured — every setting is a line in an `environment:` block, so adding one is adding a line:
-
-~~~
-    environment:
-      - SECRET_KEY_BASE=8f3c…
-      - DATABASE_URL=postgresql://progresswatch:secret@db.internal/progresswatch
-      - VAPID_PUBLIC_KEY=BJ1w…
-      - VAPID_PRIVATE_KEY=xK2p…
-~~~
-
-Two services run the same image and both boot the whole application, so anything you add goes in **both** of them. The one that bites is a VAPID pair set on the app and forgotten on the worker: the button appears, somebody presses it, and nothing is ever delivered.
-
-<%= link_to 'Environment variables', docs_section_path('environment-variables') %> is the full list, and everything on it works here. To publish somewhere other than 7979, change the left-hand side of `7979:3000` — the app inside the container is always on 3000.
-
-~~~
-curl http://localhost:7979/up
-
-{"status":"ok","database":true,"redis":true}
-~~~
-
-## What is running
-
-Three processes and a file. The app answers requests; Redis holds the current progress of every task and the job queue; SQLite holds spaces and the shape of each task. The worker exists for exactly one job — sending a notification when a task finishes — so an install without it works in every other respect and quietly never notifies anyone.
-
-## Why 7979
-
-Not 3000. This is a service you leave running for weeks while you work, and 3000 is where your own dev servers land — Rails, Vite, Next, Grafana and half the `docker run` lines in other guides. A background service should not hold the most contended port on the machine, least of all one whose URL you paste into a CI secret and then forget about.
-
-Inside the container it is still 3000; only the published port moved, and that is the `7979:3000` line.
-
-## Losing the volume is recoverable
-
-Spaces and task structure are on it, and nothing else. If it goes, you create a new space and your reporting processes repopulate everything on their next request. Back it up if you would rather not redistribute a new space UUID to whatever reports into it — but there is nothing on it that cannot be rebuilt by running the jobs again.
-
-## SQLite or PostgreSQL
-
-Both, from the same image and the same migrations, chosen by `DATABASE_URL`. SQLite is the default and is the right answer for one box: two tables, primary-key lookups, almost never written. Point it at `postgresql://…` when you are running several app containers, because they cannot share a file.
-
-## Behind a proxy
-
-Set `FORCE_SSL=true` once something in front of the app terminates TLS. It is off by default so that an install reached over plain HTTP does not redirect you to a certificate you do not have.
-
-## Notifications
-
-Set a VAPID key pair and a "Notify me" button appears on every space; leave the keys unset and the feature does not exist. There is nothing to register with Apple or Google. See <%= link_to 'notifications', docs_section_path('notifications') %> for the whole story, including what has to happen on a phone.
-
-## Sweeping empty spaces
-
-Opening the site creates a space for you, so plenty get created and never used — including by anything that crawls the page. A space that has **ever** held a task is kept for good, however long nobody looks at it. Only ones that never held a single task are swept, and only once they are more than 30 days old.
-
-Nothing runs it for you. Schedule it however you already schedule things:
-
-~~~
-bin/rails sweep_empty_spaces
-~~~
-
-~~~
-# crontab, daily at 04:17
-17 4 * * * cd /path/to/progresswatch && docker compose exec -T progresswatch bin/rails sweep_empty_spaces
-~~~
-
-Because nothing is on a timer, 30 days is a floor rather than a schedule: run it daily and empty spaces go the day they qualify, run it once a year and they sit until then. Skipping it is safe for your data — the sweep only ever takes rows that were never used — it just means the table grows with spaces nobody ever opened.
-
-## Your instance is not indexable
-
-Every page of a self-hosted install is `noindex`, `robots.txt` disallows everything, and `/sitemap.xml` answers 404. There is no audience to reach from somebody's own box and nothing there that wants to be found in a search, and nothing has to be configured for it — it is what you get.
-<% end %>
+<p><%= t('the_server_is_open_source_under_the_agpl') %></p>
+<h2><%= t('one_file') %></h2>
+<p><%= t('docker_compose_yml_is_the_whole_install_html', file: tag.code('docker-compose.yml'), docker: link_to(t('the_docker_page'), docs_section_path(section: 'docker'))) %></p>
+<%= render 'shared/command', body: "openssl rand -hex 64\ndocker compose up -d" %>
+<p><%= t('that_is_the_whole_setup_the_app_on_localhost_html', url: tag.code('http://localhost:7979')) %></p>
+<h2><%= t('configuring_it') %></h2>
+<p><%= t('the_file_is_yours_from_the_moment_you_save_it_html', environment: tag.code('environment:')) %></p>
+<%= render 'shared/command', body: "    environment:\n      - SECRET_KEY_BASE=8f3c…\n      - DATABASE_URL=postgresql://progresswatch:secret@db.internal/progresswatch\n      - VAPID_PUBLIC_KEY=BJ1w…\n      - VAPID_PRIVATE_KEY=xK2p…" %>
+<p><%= t('two_services_run_the_same_image_and_both_boot_the_whole_application_html', both: tag.strong(t('both'))) %></p>
+<p><%= t('environment_variables_is_the_full_list_html', link: link_to(t('environment_variables'), docs_section_path(section: 'environment-variables')), ports: tag.code('7979:3000')) %></p>
+<%= render 'shared/command', body: %(curl http://localhost:7979/up\n\n{"status":"ok","database":true,"redis":true}) %>
+<h2><%= t('what_is_running') %></h2>
+<p><%= t('three_processes_and_a_file_the_app_answers_requests') %></p>
+<h2><%= t('why_7979') %></h2>
+<p><%= t('not_3000_this_is_a_service_you_leave_running_for_weeks_html', run: tag.code('docker run')) %></p>
+<p><%= t('inside_the_container_it_is_still_3000_html', ports: tag.code('7979:3000')) %></p>
+<h2><%= t('losing_the_volume_is_recoverable') %></h2>
+<p><%= t('spaces_and_task_structure_are_on_it_and_nothing_else') %></p>
+<h2><%= t('sqlite_or_postgresql') %></h2>
+<p><%= t('both_from_the_same_image_and_the_same_migrations_html', database_url: tag.code('DATABASE_URL'), postgres: tag.code('postgresql://…')) %></p>
+<h2><%= t('behind_a_proxy') %></h2>
+<p><%= t('set_force_ssl_true_once_something_in_front_terminates_tls_html', force_ssl: tag.code('FORCE_SSL=true')) %></p>
+<h2><%= t('notifications') %></h2>
+<p><%= t('set_a_vapid_key_pair_and_a_notify_me_button_appears_html', notify: t('notify_me'), link: link_to(t('notifications_lowercase'), docs_section_path(section: 'notifications'))) %></p>
+<h2><%= t('sweeping_empty_spaces') %></h2>
+<p><%= t('opening_the_site_creates_a_space_for_you_html', ever: tag.strong(t('ever'))) %></p>
+<p><%= t('nothing_runs_it_for_you_schedule_it_however_you_already_schedule_things') %></p>
+<%= render 'shared/command', body: 'bin/rails sweep_empty_spaces' %>
+<%= render 'shared/command', body: "# #{t('crontab_daily_at_0417')}\n17 4 * * * cd /path/to/progresswatch && docker compose exec -T progresswatch bin/rails sweep_empty_spaces" %>
+<p><%= t('because_nothing_is_on_a_timer_30_days_is_a_floor') %></p>
+<h2><%= t('your_instance_is_not_indexable') %></h2>
+<p><%= t('every_page_of_a_self_hosted_install_is_noindex_html', noindex: tag.code('noindex'), robots: tag.code('robots.txt'), sitemap: tag.code('/sitemap.xml')) %></p>

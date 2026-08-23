@@ -1,12 +1,18 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="<%= I18n.locale %>" class="h-full">
   <head>
-    <title><%= content_for(:html_title).presence || 'Progress Watch | Watch any process' %></title>
+    <title><%= content_for(:html_title).presence || "Progress Watch | #{t('watch_any_process')}" %></title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <%= render 'shared/meta' %>
     <% if indexable? %>
-      <link rel="canonical" href="<%= request.base_url %><%= request.path %>">
+      <link rel="canonical" href="<%= locale_url(I18n.locale) %>">
+      <% if translated? %>
+        <% Locales::NAMES.each_key do |locale| %>
+          <link rel="alternate" hreflang="<%= locale %>" href="<%= locale_url(locale) %>">
+        <% end %>
+        <link rel="alternate" hreflang="x-default" href="<%= locale_url(I18n.default_locale) %>">
+      <% end %>
     <% else %>
       <meta name="robots" content="noindex, nofollow">
     <% end %>
@@ -21,9 +27,6 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Progress Watch">
-    <%# Before first paint, or somebody who chose light on a dark machine sees dark flash %>
-    <%# by. It reads what lib/profile.js writes; it cannot import it, because the pack %>
-    <%# loads after this runs. %>
     <script>
       try {
         var theme = JSON.parse(localStorage.getItem('progresswatch.profile') || '{}').settings?.theme

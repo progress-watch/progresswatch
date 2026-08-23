@@ -1,4 +1,6 @@
-<% heading, description = @doc ? @doc.values_at(:heading, :meta_description) : ConnectSnippets::SECTIONS[@section].values_at(:heading, :description) %>
+<% source = @doc || ConnectSnippets::SECTIONS[@section] %>
+<% heading = t(source[:heading]) %>
+<% description = t(@doc ? source[:meta_description] : source[:description]) %>
 <% content_for :indexable, true unless @space_uuid %>
 <% content_for :html_title, "#{heading} | Progress Watch" %>
 <% content_for :meta_description, description %>
@@ -13,11 +15,11 @@
     <% else %>
       <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
         <% if ConnectSnippets::SECTIONS[@section][:intro] %>
-          <%= ConnectSnippets::SECTIONS[@section][:intro] %>
+          <%= t(ConnectSnippets::SECTIONS[@section][:intro]) %>
         <% elsif @space_uuid %>
-          Ready to paste, with your space UUID already in it.
+          <%= t('ready_to_paste_with_your_space_uuid_already_in_it') %>
         <% else %>
-          These create a space and report into it. Already have one? Open it and come back through the Connect menu, and its UUID is filled in for you.
+          <%= t('these_create_a_space_and_report_into_it_already_have_one') %>
         <% end %>
       </p>
       <div class="mt-6">

@@ -34,7 +34,7 @@ export default class extends HTMLElement {
   }
 
   reject (input) {
-    input.setCustomValidity('Paste a space UUID, or a link to one.')
+    input.setCustomValidity(JSON.parse(this.dataset.i18n).paste_a_space_uuid_or_a_link_to_one)
     input.reportValidity()
     input.addEventListener('input', () => input.setCustomValidity(''), { once: true })
   }

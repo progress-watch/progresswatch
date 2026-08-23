@@ -1,9 +1,9 @@
 <div class="mx-auto max-w-md text-center">
   <h1 class="text-2xl font-semibold tracking-tight sm:text-3xl">
-    <%= local_assigns[:heading] || 'Not found' %>
+    <%= local_assigns[:heading] || t('not_found') %>
   </h1>
   <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
-    <%= local_assigns[:explanation] || 'There is nothing at this address.' %>
+    <%= local_assigns[:explanation] || t('there_is_nothing_at_this_address') %>
   </p>
-  <%= link_to 'Back to the start', root_path, class: 'btn-primary mt-6' %>
+  <%= link_to t('back_to_the_start'), root_path, class: 'btn-primary mt-6' %>
 </div>

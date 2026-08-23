@@ -1,12 +1,13 @@
-<% title = content_for(:html_title).presence || 'Progress Watch | Watch any process' %>
-<% description = content_for(:meta_description).presence || 'Watch any script, crawler, CI job or agent. It reports progress with a single HTTP request; you watch it from anywhere and get a push notification when it finishes. Open source, self-hostable.' %>
+<% title = content_for(:html_title).presence || "Progress Watch | #{t('watch_any_process')}" %>
+<% description = content_for(:meta_description).presence || t('watch_any_script_crawler_ci_job_or_agent') %>
 <meta name="description" content="<%= description %>">
 <% if indexable? %>
   <meta property="og:site_name" content="Progress Watch">
   <meta property="og:type" content="website">
+  <meta property="og:locale" content="<%= I18n.locale %>">
   <meta property="og:title" content="<%= title %>">
   <meta property="og:description" content="<%= description %>">
-  <meta property="og:url" content="<%= request.base_url %><%= request.path %>">
+  <meta property="og:url" content="<%= locale_url(I18n.locale) %>">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="<%= title %>">
   <meta name="twitter:description" content="<%= description %>">

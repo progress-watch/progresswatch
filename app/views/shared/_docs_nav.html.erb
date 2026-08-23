@@ -4,28 +4,28 @@
     <li>
       <%= link_to docs_path, 'aria-current': ('page' if current == :docs), class: "flex items-center gap-2.5 rounded-lg px-3 py-2 text-base font-medium transition #{active.call(current == :docs)}" do %>
         <%= svg_icon 'book', class: 'h-4 w-4 shrink-0' %>
-        Get started
+        <%= t('get_started') %>
       <% end %>
     </li>
     <% ConnectSnippets::SECTIONS.each do |section, config| %>
       <li>
-        <%= link_to docs_section_path(section, space: local_assigns[:space_uuid]), 'aria-current': ('page' if section == current), class: "flex items-center gap-2.5 rounded-lg px-3 py-2 text-base font-medium transition #{active.call(section == current)}" do %>
+        <%= link_to docs_section_path(section: section, space: local_assigns[:space_uuid]), 'aria-current': ('page' if section == current), class: "flex items-center gap-2.5 rounded-lg px-3 py-2 text-base font-medium transition #{active.call(section == current)}" do %>
           <%= svg_icon config[:icon], class: 'h-4 w-4 shrink-0' %>
-          <%= config[:title] %>
+          <%= t(config[:title]) %>
         <% end %>
       </li>
     <% end %>
     <li>
-      <%= link_to api_docs_path, class: "flex items-center gap-2.5 rounded-lg px-3 py-2 text-base font-medium transition #{active.call(false)}" do %>
+      <%= link_to api_docs_path(locale: nil), class: "flex items-center gap-2.5 rounded-lg px-3 py-2 text-base font-medium transition #{active.call(false)}" do %>
         <%= svg_icon 'code', class: 'h-4 w-4 shrink-0' %>
         API
       <% end %>
     </li>
     <% Docs::DOCUMENTS.each do |doc| %>
       <li>
-        <%= link_to docs_section_path(doc[:slug]), 'aria-current': ('page' if doc[:slug] == current), class: "flex items-center gap-2.5 rounded-lg px-3 py-2 text-base font-medium transition #{active.call(doc[:slug] == current)}" do %>
+        <%= link_to docs_section_path(section: doc[:slug]), 'aria-current': ('page' if doc[:slug] == current), class: "flex items-center gap-2.5 rounded-lg px-3 py-2 text-base font-medium transition #{active.call(doc[:slug] == current)}" do %>
           <%= svg_icon doc[:icon], class: 'h-4 w-4 shrink-0' %>
-          <%= doc[:title] %>
+          <%= t(doc[:title]) %>
         <% end %>
       </li>
     <% end %>

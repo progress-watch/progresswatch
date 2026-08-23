@@ -6,7 +6,7 @@
 %>
 <li class="<%= nested ? 'rounded-lg border border-zinc-200 p-3 dark:border-zinc-600' : 'card p-4' %>">
   <div class="flex flex-wrap items-center gap-2">
-    <span class="min-w-0 break-words text-base font-medium sm:text-sm"><%= task['title'].presence || 'Untitled task' %></span>
+    <span class="min-w-0 break-words text-base font-medium sm:text-sm"><%= task['title'].presence || t('untitled_task') %></span>
     <% if finished %>
       <span class="badge bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
         <%= task['finished_label'] %>
@@ -14,7 +14,7 @@
     <% elsif task['idle_label'] %>
       <span class="badge bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"><%= task['idle_label'] %></span>
     <% else %>
-      <span class="badge bg-brand-100 text-brand-800 dark:bg-brand-900/40 dark:text-brand-300">running</span>
+      <span class="badge bg-brand-100 text-brand-800 dark:bg-brand-900/40 dark:text-brand-300"><%= t('running') %></span>
     <% end %>
     <% if task['source'].present? %>
       <span class="font-mono text-xs text-zinc-400 dark:text-zinc-300"><%= task['source'] %></span>
@@ -24,7 +24,7 @@
     <% end %>
   </div>
   <% if progress.nil? %>
-    <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-300">Waiting for data…</p>
+    <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-300"><%= t('waiting_for_data') %></p>
   <% else %>
     <div class="mt-2">
       <div class="h-2 w-full overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-600">
@@ -53,7 +53,7 @@
       <%= tag.details(open: !finished, data: { action: 'toggle:sticky-details#remember' }) do %>
         <summary class="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-800 dark:text-zinc-300 dark:hover:text-zinc-200">
           <%= svg_icon 'chevron_right', class: 'h-4 w-4 transition-transform', data: { chevron: true } %>
-          <%= pluralize(task['children'].size, 'step') %>
+          <%= t('count_steps', count: task['children'].size) %>
         </summary>
         <ul class="mt-2 space-y-2 border-l-2 border-zinc-200 pl-4 dark:border-zinc-600">
           <%= render partial: 'spaces/task', collection: task['children'], as: :task, locals: { nested: true } %>

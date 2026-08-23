@@ -19,12 +19,9 @@ export default class extends HTMLElement {
   }
 
   confirmed (title) {
-    const what = title ? `"${title}"` : 'this space'
+    const text = JSON.parse(this.dataset.i18n)
+    const what = title ? `"${title}"` : text.this_space
 
-    return window.confirm(
-      `Remove ${what} from this device?\n\n` +
-      'The space and its tasks are not deleted, but its UUID is the only way back to it ' +
-      'and nothing on the server can recover it.'
-    )
+    return window.confirm(text.remove_what_from_this_device.replace('%{what}', what))
   }
 }

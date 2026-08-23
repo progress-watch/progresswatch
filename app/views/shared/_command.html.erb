@@ -5,7 +5,7 @@
   <% else %>
     <input type="text" readonly value="<%= body %>" class="input truncate pr-11 font-mono text-base sm:text-xs">
   <% end %>
-  <button type="button" tabindex="-1" aria-label="Copy" class="copy-icon <%= block ? 'top-2 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-200' : 'top-1/2 -translate-y-1/2 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-600 dark:hover:text-zinc-200' %>">
+  <button type="button" tabindex="-1" aria-label="<%= t('copy') %>" class="copy-icon <%= block ? 'top-2 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-200' : 'top-1/2 -translate-y-1/2 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-600 dark:hover:text-zinc-200' %>">
     <%= svg_icon 'copy', class: 'h-4 w-4', data: { copy_mark: true } %>
     <%= svg_icon 'check', class: 'h-4 w-4 text-emerald-500', data: { copy_check: true } %>
   </button>

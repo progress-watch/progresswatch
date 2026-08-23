@@ -1,47 +1,55 @@
-<%= markdown do %>
-Everything is an environment variable. There are no config files to edit and no encrypted credentials baked into the image, so the same container runs on a home NAS and in the cloud.
-
-## General
-
-| Variable | Default | What it does |
-|---|---|---|
-| `SECRET_KEY_BASE` | — | The only variable that is required in production. Generate one with `openssl rand -hex 64` and keep it. |
-| `DATABASE_URL` | `sqlite3:storage/production.sqlite3` | Where spaces and task structure live. The default file is what the Docker volume holds; point it at `postgresql://…` for a cloud deployment. Progress itself is never written here. |
-| `FORCE_SSL` | `false` | Set `true` when something in front terminates TLS. It also drives `assume_ssl`, so leaving it off keeps the app usable over plain HTTP instead of redirecting to a certificate you do not have. |
-| `PORT` | `3000` | The port Puma binds inside the container. `docker-compose.yml` publishes it on 7979, because a service you leave running for weeks should not hold the port your own dev servers want. |
-| `RAILS_LOG_LEVEL` | `info` | Logs go to stdout and nowhere else. This is how much of them. |
-| `RATE_LIMIT_PER_HOUR` | — | How many spaces and tasks one address may create per hour. Unset means no limit, which is the right answer for a server only you can reach. Reporting progress is never limited. |
-
-Behind a proxy, `RATE_LIMIT_PER_HOUR` is only as good as the address the app sees. Rails reads `X-Forwarded-For` and trusts it from private ranges, which is what a reverse proxy on the same host sends — but if the header does not arrive, every request looks like one client and the limit locks out everybody at once rather than nobody.
-
-## Redis
-
-Redis holds two unrelated things: the current progress of every task, and the Sidekiq queue. They are two logical databases of one server by default, and either can be moved to its own instance.
-
-| Variable | Default | What it does |
-|---|---|---|
-| `REDIS_URL` | `redis://localhost:6379` | The server used for both roles, split into db 0 for progress and db 1 for the queue. |
-| `PROGRESS_REDIS_URL` | `REDIS_URL`, db 0 | Overrides the progress store alone. |
-| `SIDEKIQ_REDIS_URL` | `REDIS_URL`, db 1 | Overrides the queue alone. |
-| `PROGRESS_TTL_SECONDS` | `86400` | How long a task keeps its progress without being written to. Every report refreshes it, so this is really how long an abandoned task stays on screen. |
-| `PROGRESS_KEY_PREFIX` | `pw:progress` | Key prefix for the progress store, so it can share a database with something else. |
-
-## Notifications
-
-Both keys unset means the feature does not exist: no button on a space, and nothing stored about anyone. There is nothing to register with Apple or Google — whoever made the browser runs the push service. Generate a pair once and do not rotate it; existing subscriptions are bound to it and browsers are not told.
-
-| Variable | Default | What it does |
-|---|---|---|
-| `VAPID_PUBLIC_KEY` | — | Public half of the pair that signs every push. Handed to the browser when it subscribes. |
-| `VAPID_PRIVATE_KEY` | — | Private half. Never leaves the server. |
-| `VAPID_SUBJECT` | `mailto:hello@progress.watch` | A contact address the push services can reach if something goes wrong. Nobody verifies it. |
-| `PUSH_CONTENT` | `full` | `full` puts the task title in the notification, `minimal` sends "Task completed" and nothing identifying. |
-
-## Process sizing
-
-| Variable | Default | What it does |
-|---|---|---|
-| `RAILS_MAX_THREADS` | `5` | Puma threads per process, and the size of both the database and the Redis connection pool. |
-| `WEB_CONCURRENCY` | `0` | Puma worker processes. Zero runs a single process, which is the right answer on a small box. |
-| `SIDEKIQ_CONCURRENCY` | `5` | Threads in the Sidekiq process. Sending notifications is the only job there is. |
-<% end %>
+<% row = ->(name, default, description) { tag.tr(tag.td(tag.code(name)) + tag.td(default) + tag.td(description)) } %>
+<p><%= t('everything_is_an_environment_variable') %></p>
+<h2><%= t('general') %></h2>
+<div class="scrolls">
+  <table>
+    <thead><tr><th><%= t('variable') %></th><th><%= t('default') %></th><th><%= t('what_it_does') %></th></tr></thead>
+    <tbody>
+      <%= row.call('SECRET_KEY_BASE', '—', t('the_only_variable_that_is_required_in_production_html', generate: tag.code('openssl rand -hex 64'))) %>
+      <%= row.call('DATABASE_URL', tag.code('sqlite3:storage/production.sqlite3'), t('where_spaces_and_task_structure_live_html', postgres: tag.code('postgresql://…'))) %>
+      <%= row.call('FORCE_SSL', tag.code('false'), t('set_true_when_something_in_front_terminates_tls_html', value: tag.code('true'), assume: tag.code('assume_ssl'))) %>
+      <%= row.call('PORT', tag.code('3000'), t('the_port_puma_binds_inside_the_container_html', compose: tag.code('docker-compose.yml'))) %>
+      <%= row.call('RAILS_LOG_LEVEL', tag.code('info'), t('logs_go_to_stdout_and_nowhere_else_this_is_how_much_of_them')) %>
+      <%= row.call('RATE_LIMIT_PER_HOUR', '—', t('how_many_spaces_and_tasks_one_address_may_create_per_hour')) %>
+    </tbody>
+  </table>
+</div>
+<p><%= t('behind_a_proxy_the_limit_is_only_as_good_as_the_address_html', limit: tag.code('RATE_LIMIT_PER_HOUR'), forwarded: tag.code('X-Forwarded-For')) %></p>
+<h2>Redis</h2>
+<p><%= t('redis_holds_two_unrelated_things') %></p>
+<div class="scrolls">
+  <table>
+    <thead><tr><th><%= t('variable') %></th><th><%= t('default') %></th><th><%= t('what_it_does') %></th></tr></thead>
+    <tbody>
+      <%= row.call('REDIS_URL', tag.code('redis://localhost:6379'), t('the_server_used_for_both_roles_split_into_db_0_and_db_1')) %>
+      <%= row.call('PROGRESS_REDIS_URL', tag.code('REDIS_URL') + ', db 0', t('overrides_the_progress_store_alone')) %>
+      <%= row.call('SIDEKIQ_REDIS_URL', tag.code('REDIS_URL') + ', db 1', t('overrides_the_queue_alone')) %>
+      <%= row.call('PROGRESS_TTL_SECONDS', tag.code('86400'), t('how_long_a_task_keeps_its_progress_without_being_written_to')) %>
+      <%= row.call('PROGRESS_KEY_PREFIX', tag.code('pw:progress'), t('key_prefix_for_the_progress_store')) %>
+    </tbody>
+  </table>
+</div>
+<h2><%= t('notifications') %></h2>
+<p><%= t('both_keys_unset_means_the_feature_does_not_exist_no_button_on_a_space') %></p>
+<div class="scrolls">
+  <table>
+    <thead><tr><th><%= t('variable') %></th><th><%= t('default') %></th><th><%= t('what_it_does') %></th></tr></thead>
+    <tbody>
+      <%= row.call('VAPID_PUBLIC_KEY', '—', t('public_half_of_the_pair_that_signs_every_push')) %>
+      <%= row.call('VAPID_PRIVATE_KEY', '—', t('private_half_never_leaves_the_server')) %>
+      <%= row.call('VAPID_SUBJECT', tag.code('mailto:hello@progress.watch'), t('a_contact_address_the_push_services_can_reach')) %>
+      <%= row.call('PUSH_CONTENT', tag.code('full'), t('full_puts_the_task_title_in_the_notification_html', full: tag.code('full'), minimal: tag.code('minimal'))) %>
+    </tbody>
+  </table>
+</div>
+<h2><%= t('process_sizing') %></h2>
+<div class="scrolls">
+  <table>
+    <thead><tr><th><%= t('variable') %></th><th><%= t('default') %></th><th><%= t('what_it_does') %></th></tr></thead>
+    <tbody>
+      <%= row.call('RAILS_MAX_THREADS', tag.code('5'), t('puma_threads_per_process_and_the_size_of_both_pools')) %>
+      <%= row.call('WEB_CONCURRENCY', tag.code('0'), t('puma_worker_processes_zero_runs_a_single_process')) %>
+      <%= row.call('SIDEKIQ_CONCURRENCY', tag.code('5'), t('threads_in_the_sidekiq_process')) %>
+    </tbody>
+  </table>
+</div>

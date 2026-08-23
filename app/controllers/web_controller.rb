@@ -1,52 +1,78 @@
 # frozen_string_literal: true
 
 class WebController < ActionController::Base
-  # Implicit lookup walks controller names and silently renders with no layout at all.
   layout 'application'
 
   protect_from_forgery with: :exception
 
-  helper_method :turbo_frame_request?, :frame_id, :svg_icon
+  around_action :with_locale
 
-  # Real view helpers and not helper_method: capture and content_for both work against
-  # the state of the view that is rendering, and helper_method runs on the controller.
+  helper_method :turbo_frame_request?, :frame_id, :svg_icon, :locale_url, :translated?, :translations, :docs_locale
+
   helper do
-    def markdown(&)
-      Kramdown::Document.new(capture(&)).to_html.html_safe # rubocop:disable Rails/OutputSafety
-    end
-
-    # A page opting in is half of it: nothing on a self-hosted box is meant to be found
-    # from outside, so the flag is checked here rather than at each of the places that
-    # emit something only an indexable page should have.
     def indexable?
       content_for?(:indexable) && ProgressWatch.multitenant?
     end
   end
 
   rescue_from ActiveRecord::RecordNotFound do
-    not_found(
-      heading: 'No such space',
-      explanation: 'Either the UUID is wrong, or this server has never heard of it. A space created on ' \
-                   'one server does not exist on another — check which server you are on.'
-    )
+    I18n.with_locale(locale) do
+      not_found(heading: t('no_such_space'),
+                explanation: t('either_the_uuid_is_wrong_or_this_server_has_never_heard_of_it'))
+    end
   end
 
   private
 
-  # render_to_string, not render: helper_method proxies to the controller, where `render`
-  # would mean the response.
+  def with_locale(&)
+    I18n.with_locale(locale, &)
+  end
+
+  def locale_url(locale)
+    url_for(only_path: false, locale: (locale if translated? && locale != I18n.default_locale))
+  end
+
+  def translated?
+    request.route_uri_pattern.to_s.include?(':locale')
+  end
+
+  # Through `t` and not a slice of the backend's hash, which would skip the fallback to
+  # English on a key a language is missing.
+  def translations(*keys)
+    keys.index_with { |key| t(key) }.to_json
+  end
+
+  # Where the path can carry a language it is the whole answer: /docs is the English page
+  # in a German browser too, or the canonical and the hreflang beside it would both be
+  # describing a different document than the one being served.
+  def locale
+    @locale ||= begin
+      chosen = Locales.available(params[:locale])
+
+      cookies[:locale] = { value: chosen, expires: 1.year.from_now, same_site: :lax } if chosen
+
+      if translated?
+        chosen || I18n.default_locale
+      else
+        Locales.resolve(chosen || cookies[:locale], request.headers['Accept-Language'])
+      end
+    end
+  end
+
+  # A link into the docs from anywhere else has to carry the language, since the page it
+  # lands on no longer asks the cookie.
+  def docs_locale
+    I18n.locale unless I18n.locale == I18n.default_locale
+  end
+
   def svg_icon(name, **attributes)
     render_to_string(partial: "icons/#{name}", locals: { attributes: attributes })
   end
 
-  # turbo-rails is not a dependency — Turbo is the npm package — so the one helper of
-  # its we actually use is spelled out here.
   def turbo_frame_request?
     request.headers['Turbo-Frame'].present?
   end
 
-  # The history chain asks from a different frame at every page, so the response cannot
-  # name one in the template.
   def frame_id
     request.headers['Turbo-Frame']
   end

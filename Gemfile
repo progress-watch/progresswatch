@@ -2,37 +2,17 @@
 
 source 'https://rubygems.org'
 
+gem 'aws-sdk-secretsmanager', require: false
+gem 'connection_pool'
+gem 'pg'
 gem 'puma'
 gem 'rails', '~> 8.1'
-
-# Both adapters ship in the image. DATABASE_URL picks one at boot:
-# sqlite3 for self-hosted, postgresql for cloud.
-gem 'pg'
-gem 'sqlite3'
-
-# Volatile task state and the Sidekiq queue.
-gem 'connection_pool'
 gem 'redis'
-gem 'sidekiq'
-
-# Web UI. Same bundler as docuseal so frontend code moves between the two projects
-# without a rewrite.
-gem 'shakapacker'
-
-# Web Push. Pure Ruby, and the only way to notify anyone before the mobile app exists.
-gem 'web-push'
-
-# Docs pages are written as markdown inside their template rather than as markup.
-gem 'kramdown'
-
-# The QR on the share modal. There is no way to make one without an encoder, and the
-# alternative — a third-party image API — would put the space uuid, which is the
-# credential, into somebody else's request log.
 gem 'rqrcode'
-
-# The only AWS dependency, and dormant unless AWS_SECRET_MANAGER_ID is set. See
-# config/aws_secrets.rb for why the rule about no AWS in the application is broken here.
-gem 'aws-sdk-secretsmanager', require: false
+gem 'shakapacker'
+gem 'sidekiq'
+gem 'sqlite3'
+gem 'web-push'
 
 gem 'bootsnap', require: false
 gem 'tzinfo-data', platforms: %i[windows jruby]

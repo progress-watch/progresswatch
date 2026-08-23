@@ -1,20 +1,20 @@
-<%= render 'shared/turbo_modal', title: 'New space' do %>
+<%= render 'shared/turbo_modal', title: t('new_space') do %>
   <%= form_with url: spaces_path, method: :post, class: 'flex flex-col gap-4', data: { turbo_frame: '_top' } do |f| %>
     <%= render 'shared/space_fields', f: f %>
-    <%= f.submit 'Create', class: 'btn-primary w-full' %>
+    <%= f.submit t('create'), class: 'btn-primary w-full' %>
   <% end %>
   <div class="my-5 flex items-center gap-3 text-xs text-zinc-400 dark:text-zinc-300">
     <span class="h-px flex-1 bg-zinc-200 dark:bg-zinc-500"></span>
-    or add one you already have
+    <%= t('or_add_one_you_already_have') %>
     <span class="h-px flex-1 bg-zinc-200 dark:bg-zinc-500"></span>
   </div>
-  <add-space class="block">
+  <add-space class="block" data-i18n="<%= translations(:paste_a_space_uuid_or_a_link_to_one) %>">
     <form data-action="submit:add-space#open" class="flex gap-2">
-      <input type="text" inputmode="text" autocomplete="off" spellcheck="false" required placeholder="UUID, or a link to a space" aria-label="Space UUID or link" class="input min-w-0 flex-1 font-mono text-base sm:text-xs">
-      <button type="submit" class="btn-primary shrink-0 px-3">Add</button>
+      <input type="text" inputmode="text" autocomplete="off" spellcheck="false" required placeholder="<%= t('uuid_or_a_link_to_a_space') %>" aria-label="<%= t('space_uuid_or_link') %>" class="input min-w-0 flex-1 font-mono text-base sm:text-xs">
+      <button type="submit" class="btn-primary shrink-0 px-3"><%= t('add') %></button>
     </form>
   </add-space>
   <p class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-300">
-    Opening a space is what records it on this device. A full link works too, including one on another server.
+    <%= t('opening_a_space_is_what_records_it_on_this_device_a_full_link_works_too') %>
   </p>
 <% end %>

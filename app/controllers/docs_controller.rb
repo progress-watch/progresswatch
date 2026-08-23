@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 class DocsController < WebController
+  def default_url_options
+    { locale: (I18n.locale unless I18n.locale == I18n.default_locale) }
+  end
+
   def index; end
 
   def show

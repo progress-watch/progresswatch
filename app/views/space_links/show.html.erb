@@ -1,19 +1,19 @@
 <% url = space_url(@space.uuid) %>
 <% paths, modules = Spaces::QrCode.call(url) %>
-<%= render 'shared/turbo_modal', title: 'Share this space' do %>
+<%= render 'shared/turbo_modal', title: t('share_this_space') do %>
   <div class="flex flex-col gap-4">
     <div class="flex justify-center">
-      <svg viewBox="0 0 <%= modules %> <%= modules %>" class="h-44 w-44 rounded-lg bg-white" role="img" aria-label="Link to this space"><%= paths.html_safe %></svg>
+      <svg viewBox="0 0 <%= modules %> <%= modules %>" class="h-44 w-44 rounded-lg bg-white" role="img" aria-label="<%= t('link_to_this_space') %>"><%= paths.html_safe %></svg>
     </div>
     <div>
-      <p class="mb-1.5 text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Link</p>
+      <p class="mb-1.5 text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400"><%= t('link') %></p>
       <%= render 'shared/command', body: url %>
     </div>
     <div>
-      <p class="mb-1.5 text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Space UUID</p>
+      <p class="mb-1.5 text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400"><%= t('space_uuid') %></p>
       <%= render 'shared/command', body: @space.uuid %>
     </div>
-    <p class="text-xs leading-relaxed text-zinc-500 dark:text-zinc-300">Whoever has this can read and write here — there are no accounts, so the link is the credential. Opening it on a phone is what records the space on that device.</p>
-    <p class="text-xs leading-relaxed text-zinc-500 dark:text-zinc-300"><span class="font-medium text-zinc-900 dark:text-zinc-100">Keep the link.</span> This browser is the only place your spaces are listed, and browsers do clear that — Safari after seven days without a visit. Export the list from the navbar, or add the page to your home screen, which is exempt.</p>
+    <p class="text-xs leading-relaxed text-zinc-500 dark:text-zinc-300"><%= t('whoever_has_this_can_read_and_write_here_there_are_no_accounts_so_the_link_is_the_credential') %></p>
+    <p class="text-xs leading-relaxed text-zinc-500 dark:text-zinc-300"><span class="font-medium text-zinc-900 dark:text-zinc-100"><%= t('keep_the_link') %></span> <%= t('this_browser_is_the_only_place_your_spaces_are_listed_and_browsers_do_clear_that') %></p>
   </div>
 <% end %>

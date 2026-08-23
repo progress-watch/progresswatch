@@ -30,128 +30,172 @@ module ConnectSnippets
 
   COMPOSE = Rails.root.join('docker-compose.yml').read.strip
 
+  # Everything but `body` is an i18n key: a command is the same in every language.
   SECTIONS = {
     'cli' => {
-      heading: 'Report progress from the command line',
-      description: 'Report progress from a shell, a script or a CI job with the Progress Watch CLI.',
-      title: 'CLI',
+      heading: 'report_progress_from_the_command_line',
+      description: 'report_progress_from_a_shell_a_script_or_a_ci_job_with_the_cli',
+      title: 'cli',
       icon: 'terminal',
       steps: [
-        { label: 'Install it.', body: 'npm install -g progresswatch' },
-        { label: 'Point it at this server first. Saved to ~/.progresswatchrc, so this is a one-off.',
-          body: 'progresswatch configure --server {{server}}', only: :self_hosted },
-        { label: 'Create a space. It becomes the default, so nothing else needs configuring.',
-          body: 'progresswatch space new "My work"', only: :without_space },
-        { label: 'Point it at this space. Saved to ~/.progresswatchrc, so this is a one-off.',
-          body: 'progresswatch space use {{space}}', only: :with_space },
-        { label: 'Create a task where the work starts, and keep the uuid.',
-          body: 'TASK=$(progresswatch new "Crawl docs")' },
-        { label: 'Report as it moves. This is the call that goes in your loop, and the only one that knows ' \
-                 'the numbers.',
-          body: 'progresswatch update $TASK --current 1200 --end 50000 --values pages=1200' },
-        { label: 'Close it. This is what sends the notification, so call it for a failure too.',
-          body: 'progresswatch done $TASK' },
-        { label: 'Or wrap a process that is not yours to change. It reports start and finish rather than ' \
-                 'counts, and exits with the command status.',
-          body: 'progresswatch run "python train.py"' },
-        { label: 'In CI there is no config file to write, so pass it in the environment instead.',
-          body: 'export PROGRESSWATCH_SERVER="{{server}}" PROGRESSWATCH_SPACE="{{space}}"' }
+        {
+          label: 'install_it',
+          body: 'npm install -g progresswatch'
+        },
+        {
+          label: 'point_it_at_this_server_first_saved_to_progresswatchrc',
+          body: 'progresswatch configure --server {{server}}',
+          only: :self_hosted
+        },
+        {
+          label: 'create_a_space_it_becomes_the_default',
+          body: 'progresswatch space new "My work"',
+          only: :without_space
+        },
+        {
+          label: 'point_it_at_this_space_saved_to_progresswatchrc',
+          body: 'progresswatch space use {{space}}',
+          only: :with_space
+        },
+        {
+          label: 'create_a_task_where_the_work_starts_and_keep_the_uuid',
+          body: 'TASK=$(progresswatch new "Crawl docs")'
+        },
+        {
+          label: 'report_as_it_moves_this_is_the_call_that_goes_in_your_loop',
+          body: 'progresswatch update $TASK --current 1200 --end 50000 --values pages=1200'
+        },
+        {
+          label: 'close_it_this_is_what_sends_the_notification',
+          body: 'progresswatch done $TASK'
+        },
+        {
+          label: 'or_wrap_a_process_that_is_not_yours_to_change',
+          body: 'progresswatch run "python train.py"'
+        },
+        {
+          label: 'in_ci_there_is_no_config_file_to_write',
+          body: 'export PROGRESSWATCH_SERVER="{{server}}" PROGRESSWATCH_SPACE="{{space}}"'
+        }
       ]
     },
 
     'agent' => {
-      heading: 'Give an AI agent a progress skill',
-      description: 'Give an AI agent a skill for reporting its own progress into Progress Watch.',
-      title: 'Agent skill',
+      heading: 'give_an_ai_agent_a_progress_skill',
+      description: 'give_an_ai_agent_a_skill_for_reporting_its_own_progress',
+      title: 'agent_skill',
       icon: 'robot',
-      intro: 'The skill drives the CLI, so the agent needs no server or uuid of its own — it uses whatever this ' \
-             'machine is already configured for.',
+      intro: 'the_skill_drives_the_cli_so_the_agent_needs_no_server_or_uuid_of_its_own',
       steps: [
-        { label: 'Install the CLI. The skill is a set of instructions for driving it.',
-          body: 'npm install -g progresswatch' },
-        { label: 'Point it at this server. Saved to ~/.progresswatchrc, so this is a one-off.',
-          body: 'progresswatch configure --server {{server}}', only: :self_hosted },
-        { label: 'Create a space for the agent to report into.',
-          body: 'progresswatch space new "Agent work"', only: :without_space },
-        { label: 'Point it at this space. Use --local to bind it to one project instead.',
-          body: 'progresswatch space use {{space}}', only: :with_space },
-        { label: 'Install the skill. It knows 75+ agents and asks which to install for.',
-          body: 'npx skills add progress-watch/progresswatch-cli' },
-        { label: 'That is all — the agent decides on its own when work is worth tracking, creates a task for the ' \
-                 'job and a child task per step, and closes each one as it finishes. If you would rather not run ' \
-                 'somebody else\'s installer, the same file is skills/progresswatch-cli/SKILL.md in that ' \
-                 'repository, and it goes in .claude/skills/.' }
+        {
+          label: 'install_the_cli_the_skill_is_a_set_of_instructions_for_driving_it',
+          body: 'npm install -g progresswatch'
+        },
+        {
+          label: 'point_it_at_this_server_saved_to_progresswatchrc',
+          body: 'progresswatch configure --server {{server}}',
+          only: :self_hosted
+        },
+        {
+          label: 'create_a_space_for_the_agent_to_report_into',
+          body: 'progresswatch space new "Agent work"',
+          only: :without_space
+        },
+        {
+          label: 'point_it_at_this_space_use_local_to_bind_it_to_one_project',
+          body: 'progresswatch space use {{space}}',
+          only: :with_space
+        },
+        {
+          label: 'install_the_skill_it_knows_75_agents',
+          body: 'npx skills add progress-watch/progresswatch-cli'
+        },
+        { label: 'that_is_all_the_agent_decides_on_its_own_when_work_is_worth_tracking' }
       ]
     },
 
     'mcp' => {
-      heading: 'Connect an agent over MCP',
-      description: 'Connect an AI agent to Progress Watch over MCP.',
-      title: 'MCP',
+      heading: 'connect_an_agent_over_mcp',
+      description: 'connect_an_ai_agent_to_progress_watch_over_mcp',
+      title: 'mcp',
       icon: 'plug',
       steps: [
-        { label: 'Add the server.', body: 'claude mcp add --transport http progress-watch {{server}}/mcp/{{space}}' },
-        { label: 'Or write it into .mcp.json yourself.', body: MCP_IN_URL },
-        { label: 'The space uuid sits in the URL, so any client that takes only a URL works. To keep it out ' \
-                 'of the path, send it as a header instead.', body: MCP_IN_HEADER },
-        { label: 'Four tools: create_space, create_task, update_task, complete_task. The agent ' \
-                 'decides on its own when to create a task and how often to report. One connected without a ' \
-                 'space can call create_space and hand you back the URL, so it is never stuck with nowhere ' \
-                 'to report.' }
+        {
+          label: 'add_the_server',
+          body: 'claude mcp add --transport http progress-watch {{server}}/mcp/{{space}}'
+        },
+        {
+          label: 'or_write_it_into_mcp_json_yourself',
+          body: MCP_IN_URL
+        },
+        {
+          label: 'the_space_uuid_sits_in_the_url_so_any_client_that_takes_only_a_url_works',
+          body: MCP_IN_HEADER
+        },
+        { label: 'four_tools_create_space_create_task_update_task_complete_task' }
       ]
     },
 
     'curl' => {
-      heading: 'Try the API with curl',
-      description: 'Try the Progress Watch API with curl, and report from a client that can only fire a URL.',
+      heading: 'try_the_api_with_curl',
+      description: 'try_the_api_with_curl_and_report_from_a_client_that_can_only_fire_a_url',
       title: 'curl',
       icon: 'globe',
       steps: [
-        { label: 'Create a space, keep its uuid. Whoever has it can read and write here.',
+        {
+          label: 'create_a_space_keep_its_uuid_whoever_has_it_can_read_and_write_here',
           body: 'SPACE_UUID=$(curl -s -X POST {{server}}/spaces ' \
                 "-H 'Content-Type: application/json' -d '{\"title\": \"My work\"}' | jq -r .uuid)",
-          only: :without_space },
-        { label: 'Create a task, keep its uuid.',
+          only: :without_space
+        },
+        {
+          label: 'create_a_task_keep_its_uuid',
           body: 'TASK=$(curl -s -X POST {{server}}/spaces/{{space}}/tasks ' \
-                "-H 'Content-Type: application/json' -d '{\"title\": \"Crawl docs\"}' | jq -r .uuid)" },
-        { label: 'Report progress. Every write replaces the whole state — send all of it each time.',
+                "-H 'Content-Type: application/json' -d '{\"title\": \"Crawl docs\"}' | jq -r .uuid)"
+        },
+        {
+          label: 'report_progress_every_write_replaces_the_whole_state',
           body: "curl -X PUT {{server}}/tasks/$TASK -H 'Content-Type: application/json' " \
-                "-d '{\"current\": 1200, \"end\": 50000, \"values\": {\"pages\": 1200, \"errors\": 3}}'" },
-        { label: 'Finish it. This is what sends the notification.',
-          body: "curl -X PUT {{server}}/tasks/$TASK -H 'Content-Type: application/json' -d '{\"done\": true}'" },
-        { label: 'That is the whole surface, and it is what the CLI and the MCP tools call. For something you ' \
-                 'run every day the CLI is one line instead of four; to build on it, the API reference and ' \
-                 'OpenAPI 3.1 are at /openapi.json.' },
-        { label: 'One more, for a client that cannot do the above. Some things can only be handed a URL — an ' \
-                 'uptime pinger, a webhook field in somebody else\'s product, a router or a sensor, a cron line ' \
-                 'with a bare curl. They cannot choose a method or send a body, so the same write is reachable ' \
-                 'as a plain GET.',
-          body: 'curl -g "{{server}}/tasks/$TASK/report?current=1200&end=50000&values[errors]=3"' },
-        { label: 'The -g is for curl, not for us: curl reads square brackets in a URL as a range and refuses ' \
-                 'the address without it. Anything that simply fires a URL needs nothing special.' },
-        { label: 'Use it only when there is no alternative. It is a GET that writes, so anything that follows ' \
-                 'the URL performs the write: paste it into a chat and the link preview reports for you. If ' \
-                 'your client can send a request body at all, the PUT above is the one to use.' }
+                "-d '{\"current\": 1200, \"end\": 50000, \"values\": {\"pages\": 1200, \"errors\": 3}}'"
+        },
+        {
+          label: 'finish_it_this_is_what_sends_the_notification',
+          body: "curl -X PUT {{server}}/tasks/$TASK -H 'Content-Type: application/json' -d '{\"done\": true}'"
+        },
+        { label: 'that_is_the_whole_surface_and_it_is_what_the_cli_and_the_mcp_tools_call' },
+        {
+          label: 'one_more_for_a_client_that_cannot_do_the_above',
+          body: 'curl -g "{{server}}/tasks/$TASK/report?current=1200&end=50000&values[errors]=3"'
+        },
+        { label: 'the_g_is_for_curl_not_for_us' },
+        { label: 'use_it_only_when_there_is_no_alternative_it_is_a_get_that_writes' }
       ]
     },
 
     'docker' => {
-      heading: 'Self-host Progress Watch with Docker',
-      description: 'The Docker Compose file for running your own Progress Watch server.',
-      title: 'Docker',
+      heading: 'self_host_progress_watch_with_docker',
+      description: 'the_docker_compose_file_for_running_your_own_server',
+      title: 'docker',
       icon: 'container',
-      intro: 'Your own server, on your own box. Nothing here talks to progress.watch.',
+      intro: 'your_own_server_on_your_own_box',
       steps: [
-        { label: 'Save this as docker-compose.yml. It runs the published image, so there is nothing to clone ' \
-                 'and nothing to build — and it is yours to edit from here on.', body: COMPOSE },
-        { label: 'Generate a secret and paste it over the placeholder, in both services.',
-          body: 'openssl rand -hex 64' },
-        { label: 'Start it. The app, a worker for notifications, a Redis, and a SQLite file on a volume.',
-          body: 'docker compose up -d' },
-        { label: 'Then point the CLI at it. This page is served from {{server}}.',
-          body: 'export PROGRESSWATCH_SERVER="http://localhost:7979"' },
-        { label: 'That is a working server. Notifications, Postgres, the one thing worth putting on a cron and ' \
-                 'the one-click deploy are all in Self-hosting in the sidebar.' }
+        {
+          label: 'save_this_as_docker_compose_yml_it_runs_the_published_image',
+          body: COMPOSE
+        },
+        {
+          label: 'generate_a_secret_and_paste_it_over_the_placeholder',
+          body: 'openssl rand -hex 64'
+        },
+        {
+          label: 'start_it_the_app_a_worker_for_notifications_a_redis_and_a_sqlite_file',
+          body: 'docker compose up -d'
+        },
+        {
+          label: 'then_point_the_cli_at_it_this_page_is_served_from_server',
+          body: 'export PROGRESSWATCH_SERVER="http://localhost:7979"'
+        },
+        { label: 'that_is_a_working_server_notifications_postgres_and_the_one_click_deploy' }
       ]
     }
   }.freeze
@@ -168,7 +212,10 @@ module ConnectSnippets
 
     SECTIONS.fetch(section)[:steps]
             .select { |step| step[:only].nil? || here.include?(step[:only]) }
-            .map { |step| step.except(:only).transform_values { |value| fill(value, base_url, space_uuid) } }
+            .map do |step|
+              { label: fill(I18n.t(step[:label]), base_url, space_uuid),
+                body: fill(step[:body], base_url, space_uuid) }
+            end
   end
 
   def fill(value, base_url, space_uuid)
