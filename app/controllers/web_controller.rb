@@ -7,7 +7,8 @@ class WebController < ActionController::Base
 
   around_action :with_locale
 
-  helper_method :turbo_frame_request?, :frame_id, :svg_icon, :locale_url, :translated?, :translations, :docs_locale
+  helper_method :turbo_frame_request?, :frame_id, :svg_icon, :locale_url, :translated?, :translations,
+                :docs_locale, :switch_to
 
   helper do
     def indexable?
@@ -57,6 +58,14 @@ class WebController < ActionController::Base
         Locales.resolve(chosen || cookies[:locale], request.headers['Accept-Language'])
       end
     end
+  end
+
+  def switch_to(locale)
+    query = request.query_parameters
+
+    return url_for(query.merge(locale:, only_path: true)) unless translated? && locale == I18n.default_locale
+
+    "#{url_for(query.merge(locale: nil, only_path: true))}#{query.any? ? '&' : '?'}locale=#{locale}"
   end
 
   # A link into the docs from anywhere else has to carry the language, since the page it

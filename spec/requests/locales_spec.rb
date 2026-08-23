@@ -212,12 +212,35 @@ RSpec.describe 'Locales' do
   end
 
   describe 'the switcher' do
-    # A switcher that spells English out builds /en/docs/agent, which is not a route.
-    it 'sends English back to the bare path rather than to a prefix' do
+    # /en/docs/agent is not a route, and a bare /docs/agent would render English without
+    # recording that anyone asked for it — leaving the cookie on the language before.
+    it 'sends English to the bare path with the choice in the query' do
       get '/de/docs/agent'
 
-      expect(response.body).to include('href="/docs/agent"')
+      expect(response.body).to include('href="/docs/agent?locale=en"')
       expect(response.body).not_to include('/en/docs')
+    end
+
+    it 'switches back to English from any page, and remembers it' do
+      space = Spaces::Create.call(title: 'Backups')
+
+      get "/s/#{space.uuid}", params: { locale: 'de' }
+      expect(response.body).to include('Entfernt diesen Bereich')
+
+      get "/s/#{space.uuid}", params: { locale: 'en' }
+      expect(response.cookies['locale']).to eq('en')
+
+      get "/s/#{space.uuid}"
+      expect(response.body).to include('Removes this space from this device only')
+    end
+
+    it 'remembers English chosen while reading the documentation' do
+      get '/de/docs/agent'
+      expect(response.cookies['locale']).to eq('de')
+
+      get '/docs/agent', params: { locale: 'en' }
+      expect(response.cookies['locale']).to eq('en')
+      expect(response.body).to include('Give an AI agent a progress skill')
     end
 
     it 'offers every language once, marking the one in use' do
