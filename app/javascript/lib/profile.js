@@ -51,8 +51,14 @@ export function describe (uuid, { title, icon }) {
   write(read().map((space) => (space.uuid === uuid ? { ...space, title: title || null, icon: icon || null } : space)))
 }
 
-export function setPush (uuid, on) {
-  write(read().map((s) => (s.uuid === uuid ? { ...s, push: on } : s)))
+// The endpoint is stored beside the flag because it is the only way to know, later, which
+// one this browser registered — a rotated subscription leaves no other trace of the old.
+export function setPush (uuid, on, endpoint = null) {
+  write(read().map((s) => (s.uuid === uuid ? { ...s, push: on, push_endpoint: on ? endpoint : null } : s)))
+}
+
+export function pushEndpoint (uuid) {
+  return read().find((s) => s.uuid === uuid)?.push_endpoint ?? null
 }
 
 export function anyPushEnabled () {

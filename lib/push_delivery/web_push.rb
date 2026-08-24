@@ -33,6 +33,11 @@ module PushDelivery
     rescue ::WebPush::ResponseError => e
       raise unless GONE.include?(e.response.code.to_i)
 
+      # The only trace a subscription died, and it is the whole reason this is here: the
+      # row is gone afterwards and the browser goes on saying it is subscribed.
+      Rails.logger.warn({ event: 'push.gone', code: e.response.code.to_i,
+                          space_uuid: payload.fetch(:space_uuid),
+                          endpoint_digest: subscription.endpoint_digest }.to_json)
       subscription.destroy
     end
 

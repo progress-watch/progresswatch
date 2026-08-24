@@ -1,4 +1,4 @@
-import { anyPushEnabled, setPush } from './profile'
+import { anyPushEnabled, pushEndpoint, setPush } from './profile'
 
 export function supported () {
   return 'serviceWorker' in window.navigator && 'PushManager' in window && 'Notification' in window
@@ -21,6 +21,29 @@ export async function disable (uuid) {
 
   await send(uuid, 'DELETE', { endpoint: existing.endpoint })
   if (!anyPushEnabled()) await existing.unsubscribe()
+}
+
+// The server row can be gone without the browser knowing: it is deleted when the push
+// service answers 404 or 410, and nothing tells the page. So a subscribed space re-asserts
+// itself on every load, which is free — the write is an upsert — and repairs it silently.
+//
+// A rotated subscription leaves the row it used to have behind, and the server cannot tell
+// that orphan from another device of yours. Only this browser knows, so it says so.
+export async function reassert (uuid, current) {
+  const previous = pushEndpoint(uuid)
+
+  if (previous && previous !== current.endpoint) await send(uuid, 'DELETE', { endpoint: previous })
+
+  await register(uuid, current)
+}
+
+export async function register (uuid, current) {
+  const json = current.toJSON()
+
+  await send(uuid, 'POST', {
+    subscription: { endpoint: json.endpoint, p256dh: json.keys.p256dh, auth: json.keys.auth }
+  })
+  setPush(uuid, true, json.endpoint)
 }
 
 export function send (uuid, method, body) {

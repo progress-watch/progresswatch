@@ -30,10 +30,14 @@ RSpec.describe PushDelivery::WebPush do
       .to include('title' => 'Crawl docs', 'url' => "/s/#{space.uuid}", 'tag' => root, 'renotify' => true)
   end
 
-  it 'drops a registration the push service says is gone' do
+  # Deleting the row is right and it is also the end of the trail: the browser goes on
+  # saying it is subscribed, so without this line nothing anywhere records that it stopped.
+  it 'drops a registration the push service says is gone, and says so' do
     allow(WebPush).to receive(:payload_send).and_raise(gone(410))
+    allow(Rails.logger).to receive(:warn)
 
     expect { described_class.new.call(payload) }.to change(PushSubscription, :count).by(-1)
+    expect(Rails.logger).to have_received(:warn).with(/"event":"push.gone".*"code":410/)
   end
 
   it 'lets any other failure reach Sidekiq, which retries' do

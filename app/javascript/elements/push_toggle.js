@@ -1,6 +1,6 @@
 import { bind } from '@github/catalyst/lib/bind'
 import { pushEnabled, setPush } from '../lib/profile'
-import { disable, keepStorage, send, subscription, supported } from '../lib/push'
+import { disable, keepStorage, reassert, register, subscription, supported } from '../lib/push'
 
 export default class extends HTMLElement {
   async connectedCallback () {
@@ -8,7 +8,21 @@ export default class extends HTMLElement {
 
     if (!supported()) return this.setAttribute('data-state', 'unsupported')
 
-    this.render(pushEnabled(this.dataset.uuid))
+    const on = pushEnabled(this.dataset.uuid)
+    this.render(on)
+
+    if (on) await this.repair()
+  }
+
+  // What the button claims is a browser-local flag, so it can outlive the row it stands
+  // for. Saying it again on every load is what keeps it true.
+  async repair () {
+    const existing = await subscription()
+
+    if (existing) return reassert(this.dataset.uuid, existing)
+
+    this.render(false)
+    setPush(this.dataset.uuid, false)
   }
 
   async toggle () {
@@ -33,16 +47,9 @@ export default class extends HTMLElement {
       applicationServerKey: this.applicationServerKey
     })
 
-    await send(this.dataset.uuid, 'POST', { subscription: this.serialize(created) })
-    setPush(this.dataset.uuid, true)
+    await register(this.dataset.uuid, created)
     await keepStorage()
     this.render(true)
-  }
-
-  serialize (created) {
-    const json = created.toJSON()
-
-    return { endpoint: json.endpoint, p256dh: json.keys.p256dh, auth: json.keys.auth }
   }
 
   render (on) {
