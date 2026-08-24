@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
 class HomeController < WebController
-  def show; end
+  def show
+    render 'docs/index' if markdown?
+  end
 end

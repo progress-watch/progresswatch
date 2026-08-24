@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class WebController < ActionController::Base
-  layout 'application'
+  layout -> { markdown? ? false : 'application' }
 
   protect_from_forgery with: :exception
 
@@ -52,7 +52,9 @@ class WebController < ActionController::Base
 
       cookies[:locale] = { value: chosen, expires: 1.year.from_now, same_site: :lax } if chosen
 
-      if translated?
+      if markdown?
+        I18n.default_locale
+      elsif translated?
         chosen || I18n.default_locale
       else
         Locales.resolve(chosen || cookies[:locale], request.headers['Accept-Language'])
@@ -74,6 +76,10 @@ class WebController < ActionController::Base
     I18n.locale unless I18n.locale == I18n.default_locale
   end
 
+  def markdown?
+    request.format.md?
+  end
+
   def svg_icon(name, **attributes)
     render_to_string(partial: "icons/#{name}", locals: { attributes: attributes })
   end
@@ -87,6 +93,8 @@ class WebController < ActionController::Base
   end
 
   def not_found(heading: nil, explanation: nil)
+    return head :not_found if markdown?
+
     render 'errors/not_found', status: :not_found, locals: { heading:, explanation: }
   end
 end

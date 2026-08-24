@@ -30,7 +30,10 @@ Base URL: <%= request.base_url %>
     GET  /tasks/{task}                read one task and its children
     GET  /up                          health
 
-Full reference: <%= api_docs_url %> · OpenAPI 3.1: <%= openapi_url %> · MCP: <%= request.base_url %>/mcp
+Full reference: <%= api_docs_url(format: :md) %> · OpenAPI 3.1: <%= openapi_url %> · MCP: <%= request.base_url %>/mcp
+
+Every page under <%= docs_url %> is also served as markdown: append `.md` to its path, or
+ask for it with `Accept: text/markdown`.
 
 ## One task, start to finish
 

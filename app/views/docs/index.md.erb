@@ -1,0 +1,59 @@
+# <%= I18n.t('watch_any_process') %>
+
+<%= I18n.t('some_things_run_for_hours_with_nobody_watching') %>
+
+## <%= I18n.t('three_commands_from_inside_the_work') %>
+
+<%= I18n.t('create_a_task_where_the_job_starts_report_against_it_as_it_moves') %>
+
+```
+progresswatch update $TASK --current 1200 --end 50000
+```
+
+<%= I18n.t('counts_not_percentages_the_screen_shows_html', counts: '`1200 / 50000 pages`', percent: '`2.4%`', cli: "[#{I18n.t('cli')}](#{docs_section_url(section: 'cli', format: :md)})") %>
+
+<%= I18n.t('when_the_process_is_not_yours_to_change_html', run: '`progresswatch run "python train.py"`') %>
+
+## <%= I18n.t('or_one_request_from_anything') %>
+
+<%= I18n.t('underneath_all_of_it_is_a_single_http_request_html', put: '`PUT`') %>
+
+```
+curl -X PUT <%= request.base_url %>/tasks/$TASK -H 'Content-Type: application/json' -d '{"current": 1200, "end": 50000}'
+```
+
+<%= I18n.t('the_api_reference_is_the_reference_to_build_against_html', api: "[#{I18n.t('api_reference')}](#{api_docs_url(format: :md)})", curl: "[#{I18n.t('curl')}](#{docs_section_url(section: 'curl', format: :md)})") %>
+
+## <%= I18n.t('agents_report_their_own_work') %>
+
+<%= I18n.t('an_ai_agent_breaks_a_job_into_steps_html', mcp: "[#{I18n.t('mcp')}](#{docs_section_url(section: 'mcp', format: :md)})", skill: "[#{I18n.t('agent_skill_lowercase')}](#{docs_section_url(section: 'agent', format: :md)})") %>
+
+<%= I18n.t('the_agent_decides_when_tracking_is_worth_it_and_how_often_to_report') %>
+
+## <%= I18n.t('no_accounts') %>
+
+<%= I18n.t('a_space_is_a_container_for_tasks_and_its_uuid_is_the_credential') %>
+
+## <%= I18n.t('progress_is_not_stored') %>
+
+<%= I18n.t('current_state_lives_in_memory_and_expires_on_its_own') %>
+
+## <%= I18n.t('what_it_will_not_do') %>
+
+- **<%= I18n.t('send_commands_back') %>** <%= I18n.t('it_is_a_departures_board_not_an_orchestrator') %>
+- **<%= I18n.t('keep_a_log') %>** <%= I18n.t('one_line_the_latest_per_task') %>
+- **<%= I18n.t('nest_more_than_one_level') %>** <%= I18n.t('a_task_may_have_steps_a_step_may_not') %>
+
+## <%= I18n.t('run_it_yourself') %>
+
+<%= I18n.t('the_server_is_open_source_and_self_hosting_is_one_container_html', docker: "[#{I18n.t('the_docker_snippet')}](#{docs_section_url(section: 'docker', format: :md)})", self_hosting: "[#{I18n.t('self_hosting_lowercase')}](#{docs_section_url(section: 'self-hosting', format: :md)})") %>
+
+## <%= I18n.t('docs') %>
+
+- [<%= I18n.t('api_reference') %>](<%= api_docs_url(format: :md) %>)
+<% ConnectSnippets::SECTIONS.each do |slug, section| %>
+- [<%= I18n.t(section[:title]) %>](<%= docs_section_url(section: slug, format: :md) %>)
+<% end %>
+<% Docs::DOCUMENTS.each do |doc| %>
+- [<%= I18n.t(doc[:title]) %>](<%= docs_section_url(section: doc[:slug], format: :md) %>)
+<% end %>

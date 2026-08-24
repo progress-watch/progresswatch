@@ -6,17 +6,31 @@ Rails.application.routes.draw do
   # action on someone else's.
   root 'home#show'
 
-  resources :spaces, only: %i[show new create edit update], param: :uuid, path: 's'
+  # The suffix form of the root, for a client that can build a URL and not a header:
+  # `/.md` is not a path, so this is the only spelling available. `format: true` makes the
+  # extension required — a bare constraint lets a missing format through, and `/index`
+  # would become a second URL for the dispatcher.
+  get 'index', to: 'home#show', format: true, constraints: { format: 'md' }
 
-  get 's/:uuid/tasks', to: 'space_tasks#index', as: :space_tasks
+  # Pinned to HTML the way the API below is pinned to JSON, and for the same reason: these
+  # pages have one representation, and a client asking for another reaches a template lookup
+  # with nothing to find — 406 from an implicit render, and a raise from an action that
+  # renders with an explicit `layout:`. `format: false` closes the other half, so a `.md`
+  # somebody appended to a space URL is a path that does not route rather than a format the
+  # page cannot serve. Only the root and the docs negotiate.
+  scope defaults: { format: :html }, format: false do
+    resources :spaces, only: %i[show new create edit update], param: :uuid, path: 's'
 
-  # The share modal: the same link as a QR, a URL and a uuid. A route rather than markup
-  # on the page, like every other modal here.
-  get 's/:uuid/link', to: 'space_links#show', as: :space_link
+    get 's/:uuid/tasks', to: 'space_tasks#index', as: :space_tasks
 
-  # Web-only, for the same reason renaming is: only a browser has a push endpoint.
-  post 's/:uuid/push', to: 'space_push_subscriptions#create', as: :space_push
-  delete 's/:uuid/push', to: 'space_push_subscriptions#destroy'
+    # The share modal: the same link as a QR, a URL and a uuid. A route rather than markup
+    # on the page, like every other modal here.
+    get 's/:uuid/link', to: 'space_links#show', as: :space_link
+
+    # Web-only, for the same reason renaming is: only a browser has a push endpoint.
+    post 's/:uuid/push', to: 'space_push_subscriptions#create', as: :space_push
+    delete 's/:uuid/push', to: 'space_push_subscriptions#destroy'
+  end
 
   get 'docs/api', to: 'api_docs#index', as: :api_docs
 

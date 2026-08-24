@@ -1,0 +1,47 @@
+<%= I18n.t('the_point_of_the_whole_product_is_the_moment_a_job_finishes') %>
+
+## <%= I18n.t('turning_it_on') %>
+
+<%= I18n.t('push_is_opt_in_per_space_open_a_space_press_html', notify: "**#{I18n.t('notify_me')}**") %>
+
+## <%= I18n.t('on_a_phone_install_the_site_first') %>
+
+<%= I18n.t('ios_delivers_web_push_only_to_a_site_added_to_the_home_screen_html', add: "**#{I18n.t('add_to_home_screen')}**") %>
+
+<%= I18n.t('installing_has_a_second_benefit_on_ios') %>
+
+## <%= I18n.t('a_tree_of_steps_is_one_notification') %>
+
+<%= I18n.t('every_task_that_finishes_notifies_including_each_step_of_a_job') %>
+
+## <%= I18n.t('what_each_party_learns') %>
+
+<%= I18n.t('payloads_are_encrypted_for_the_browser_that_subscribed') %>
+
+<%= I18n.t('your_own_server_learns_one_thing_it_otherwise_would_not') %>
+
+<%= I18n.t('if_you_are_self_hosting_push_content_minimal_html', minimal: '`PUSH_CONTENT=minimal`') %>
+
+## <%= I18n.t('self_hosting_it_has_to_be_https') %>
+
+<%= I18n.t('a_browser_hands_out_a_service_worker_only_on_a_secure_origin_html', address: '`http://192.168.1.50:7979`', localhost: '`localhost`') %>
+
+<%= I18n.t('so_notifications_mean_a_certificate_html', force_ssl: '`FORCE_SSL=true`') %>
+
+## <%= I18n.t('self_hosting_generating_the_keys') %>
+
+<%= I18n.t('both_keys_unset_means_the_feature_does_not_exist_generate_a_pair_once') %>
+
+```
+docker compose exec -T progresswatch ./bin/rails runner 'k = WebPush.generate_key; puts k.public_key, k.private_key'
+```
+
+<%= I18n.t('put_both_into_the_environment_block_of_both_services_html', environment: '`environment:`', both: "**#{I18n.t('both_services')}**", up: '`docker compose up -d`', restart: '`restart`') %>
+
+<%= I18n.t('there_is_nothing_to_register_anywhere_html', nothing: "**#{I18n.t('there_is_nothing_to_register_anywhere_lead')}**", subject: '`VAPID_SUBJECT`') %>
+
+<%= I18n.t('do_not_rotate_the_keys_existing_subscriptions_are_bound_to_them') %>
+
+## <%= I18n.t('why_there_is_no_mobile_app') %>
+
+<%= I18n.t('a_react_native_app_was_designed_for_this_and_has_not_been_built') %>

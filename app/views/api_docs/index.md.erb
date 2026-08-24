@@ -1,0 +1,72 @@
+# API Reference
+
+Seven operations, and nothing to authenticate with — the space UUID in the path is the credential. The same surface is published as OpenAPI 3.1 at <%= openapi_url %>, if you would rather generate a client than write one.
+
+## Four things to know before you build on this
+
+1. **A write replaces the whole state.** Omitting `values` clears it rather than leaving it alone, and `PATCH` is refused with a 405 rather than quietly promising a merge. The one exception is a body of just `{"done": true}`, which closes the task and keeps the last numbers.
+2. **`progress: null` is not zero.** It means nothing has been reported, or what was reported has expired. A task at zero reports an object with `current: 0`.
+3. **A parent's progress is derived.** With children, its own counts are ignored and `aggregated` is true. Never report against a parent.
+4. **Completion is one-way.** It fires the notification once. Reporting afterwards still overwrites progress, but nothing completes twice.
+
+## One task, start to finish
+
+Every operation below, in the order you would call them. Read the loop and you have the model: a write carries the counts it knows, `end` may change between calls, and closing takes nothing but `done`.
+
+```
+<%= OpenApi::CodeSamples.lifecycle(base_url: request.base_url)['curl'] %>
+```
+<% @operations.each do |operation| %>
+
+## <%= operation[:summary] %>
+
+`<%= operation[:method].upcase %> <%= operation[:path] %>`
+<% if operation[:description].present? %>
+
+<%= operation[:description] %>
+<% end %>
+<% if operation[:parameters].any? %>
+
+### Parameters
+
+| Name | In | Type | Required | Description |
+| --- | --- | --- | --- | --- |
+<% operation[:parameters].each do |parameter| %>
+| `<%= parameter['name'] %>` | <%= parameter['in'] %> | <%= OpenApi::Operations.type_label(parameter['schema']).gsub('|', '\\|') %> | <%= parameter['required'] ? 'yes' : 'no' %> | <%= parameter['description'] %> |
+<% end %>
+<% end %>
+<% if operation[:request_body] %>
+
+### Request body
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+<% operation[:request_body]['properties'].each do |name, property| %>
+| `<%= name %>` | <%= OpenApi::Operations.type_label(property).gsub('|', '\\|') %> | <%= OpenApi::Operations.optional?(operation[:request_body], name) ? 'no' : 'yes' %> | <%= property['description'] %> |
+<% end %>
+<% end %>
+<% sample = OpenApi::CodeSamples.call(operation, base_url: request.base_url)['curl'] %>
+<% if sample %>
+
+### Example
+
+```
+<%= sample %>
+```
+<% end %>
+
+### Responses
+<% operation[:responses].each do |response| %>
+
+**<%= response[:status] %>** — <%= response[:description] %>
+<% properties = response[:schema]&.dig('properties') %>
+<% if properties %>
+
+| Field | Type | Description |
+| --- | --- | --- |
+<% properties.each do |name, property| %>
+| `<%= name %>` | <%= OpenApi::Operations.type_label(property).gsub('|', '\\|') %> | <%= property['description'] %> |
+<% end %>
+<% end %>
+<% end %>
+<% end %>

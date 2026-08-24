@@ -120,7 +120,7 @@ RSpec.describe 'Web UI' do
     # Naming it in the docs invites somebody to set it on their own box, where the only
     # thing it does is put a private instance in a search index.
     it 'never names the flag in anything written for a reader' do
-      pages = Dir['app/views/docs/*.html.erb'] + ['README.md']
+      pages = Dir['app/views/docs/*.erb'] + ['README.md']
 
       pages.each do |page|
         expect(File.read(page)).not_to include('MULTITENANT'), "#{page} names an internal flag"
