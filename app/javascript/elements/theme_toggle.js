@@ -17,7 +17,6 @@ export default class extends HTMLElement {
 
   select (event) {
     writeTheme(event.currentTarget.dataset.choice)
-    this.querySelector('details')?.removeAttribute('open')
   }
 
   render () {

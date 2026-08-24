@@ -18,8 +18,13 @@ export default class extends HTMLElement {
     document.removeEventListener('keydown', this.escape)
   }
 
+  // A link or a button inside is a choice made, so the menu has done its job. Not a label:
+  // Import opens a file picker and reports what went wrong back into the panel, which a
+  // closed menu would hide. The summary is neither, so opening still works.
   dismiss (event) {
-    if (!this.contains(event.target)) this.close()
+    if (!this.contains(event.target)) return this.close()
+
+    if (event.target.closest('a, button')) this.close()
   }
 
   escape (event) {

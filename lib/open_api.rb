@@ -394,7 +394,8 @@ module OpenApi
       'get' => {
         'operationId' => 'health',
         'summary' => 'Health check',
-        'description' => 'Checks its dependencies, so a container with a dead Redis fails it.',
+        'description' => 'Checks its dependencies, so a container with a dead Redis fails it. The worker is ' \
+                         'reported too, and a dead one does not fail the check.',
         'responses' => {
           '200' => {
             'description' => 'Healthy',
