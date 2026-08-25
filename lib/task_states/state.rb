@@ -11,8 +11,6 @@ module TaskStates
       @updated_at = updated_at
     end
 
-    # An `end` of zero is an unknown denominator, not a finished task: without the
-    # positive? guard, a task reporting 0 of 0 would complete itself immediately.
     def complete?
       return false if current.nil? || end_value.nil?
       return false unless end_value.positive?

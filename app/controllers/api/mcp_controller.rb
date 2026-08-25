@@ -1,14 +1,9 @@
 # frozen_string_literal: true
 
-# Streamable HTTP transport, stateless: no Mcp-Session-Id, and every request answered
-# as application/json rather than an SSE stream. The spec permits both.
 module Api
   class McpController < ApplicationController
-    # Must keep including the version Mcp::HandleRequest advertises, or the server would
-    # reject clients that took it at its word.
     SUPPORTED_PROTOCOL_VERSIONS = %w[2025-06-18 2025-03-26 2024-11-05].freeze
 
-    # 405 is the spec's answer for a server that opens no server-initiated stream.
     def show
       head :method_not_allowed
     end
@@ -35,7 +30,6 @@ module Api
       message['method'] == 'tools/call' && %w[create_space create_task].include?(message.dig('params', 'name'))
     end
 
-    # The header is for clients that accept only a bare URL.
     def space_uuid
       params[:space_uuid].presence || request.headers['X-Space-Uuid'].presence
     end
@@ -43,7 +37,6 @@ module Api
     def parsed_message
       parsed = JSON.parse(request.body.read)
 
-      # Batching was removed in protocol version 2025-06-18.
       parsed.is_a?(Hash) ? parsed : nil
     rescue JSON::ParserError
       nil

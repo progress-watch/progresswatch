@@ -29,7 +29,6 @@ RSpec.describe 'Locales' do
       expect(I18n.available_locales.sort).to eq(Locales::NAMES.keys.sort)
     end
 
-    # A dropped interpolation raises at render time, on one page, in one language.
     it 'keeps the same interpolations in every language' do
       english = YAML.load_file(Rails.root.join('config/locales/en.yml'))['en']
 
@@ -45,7 +44,6 @@ RSpec.describe 'Locales' do
       end
     end
 
-    # An interpolated lookup cannot be scanned; the parity example above covers those.
     it 'defines every key the interface asks for' do
       sources = Rails.root.glob('app/views/**/*.erb') + Rails.root.glob('app/controllers/**/*.rb') +
                 Rails.root.glob('lib/**/*.rb')
@@ -125,8 +123,6 @@ RSpec.describe 'Locales' do
       expect(response.body).to include('März 2026')
     end
 
-    # rescue_from is handled outside the callback chain, so the not-found page renders
-    # after around_action has already put the locale back. It has to ask again.
     it 'translates the page for a space that does not exist' do
       get '/s/00000000-0000-0000-0000-000000000000', params: { locale: 'es' }
 
@@ -169,7 +165,6 @@ RSpec.describe 'Locales' do
       expect(response.body).to include('class="prose')
     end
 
-    # A /de/ copy would differ from this page in the navbar and nothing else.
     it 'gives the API reference one URL and no language versions' do
       get '/docs/api', params: { locale: 'de' }
 
@@ -183,7 +178,6 @@ RSpec.describe 'Locales' do
   end
 
   describe 'being found' do
-    # Indexing belongs to the hosted deployment; nothing on somebody's own box opts in.
     before { allow(ProgressWatch).to receive(:multitenant?).and_return(true) }
 
     it 'canonicalises an indexable page to the language it rendered' do
@@ -212,8 +206,6 @@ RSpec.describe 'Locales' do
   end
 
   describe 'the switcher' do
-    # /en/docs/agent is not a route, and a bare /docs/agent would render English without
-    # recording that anyone asked for it — leaving the cookie on the language before.
     it 'sends English to the bare path with the choice in the query' do
       get '/de/docs/agent'
 
@@ -275,8 +267,6 @@ RSpec.describe 'Locales' do
       expect(response.body).to include('Dar a un agente de IA un skill de progreso')
     end
 
-    # A page whose canonical and hreflang both call it English may not render German
-    # because of a header nobody can see.
     it 'ignores the browser and the cookie once the path carries a language' do
       allow(ProgressWatch).to receive(:multitenant?).and_return(true)
 
@@ -290,8 +280,6 @@ RSpec.describe 'Locales' do
       expect(response.body).to include('Watch any process')
     end
 
-    # The docs stopped asking the cookie, so a link into them has to spell the language
-    # out or a reader who chose German lands back in English.
     it 'carries the chosen language into the docs from outside them' do
       space = Spaces::Create.call(title: 'Backups')
 
@@ -309,7 +297,6 @@ RSpec.describe 'Locales' do
       expect(response).to have_http_status(:not_found)
     end
 
-    # Without this the prefix would survive exactly one click.
     it 'keeps the prefix on every link out of a translated page' do
       get '/de/docs/agent'
 
@@ -317,8 +304,6 @@ RSpec.describe 'Locales' do
       expect(response.body).to include('href="/de/docs"')
     end
 
-    # The share modal turns this URL into a QR code, so a stray parameter would be
-    # scanned into somebody's phone.
     it 'never puts a language in a space URL' do
       space = Spaces::Create.call(title: 'Backups')
 

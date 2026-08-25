@@ -3,8 +3,6 @@
 require 'rails_helper'
 require 'open3'
 
-# The rest of the suite runs inside an already-booted app and cannot see a failure that
-# happens while Rails initializes. This boots a second process to look.
 RSpec.describe 'Booting' do
   def boot(env)
     output, status = Open3.capture2e(env.merge('RAILS_ENV' => 'test'),

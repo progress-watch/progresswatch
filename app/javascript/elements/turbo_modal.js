@@ -1,8 +1,6 @@
 import { bind } from '@github/catalyst/lib/bind'
 
-// The dialog gives Esc, the focus trap and focus restoration; nothing here reimplements
-// them. Reopening relies on Turbo replacing the frame's children, not on dismiss below:
-// Chrome 150 never fires `close`, verified against a hand-built dialog.
+// Reopening relies on Turbo replacing the frame's children: Chrome 150 never fires close.
 export default class extends HTMLElement {
   connectedCallback () {
     bind(this)

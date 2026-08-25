@@ -71,7 +71,6 @@ RSpec.describe 'MCP' do
         expect(schema['type']).to eq('object')
         expect(tool['description']).to be_present
 
-        # A schema with no required list lets an agent call the tool with {}.
         expect(schema['required']).to be_present
         expect(schema['properties'].keys).to include(*schema['required'])
       end
@@ -87,8 +86,6 @@ RSpec.describe 'MCP' do
       expect(create['description']).to include('long-running', 'one level only')
       expect(update['description']).to include('replaces the whole state')
 
-      # An agent that reports only at the end leaves a board that is empty for the whole
-      # job, which is the thing this exists to prevent.
       expect(create['description']).to include('not all of them at the end')
       expect(update['description']).to include('when the work actually begins')
       expect(complete['description']).to include('not in a sweep')
@@ -101,7 +98,6 @@ RSpec.describe 'MCP' do
       rpc({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: name, arguments: arguments } }, **)
     end
 
-    # Not Task.last: the primary key is a random uuid, so it returns an arbitrary row.
     def created_task
       Task.find(json['result']['content'].first['text'][/[0-9a-f-]{36}/])
     end
@@ -142,8 +138,6 @@ RSpec.describe 'MCP' do
       expect(task.reload.finished_at).to be_present
     end
 
-    # It invents no numbers, and it destroys none either: closing a task is a disk fact,
-    # so the last counts a watcher was reading are still there afterwards.
     it 'keeps the numbers it was given, and reads as complete' do
       task = create_task(space, title: 'Crawl')
       call_tool('update_task', { task_uuid: task.uuid, current: 7, end: 10 })
@@ -241,7 +235,6 @@ RSpec.describe 'MCP' do
       expect(response).to have_http_status(:bad_request)
     end
 
-    # Batching was removed in 2025-06-18; an array is no longer a valid body.
     it '400s a JSON-RPC batch' do
       post '/mcp',
            params: [{ jsonrpc: '2.0', id: 1, method: 'ping' }].to_json,

@@ -38,9 +38,6 @@ RSpec.describe 'OpenAPI' do
     expect(document['servers'].first['url']).to eq('http://www.example.com')
   end
 
-  # Hand-written, so what rots is the correspondence with the app. These two walk it in
-  # both directions. Compared with the parameter names blanked, because a path parameter
-  # is named independently on each side and the URL is the same either way.
   it 'documents a path for every JSON route the app actually serves' do
     documented = document['paths'].flat_map { |path, verbs| verbs.keys.map { |verb| [shape(path), verb] } }
 
@@ -59,9 +56,6 @@ RSpec.describe 'OpenAPI' do
     end
   end
 
-  # Half of them had one and half did not, which on the reference page reads as an unfinished
-  # document — and the two without were create-task and get-task, the second and fourth
-  # things anybody calls.
   it 'gives every operation a description, not just a summary' do
     document['paths'].each do |path, verbs|
       verbs.each do |verb, operation|
@@ -71,8 +65,6 @@ RSpec.describe 'OpenAPI' do
     end
   end
 
-  # Path parameters only: query ones are a separate list and the first of them arrived with
-  # GET /tasks/{task_uuid}/report, which made this fail for saying the right thing.
   it 'declares a parameter for every placeholder in a path, and no path parameter that is not one' do
     document['paths'].each do |path, verbs|
       placeholders = path.scan(/\{(\w+)\}/).flatten
@@ -86,8 +78,6 @@ RSpec.describe 'OpenAPI' do
     end
   end
 
-  # Generators name their methods after these, so a missing or duplicated one produces a
-  # client with a method called `spaces_space_uuid_get`.
   it 'gives every operation a unique operationId' do
     ids = document['paths'].values.flat_map { |verbs| verbs.values.map { |operation| operation['operationId'] } }
 
@@ -95,7 +85,6 @@ RSpec.describe 'OpenAPI' do
     expect(ids.uniq).to eq(ids)
   end
 
-  # The schemas were written by reading the serializers; this asserts they still match.
   it 'describes a task exactly as the API returns one' do
     space = create_space
     parent = create_task(space, title: 'Deploy')
@@ -125,9 +114,6 @@ RSpec.describe 'OpenAPI' do
     expect(body.keys).to match_array(schema['properties'].keys)
   end
 
-  # 3.0 spelled a nullable field `nullable: true`; 3.1 is JSON Schema and spells it in the
-  # type. Getting this wrong makes generators emit non-null types for fields that are null
-  # most of the time.
   it 'spells nullable the 3.1 way' do
     expect(document.to_s).not_to include('nullable')
     expect(document['components']['schemas']['Task']['properties']['finished_at']['type']).to eq(%w[string null])

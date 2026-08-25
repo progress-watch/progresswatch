@@ -3,15 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe 'Web UI' do
-  # Indexing, the docs and the sitemap belong to the hosted deployment. Somebody's
-  # own box has no audience to reach, so this is off unless a spec asks for it.
   def hosted!
     allow(ProgressWatch).to receive(:multitenant?).and_return(true)
   end
 
   describe 'GET /' do
-    # Nothing here is visible until space-list decides what to do, so a first visit sees
-    # a space made for it rather than a page. The templates are the whole payload.
     it 'renders the card templates and nothing that would flash before them' do
       get '/'
 
@@ -20,8 +16,6 @@ RSpec.describe 'Web UI' do
       expect(response.body).not_to include('No spaces on this browser')
     end
 
-    # Whatever this page holds has to be in the HTML: no branch that ships hidden and
-    # waits for JavaScript to reveal it, which is what it used to do.
     it 'hides nothing behind JavaScript' do
       get '/'
 
@@ -29,10 +23,6 @@ RSpec.describe 'Web UI' do
       expect(response.body).not_to include('<noscript')
     end
 
-    # Indexing is opt-in. A page that says nothing is noindex, so a route added without
-    # thinking about it cannot leak — which is how /s/:uuid/edit leaked its uuid into a
-    # canonical URL while the default was the other way round. `/` opts out too: it
-    # redirects a browser before it renders anything worth reading.
     it 'is not indexable, and only /docs and the Connect sections are' do
       hosted!
       indexable = %w[/docs /docs/api /docs/cli /docs/curl /docs/agent /docs/mcp /docs/docker
@@ -57,8 +47,6 @@ RSpec.describe 'Web UI' do
       expect(response.body).not_to include('<footer')
     end
 
-    # The modal is a route now, so a page carries a link and one empty frame rather than
-    # a dialog's worth of markup it may never open.
     it 'links to the new-space modal instead of embedding it' do
       get '/'
 
@@ -67,12 +55,9 @@ RSpec.describe 'Web UI' do
       expect(response.body).not_to include('<dialog')
     end
 
-    # A missing layout is silent: the page still renders and still returns 200, it
-    # just arrives with no stylesheet and no JavaScript. Assert the tags exist.
     it 'renders inside the layout, with the asset tags' do
       get '/'
 
-      # The test environment builds into packs-test, production into packs.
       expect(response.body).to include('<!DOCTYPE html>')
       expect(response.body).to match(%r{<script[^>]+src="/packs(-test)?/js/application[^"]*"})
       expect(response.body).to match(%r{<link[^>]+href="/packs(-test)?/css/application[^"]*"})
@@ -92,11 +77,6 @@ RSpec.describe 'Web UI' do
       expect(response.body).not_to include('name="robots"')
     end
 
-    # Twice: the row that shows from md up, and the menu it folds into below that. The
-    # link went missing from the mobile one once, because both halves are edited
-    # separately and a blind edit landed in the wrong one.
-    # One control, in the header at every width. Folding it into the menu below md would
-    # bury the one setting somebody reaches for in the dark.
     it 'keeps the theme in the header rather than the phone menu' do
       get '/docs'
 
@@ -113,12 +93,7 @@ RSpec.describe 'Web UI' do
     end
   end
 
-  # MULTITENANT is the hosted deployment. Self-hosted is the default, and everything
-  # written for a stranger who found us in a search is off there.
   describe 'self-hosted, which is the default' do
-    # The flag configures the deployment we run, not the one the reader is setting up.
-    # Naming it in the docs invites somebody to set it on their own box, where the only
-    # thing it does is put a private instance in a search index.
     it 'never names the flag in anything written for a reader' do
       pages = Dir['app/views/docs/*.erb'] + ['README.md']
 
@@ -127,9 +102,6 @@ RSpec.describe 'Web UI' do
       end
     end
 
-    # The docs are how somebody sets up their own box, so they are linked here too. What
-    # stays behind the flag is being found from outside: a private instance has no
-    # audience to reach.
     it 'links the docs but keeps them out of any index' do
       get '/'
       expect(response.body).to include(%(href="#{docs_path}"))
@@ -146,8 +118,6 @@ RSpec.describe 'Web UI' do
       expect(response).to have_http_status(:not_found)
     end
 
-    # Same reason as the sitemap: a private instance publishing a summary of itself is
-    # advertising to crawlers, and its own agent has /docs and /openapi.json anyway.
     it '404s llms.txt, and does not point at it from the head' do
       get '/llms.txt'
       expect(response).to have_http_status(:not_found)
@@ -156,7 +126,6 @@ RSpec.describe 'Web UI' do
       expect(response.body).not_to include('rel="describedby"')
     end
 
-    # Pointing at a sitemap that 404s is worse than not having the line.
     it 'tells crawlers to stay out entirely, and names no sitemap' do
       get '/robots.txt'
 
@@ -164,8 +133,6 @@ RSpec.describe 'Web UI' do
       expect(response.body).not_to include('Sitemap:')
     end
 
-    # Nothing schedules the sweep, so on somebody's own box this is a promise about an
-    # operator's cron rather than about the software.
     it 'promises nothing about deleting an empty space' do
       space = create_space
 
@@ -190,8 +157,6 @@ RSpec.describe 'Web UI' do
     it 'creates a space and redirects into its dashboard' do
       expect { post '/s', params: { title: 'Production' } }.to change(Space, :count).by(1)
 
-      # Not Space.last — the primary key is a random uuid, so it returns an arbitrary
-      # row. Follow the redirect the controller actually issued.
       expect(response).to redirect_to(%r{/s/[0-9a-f-]{36}\z})
       expect(Space.find(response.location[/[0-9a-f-]{36}\z/]).title).to eq('Production')
     end
@@ -207,8 +172,6 @@ RSpec.describe 'Web UI' do
       expect(response.body).to include('Production')
     end
 
-    # Opening the page records the space in this browser, so the page also has to
-    # offer a way back out of that.
     it 'both remembers the space and offers to forget it' do
       get space_path(space.uuid)
 
@@ -237,22 +200,15 @@ RSpec.describe 'Web UI' do
       expect(response.body).to include('<push-toggle')
       expect(response.body).to include('data-key="public"')
       expect(response.body).to include(%(data-uuid="#{space.uuid}"))
-      # Not "off": the server cannot know whether this browser is subscribed, and
-      # guessing makes the label flip a moment after it renders.
       expect(response.body).to include('data-state="unknown"')
     end
 
-    # The snippet block below disappears once anything has reported, so without this the
-    # only way back to the commands is a dropdown in the chrome that says nothing about
-    # this space.
     it 'links to its own connect instructions, uuid already filled in' do
       get space_path(space.uuid)
 
       expect(response.body).to include(%(href="#{docs_section_path(section: 'cli', space: space.uuid)}"))
     end
 
-    # The link used to be a copy button and nothing else, which answered "send this to a
-    # colleague" and not "open this on my phone".
     it 'opens a share modal rather than silently copying the link' do
       get space_path(space.uuid)
 
@@ -268,8 +224,6 @@ RSpec.describe 'Web UI' do
       expect(response.body).to include('<svg viewBox=', 'aria-label="Link to this space"')
     end
 
-    # Every modal is a route, so opening one in a tab must be a page rather than a bare
-    # fragment. The task frame learned this the hard way.
     it 'answers a person with a whole page, not a fragment' do
       get space_link_path(space.uuid)
 
@@ -277,8 +231,6 @@ RSpec.describe 'Web UI' do
       expect(response.body).not_to include('<dialog')
     end
 
-    # The snippets are onboarding. Once anything has reported they are noise, and the
-    # navbar still has them.
     it 'drops the reporting instructions once the space has a task' do
       get space_path(space.uuid)
       expect(response.body).to include('Report into this space')
@@ -297,8 +249,6 @@ RSpec.describe 'Web UI' do
       expect(response.body).to include('may be deleted at any time')
     end
 
-    # A mistyped UUID and a real one must look the same from outside. There is no
-    # "exists but not yours" state to probe at, because there are no accounts.
     it 'renders a not-found page for an unknown space rather than raising' do
       get space_path(SecureRandom.uuid)
 
@@ -307,8 +257,6 @@ RSpec.describe 'Web UI' do
     end
   end
 
-  # Somebody's own box has no reason to advertise our repository, and the flag that means
-  # "this is the deployment with an audience" is the one that already exists.
   describe 'the GitHub link' do
     it 'is in the navbar on the hosted deployment, at both widths' do
       hosted!
@@ -339,11 +287,6 @@ RSpec.describe 'Web UI' do
       expect(entries.map(&:last)).to all(match(/\A\d{4}-\d{2}-\d{2}\z/))
     end
 
-    # The list is written by hand, so the thing that rots is the list itself: a page that
-    # stops being indexable, or one that is added and never listed.
-    # Hand-written like the sitemap, so it drifts the same way: an endpoint added and
-    # never mentioned leaves an agent building against a surface that is missing a
-    # quarter of itself.
     it 'names every operation the document defines' do
       hosted!
 
@@ -355,8 +298,6 @@ RSpec.describe 'Web UI' do
       end
     end
 
-    # The spec defines two ways to find it: the well-known path and rel="describedby".
-    # Serving the file without the link implements half a convention.
     it 'is pointed at from the head of every page' do
       hosted!
 
@@ -406,8 +347,6 @@ RSpec.describe 'Web UI' do
     end
   end
 
-  # The modal is a route, so it has the two behaviours a route has: it answers the frame
-  # with a dialog, and it answers a person with an ordinary page.
   describe 'GET /s/new and /s/:uuid/edit' do
     let(:space) { create_space(title: 'Production') }
 
@@ -447,16 +386,12 @@ RSpec.describe 'Web UI' do
     let(:space) { create_space }
     let(:frame_request) { { 'Turbo-Frame' => 'tasks' } }
 
-    # The frame's response has no layout, so opened directly it is an unstyled
-    # fragment. That is a URL a person can land on, and it must not look broken.
     it 'sends a person who opens it directly to the dashboard' do
       get space_tasks_path(space.uuid)
 
       expect(response).to redirect_to(space_path(space.uuid))
     end
 
-    # Turbo rejects a frame whose response points back at the URL it was fetched
-    # from, and does it by silently rendering nothing at all.
     it 'answers with a frame that does not reference itself' do
       get space_tasks_path(space.uuid), headers: frame_request
 
@@ -493,7 +428,6 @@ RSpec.describe 'Web UI' do
       get space_tasks_path(space.uuid), headers: frame_request
 
       expect(response.body).to include('Deploy', 'Build', 'Test')
-      # One of two children finished: the parent reads 50%, not its own numbers.
       expect(response.body).to include('1/2 done', '50.0%')
     end
 
@@ -516,11 +450,7 @@ RSpec.describe 'Web UI' do
       expect(done_steps).not_to include('open')
     end
 
-    # The two frames are the whole optimisation: what can still change is polled every
-    # 2.5s, what cannot is a separate frame on a long interval. A finished task appearing
-    # in the live frame would put the history back on the fast poll.
     it 'keeps finished tasks out of the polled frame, newest first in both' do
-      # Interleaved on purpose: creation order alone must not decide the split.
       %w[first second].each do |title|
         create_task(space, title: "Running #{title}")
         Tasks::Report.call(create_task(space, title: "Done #{title}"), done: true)
@@ -547,8 +477,6 @@ RSpec.describe 'Web UI' do
       expect(response.body).to include('March 2026')
     end
 
-    # The link is inside the frame that polls, so it has to point at one that does not —
-    # otherwise the next poll wipes whatever was loaded under it.
     it 'pages the history into a frame outside the polled one' do
       (Spaces::ReadFinishedTasks::PAGE + 1).times do |index|
         Tasks::Report.call(create_task(space, title: "Task #{index}"), done: true)
@@ -568,8 +496,6 @@ RSpec.describe 'Web UI' do
     end
   end
 
-  # progress.watch is the CLI's default server, so instructions for pointing at one are
-  # noise there and the thing a self-hoster cannot skip on their own box.
   describe 'GET /docs/cli, on each kind of deployment' do
     it 'omits configure on the hosted site' do
       hosted!
@@ -587,8 +513,6 @@ RSpec.describe 'Web UI' do
     end
   end
 
-  # A reader arriving without a space has nothing to point the CLI at, and the page used
-  # to hand them `space use <uuid>` for a uuid they do not have.
   describe 'GET /docs, for a reader with no space yet' do
     it 'shows how to create one instead of assuming it' do
       get docs_section_path(section: 'cli')
@@ -615,8 +539,6 @@ RSpec.describe 'Web UI' do
   end
 
   describe 'GET /docs/:section' do
-    # Five indexable pages, so five distinct titles and descriptions rather than one
-    # default repeated — a duplicate description is the whole set treated as one page.
     it 'gives every section its own title and description' do
       seen = ConnectSnippets::SECTIONS.keys.map do |section|
         get docs_section_path(section: section)
@@ -645,8 +567,6 @@ RSpec.describe 'Web UI' do
       expect(response.body).not_to include('rel="canonical"')
     end
 
-    # Without a space the snippets still show, with a placeholder a shell can take: an
-    # angle bracket is a redirect and would fail on the first line pasted.
     it 'falls back to a shell variable when there is no space' do
       get docs_section_path(section: 'curl')
 
@@ -656,8 +576,6 @@ RSpec.describe 'Web UI' do
       expect(response.body).not_to include('&lt;SPACE_UUID&gt;')
     end
 
-    # An unknown section is a page that does not exist, and it looks like every other
-    # page that does not exist rather than like a routing error.
     it 'renders the not-found page for an unknown section' do
       get '/docs/nonsense'
 
@@ -666,8 +584,6 @@ RSpec.describe 'Web UI' do
     end
   end
 
-  # The browser is a client like any other: it must not be able to negotiate the API
-  # into HTML, or the CLI and the app would start receiving pages instead of JSON.
   describe 'API is pinned to JSON' do
     it 'answers JSON even when the browser asks for HTML' do
       space = create_space

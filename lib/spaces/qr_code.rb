@@ -1,12 +1,9 @@
 # frozen_string_literal: true
 
 module Spaces
-  # Returns the paths and the module count, not an <svg>: writing the element is the
-  # template's job, and `standalone: true` would emit an XML declaration that is invalid
-  # inside HTML anyway.
+  # Paths and a module count, not an <svg>: `standalone: true` emits an XML declaration
+  # that is invalid inside HTML.
   module QrCode
-    # The quiet zone the format asks for, carried in the viewBox rather than as CSS padding
-    # so it scales with the image instead of depending on how big the box happens to be.
     QUIET_ZONE = 4
 
     module_function

@@ -1,7 +1,5 @@
 import { bind } from '@github/catalyst/lib/bind'
 
-// One grapheme, not one codepoint: 👍🏽 is two and a family emoji is five, and each is one
-// character on screen. The server validates the same way.
 export default class extends HTMLElement {
   connectedCallback () {
     bind(this)

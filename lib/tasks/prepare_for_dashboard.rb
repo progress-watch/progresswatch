@@ -1,12 +1,6 @@
 # frozen_string_literal: true
 
 module Tasks
-  # Everything the dashboard decides about a task before rendering it: what order the
-  # rows come in, and the strings that are not simply a field.
-  #
-  # SerializeForApi keeps creation order and raw numbers for every client; what to do
-  # with them is the web UI's business, and it happens once here rather than per row in
-  # a recursive partial.
   module PrepareForDashboard
     IDLE_AFTER = 10.minutes
 
@@ -23,16 +17,12 @@ module Tasks
       end
     end
 
-    # By created_at and never finished_at, or the buckets interleave. Months and not days
-    # because the server does not know the reader's timezone and must not learn it.
     def sections(tasks)
       call(tasks)
         .group_by { |task| I18n.l(Time.zone.parse(task['created_at']), format: '%B %Y') }
         .map { |heading, group| { 'heading' => heading, 'tasks' => group } }
     end
 
-    # reverse, not sort_by(created_at): sort_by is not stable, so tasks created in the
-    # same second would swap places on every poll.
     def order(tasks)
       tasks.partition { |task| task['finished_at'].blank? }.flat_map(&:reverse)
     end
@@ -44,24 +34,18 @@ module Tasks
       I18n.t('finished_in_duration', duration: duration(task['duration']))
     end
 
-    # How long it took and when it happened are two different questions, and a board with
-    # a week of history answers only the first without this.
     def finished_ago(task)
       return nil if task['finished_at'].blank?
 
       ago((Time.current - Time.zone.parse(task['finished_at'])).round)
     end
 
-    # The month name follows the locale, the zone never does: the server does not know
-    # the reader's, and a timestamp quietly three hours out is worse than arithmetic.
     def finished_on(task)
       return nil if task['finished_at'].blank?
 
       I18n.l(Time.zone.parse(task['finished_at']), format: '%-d %b %Y, %H:%M UTC')
     end
 
-    # Coarser than `duration` on purpose: "when" is answered by an order of magnitude, and
-    # duration would say "72h" for something two days old.
     def ago(seconds)
       return I18n.t('just_now') if seconds < 60
       return I18n.t('count_m_ago', count: seconds / 60) if seconds < 3600
@@ -89,7 +73,6 @@ module Tasks
       "#{seconds / 3600}h #{(seconds % 3600) / 60}m".delete_suffix(' 0m')
     end
 
-    # An aggregated parent counts finished children; a leaf shows its own numbers.
     def counts_label(progress)
       current = progress && progress['current']
       return nil if current.nil?

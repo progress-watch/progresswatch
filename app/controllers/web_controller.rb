@@ -37,15 +37,10 @@ class WebController < ActionController::Base
     request.route_uri_pattern.to_s.include?(':locale')
   end
 
-  # Through `t` and not a slice of the backend's hash, which would skip the fallback to
-  # English on a key a language is missing.
   def translations(*keys)
     keys.index_with { |key| t(key) }.to_json
   end
 
-  # Where the path can carry a language it is the whole answer: /docs is the English page
-  # in a German browser too, or the canonical and the hreflang beside it would both be
-  # describing a different document than the one being served.
   def locale
     @locale ||= begin
       chosen = Locales.available(params[:locale])
@@ -70,8 +65,6 @@ class WebController < ActionController::Base
     "#{url_for(query.merge(locale: nil, only_path: true))}#{query.any? ? '&' : '?'}locale=#{locale}"
   end
 
-  # A link into the docs from anywhere else has to carry the language, since the page it
-  # lands on no longer asks the cookie.
   def docs_locale
     I18n.locale unless I18n.locale == I18n.default_locale
   end

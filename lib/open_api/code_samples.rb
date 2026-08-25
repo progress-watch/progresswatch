@@ -13,20 +13,10 @@ module OpenApi
       'cli' => 'CLI'
     }.freeze
 
-    # curl and nothing else, because the whole reason this operation exists is a client that
-    # can only fire a URL. A Java or Python author has PUT, and showing them a GET that
-    # writes would be documenting the wrong choice.
     URL_ONLY = ['report-progress-from-url'].freeze
 
-    # The CLI is not a transport: `progresswatch list` reads a space without naming a URL,
-    # so only these can be checked against the document. A command that means the same
-    # thing as the request is not guaranteed to exist for every endpoint either, which is
-    # why a CLI sample is optional and the tab row is built per operation.
     HTTP_LANGUAGES = (LANGUAGES.keys - ['cli']).freeze
 
-    # One task from nothing to finished, because the reference shows each operation alone
-    # and the shape only becomes obvious when you see the loop. It closes with a bare
-    # `done`, which keeps the last counts.
     LIFECYCLE = {
       'cli' => <<~'TEXT',
         progresswatch space new "Crawler"

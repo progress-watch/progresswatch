@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class SpacePushSubscriptionsController < WebController
-  # head, not the not-found page: only fetch() calls this, and that rescue renders HTML.
   rescue_from ActiveRecord::RecordNotFound do
     head :not_found
   end

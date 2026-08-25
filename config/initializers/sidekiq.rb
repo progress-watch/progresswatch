@@ -2,7 +2,6 @@
 
 require 'sidekiq'
 
-# The web process reads the worker's heartbeat for the health check.
 require 'sidekiq/api'
 
 Sidekiq.configure_server do |config|

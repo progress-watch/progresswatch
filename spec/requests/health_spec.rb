@@ -20,9 +20,6 @@ RSpec.describe 'Health' do
     expect(response.parsed_body).to include('status' => 'error', 'redis' => false)
   end
 
-  # A server whose worker is dead answers every request and quietly never notifies anyone.
-  # It is the failure the self-hosting page warns about, and this is where it becomes
-  # visible — but pulling the web container out of rotation over it would fix nothing.
   it 'says the worker is down without failing the check' do
     allow(Sidekiq::ProcessSet).to receive(:new).and_return([])
 

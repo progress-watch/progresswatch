@@ -2,9 +2,6 @@ import { bind } from '@github/catalyst/lib/bind'
 import { read, forget } from '../lib/profile'
 import { disable } from '../lib/push'
 
-// The list lives in localStorage and nowhere else — without accounts the server has no
-// idea which spaces are yours, and telling it would put that in its request log. So the
-// filling happens here, but the markup is a <template> in the view like everything else.
 export default class extends HTMLElement {
   connectedCallback () {
     this.text = JSON.parse(this.dataset.i18n)
@@ -33,8 +30,6 @@ export default class extends HTMLElement {
     this.querySelector('[data-list]')?.remove()
     if (spaces.length === 0 && !this.refused) return this.createFirstSpace()
 
-    // Only on arrival: forgetting one of two spaces re-renders, and being thrown into
-    // the survivor is not what that click asked for.
     if (arriving && spaces.length === 1) return this.open(linkTo(spaces[0]))
 
     const list = this.clone('list')
@@ -47,8 +42,6 @@ export default class extends HTMLElement {
     this.append(list)
   }
 
-  // Spaces made this way and never reported into are swept after a month, which is what
-  // makes minting one for every arrival — crawlers included — affordable.
   createFirstSpace () {
     if (this.creating) return
     this.creating = true
@@ -57,16 +50,13 @@ export default class extends HTMLElement {
       .then((response) => (response.ok ? response.json() : Promise.reject(new Error(String(response.status)))))
       .then(({ uuid }) => this.open(`/s/${encodeURIComponent(uuid)}`))
       .catch(() => {
-        // A rate-limited arrival must not be a blank page. Rendering the empty grid gives
-        // back New space and Add a space, which is a way in that does not mint anything.
         this.creating = false
         this.refused = true
         this.render()
       })
   }
 
-  // replace, not href: with a normal navigation, Back from the space lands here and is
-  // thrown straight forward again.
+  // replace, not href: Back from the space lands here and is thrown forward again.
   open (url) {
     window.location.replace(url)
   }
@@ -79,8 +69,6 @@ export default class extends HTMLElement {
 
   card (space) {
     const node = this.clone('card')
-    // The uuid, not "Untitled space": an imported file carries no titles, and a screen of
-    // identical cards is worse than a screen of ugly ones.
     const title = space.title || space.uuid
 
     node.querySelector('[data-link]').href = linkTo(space)
@@ -89,8 +77,6 @@ export default class extends HTMLElement {
     const share = node.querySelector('[data-share]')
 
     share.href = `${linkTo(space)}/link`
-    // The modal is a turbo-frame on this origin. A space on another server has its own,
-    // and Turbo cannot pull a cross-origin document into a frame, so that one navigates.
     if (here(space)) share.dataset.turboFrame = 'modal'
 
     const icon = node.querySelector('[data-icon]')
@@ -127,9 +113,6 @@ function linkTo (space) {
   return `${String(space.server || '').replace(/\/$/, '')}/s/${space.uuid}`
 }
 
-// A space entry carries the server it was created against, so a card for one on another
-// host has to leave this origin. Everything here used to build a relative path and send
-// those cards to a uuid this server has never heard of.
 function here (space) {
   return linkTo(space).startsWith(`${window.location.origin}/`)
 }

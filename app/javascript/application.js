@@ -19,8 +19,7 @@ import TabPanels from './elements/tab_panels'
 
 import './application.scss'
 
-// Turbo caches pages and replays them, so an element can be defined twice on the
-// way back through history.
+// Turbo replays cached pages, so an element can be defined twice.
 function safeRegisterElement (name, elementClass) {
   if (!window.customElements.get(name)) window.customElements.define(name, elementClass)
 }

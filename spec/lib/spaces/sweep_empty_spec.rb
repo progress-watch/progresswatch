@@ -13,8 +13,6 @@ RSpec.describe Spaces::SweepEmpty do
     expect(Space.exists?(space.uuid)).to be(false)
   end
 
-  # The uuid is the only way back to a space, so anything that was ever used stays —
-  # tasks are never deleted, which makes "has a task" a permanent fact.
   it 'keeps a space that has a task, however old' do
     space = create_space
     create_task(space, title: 'Reported once')

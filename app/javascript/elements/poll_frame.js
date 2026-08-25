@@ -4,7 +4,6 @@ export default class extends HTMLElement {
 
     this.start()
 
-    // A dashboard left open in a background tab must not hit a self-hosted box all day.
     this.onVisibilityChange = () => (
       document.visibilityState === 'visible' ? this.start() : this.stop()
     )

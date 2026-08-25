@@ -29,8 +29,6 @@ RSpec.describe 'Task state' do
       )
     end
 
-    # `resources` routes PATCH here too. Answering it as a full overwrite would let a
-    # client build on merge semantics that do not exist.
     it 'turns PATCH away rather than treating it as a full overwrite' do
       patch "/tasks/#{task.uuid}",
             params: { current: 10, end: 100 }.to_json,
@@ -75,8 +73,6 @@ RSpec.describe 'Task state' do
       expect(json['progress']['ratio']).to be_nil
     end
 
-    # A counter with no total is a supported shape, not a half-filled write: the number
-    # rises and the ratio stays null, which is what tells a client to draw no bar.
     it 'counts without a total when end is never sent' do
       put_json "/tasks/#{task.uuid}", { current: 1200 }
 
@@ -181,9 +177,6 @@ RSpec.describe 'Task state' do
     end
   end
 
-  # Reported from outside on 2026-08-16: a task at 900/1000 closed with a bare `done`
-  # came back null/null, so the dashboard drew a full green bar with no numbers under it.
-  # Completion is a disk fact; a call that carries no progress field writes no progress.
   describe 'closing a task without counting' do
     it 'keeps the last numbers it was told' do
       task = create_task(create_space)
@@ -204,8 +197,6 @@ RSpec.describe 'Task state' do
       expect(json['progress']).to include('current' => nil, 'end' => nil, 'ratio' => 1.0)
     end
 
-    # The overwrite rule is untouched: naming any progress field still replaces all of
-    # them, `done` or not.
     it 'overwrites as usual when the same call carries a number' do
       task = create_task(create_space)
       put_json("/tasks/#{task.uuid}", { current: 900, end: 1000, values: { errors: 3 } })

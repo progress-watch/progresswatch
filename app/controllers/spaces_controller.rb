@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# Renaming is web-only on purpose: a browser has to create a space before anyone can
-# name it, while a CLI or an agent already knows the name and the icon at creation time.
 class SpacesController < WebController
   def show
     @space = Space.find(params[:uuid])

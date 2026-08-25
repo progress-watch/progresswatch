@@ -26,8 +26,6 @@ RSpec.describe 'Spaces' do
       expect(json['icon']).to eq('🌙')
     end
 
-    # Counted as a reader counts them: a skin tone or a family emoji is several
-    # codepoints and still one icon, while two letters is two.
     it 'takes a multi-codepoint emoji as one character and refuses two of anything' do
       post_json '/spaces', { title: 'Team', icon: '👍🏽' }
       expect(response).to have_http_status(:created)
@@ -53,10 +51,6 @@ RSpec.describe 'Spaces' do
       expect(rendered_parent['children'].pluck('uuid')).to eq([child.uuid])
     end
 
-    # find rather than find_by!, because the uuid is the primary key and the message a
-    # caller gets back says so — find_by! answers with the SQL fragment instead.
-    # The default has to stay everything: the CLI and every published snippet read this
-    # endpoint without a window, and bounding it silently would be a breaking change.
     it 'returns every task when no window is asked for' do
       space = create_space
       3.times { |index| create_task(space, title: "Task #{index}") }
@@ -75,8 +69,6 @@ RSpec.describe 'Spaces' do
       expect(json['tasks'].pluck('title')).to eq(['Task 1', 'Task 2'])
     end
 
-    # The cursor is the created_at this endpoint just returned, so it has to round-trip.
-    # Truncated to the second it would not: `after` would hand back the row it names.
     it 'pages both ways from a timestamp it returned itself' do
       space = create_space
       3.times { |index| create_task(space, title: "Task #{index}") }

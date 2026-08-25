@@ -1,11 +1,5 @@
 # frozen_string_literal: true
 
-# Two frames, split so that only the running half is on the fast poll.
-#
-# Opened directly in a browser, either response is a bare fragment with no stylesheet and
-# no JavaScript — an unstyled wall of text that reads as a broken site rather than as the
-# wrong URL. Turbo names the frame it is fetching for in a header, so anything without
-# one is a person and belongs on the real page.
 class SpaceTasksController < WebController
   def index
     @space = Space.find(params[:uuid])

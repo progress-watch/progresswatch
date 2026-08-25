@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module Mcp
-  # Returns nil for a notification, which the transport answers with 202 and no body.
   module HandleRequest
     UnknownMethod = Class.new(StandardError)
     UnknownTool = Class.new(StandardError)
@@ -12,7 +11,6 @@ module Mcp
       return invalid_request unless message.is_a?(Hash)
 
       id = message['id']
-      # No id means a notification, and the spec forbids answering one at all.
       return nil if id.nil?
 
       success(id, dispatch(message['method'], message['params'] || {}, space_uuid, base_url))
@@ -38,12 +36,9 @@ module Mcp
       end
     end
 
-    # McpController holds the set of versions it accepts, which must keep including
-    # the one advertised here.
     def initialize_result
       {
         'protocolVersion' => '2025-06-18',
-        # No listChanged: the tool set is fixed.
         'capabilities' => { 'tools' => {} },
         'serverInfo' => { 'name' => 'progress-watch', 'version' => '0.1.0' }
       }

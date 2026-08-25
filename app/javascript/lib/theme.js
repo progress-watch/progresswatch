@@ -11,9 +11,6 @@ export function readTheme () {
   return THEMES.includes(stored) ? stored : 'system'
 }
 
-// The attribute is only ever an override. Absent, the stylesheet's own
-// prefers-color-scheme decides, which is what lets the default render before any script
-// has run and follow the system while somebody changes it.
 export function applyTheme (theme = readTheme()) {
   if (theme === 'system') {
     document.documentElement.removeAttribute('data-theme')

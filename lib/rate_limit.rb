@@ -1,13 +1,5 @@
 # frozen_string_literal: true
 
-# One number turns this on, and its absence turns it off — which covers a self-hoster who
-# wants a limit and one who does not, without either of them pretending to be the hosted
-# deployment. docuseal gates the same helper on `multitenant?`; here the flag would have
-# been a second thing to reason about for no gain.
-#
-# It counts creations, not requests. Reporting progress is the one call a legitimate
-# client makes every second, and it writes to Redis under a TTL — it is the cheap one, and
-# limiting it would break the product to protect nothing.
 module RateLimit
   LimitApproached = Class.new(StandardError)
 
@@ -27,9 +19,7 @@ module RateLimit
     true
   end
 
-  # A fixed window from the first creation, not a sliding one: NX leaves an existing TTL
-  # alone, so a client cannot push the reset further away by continuing to knock. TTL is
-  # read inside the same transaction, so it is the window this request belongs to.
+  # NX, or a client pushes its own reset further away by continuing to knock.
   def count_and_ttl(key)
     ProgressWatch::PROGRESS_REDIS.with do |redis|
       redis.multi do |transaction|

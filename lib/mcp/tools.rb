@@ -22,8 +22,6 @@ module Mcp
               'description' => 'One character shown beside the name. An emoji reads best, e.g. "🌙".'
             }
           },
-          # Required although the HTTP API allows an untitled space: this name is all
-          # the user ever sees of it.
           'required' => ['title']
         },
         'description' => <<~TEXT
@@ -209,7 +207,6 @@ module Mcp
       { 'content' => [{ 'type' => 'text', 'text' => message }] }
     end
 
-    # A tool failure is a result the agent reads and adjusts to, not a JSON-RPC error.
     def error(message)
       { 'content' => [{ 'type' => 'text', 'text' => message }], 'isError' => true }
     end

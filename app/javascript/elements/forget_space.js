@@ -7,9 +7,6 @@ export default class extends HTMLElement {
     bind(this)
   }
 
-  // Leaves for the landing page afterwards rather than staying put — <remember-space>
-  // runs on every dashboard load, so a reload would silently add the space straight back
-  // and the button would look broken.
   async forgetSpace () {
     if (!this.confirmed(this.dataset.title)) return
 

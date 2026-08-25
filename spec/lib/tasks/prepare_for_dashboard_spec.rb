@@ -23,8 +23,6 @@ RSpec.describe Tasks::PrepareForDashboard do
     expect(sorted.first['children'].pluck('title')).to eq(['child running', 'child done'])
   end
 
-  # sort_by is not stable in Ruby, so equal keys could come back in any order and the
-  # polled frame would reshuffle every 2.5 seconds.
   it 'keeps the order it was given within a group, however many share a status' do
     tasks = Array.new(20) { |i| task("t#{i}") }
 
@@ -47,11 +45,8 @@ RSpec.describe Tasks::PrepareForDashboard do
       { 'progress' => { 'updated_at' => ago.ago.iso8601 } }
     end
 
-    # iso8601 drops the fraction, so an unfrozen clock turns 20 seconds into 21.
     around { |example| freeze_time { example.run } }
 
-    # How long it took and when it happened are different questions. The badge answers the
-    # first; without this a board with a week of history never answers the second.
     it 'says when a task finished, coarsely, and spells it out in the tooltip' do
       expect(prepared('finished_at' => 20.seconds.ago.iso8601)['finished_ago']).to eq('just now')
       expect(prepared('finished_at' => 40.minutes.ago.iso8601)['finished_ago']).to eq('40m ago')
@@ -83,8 +78,6 @@ RSpec.describe Tasks::PrepareForDashboard do
       expect(prepared({})['finished_label']).to be_nil
     end
 
-    # A parent counts finished children, a leaf counts its own work, and an unknown
-    # denominator shows the numerator alone rather than inventing a total.
     it 'labels counts by what the progress actually is' do
       expect(prepared('progress' => { 'current' => 2, 'end' => 5, 'aggregated' => true })['counts_label'])
         .to eq('2/5 done')
@@ -130,8 +123,6 @@ RSpec.describe Tasks::PrepareForDashboard do
       expect(sections.last['tasks'].pluck('title')).to eq(['March two', 'March one'])
     end
 
-    # created_at, not finished_at: the list is already sorted by creation, and grouping on
-    # another key lets a bucket appear twice.
     it 'buckets on when a task was created, not when it ended' do
       sections = described_class.sections([finished('Started in March', Time.utc(2026, 3, 31))
                                              .merge('finished_at' => Time.utc(2026, 4, 1).utc.iso8601(6))])

@@ -1,23 +1,5 @@
 # frozen_string_literal: true
 
-# The JSON API as an OpenAPI 3.1 document. Hand-written, like the sitemap, and specced
-# against the routes and the serializers so it cannot quietly drift from them.
-#
-# 3.1, not 3.0, because its schemas are JSON Schema 2020-12: a nullable field is
-# `type: [x, "null"]` rather than 3.0's bolted-on `nullable: true`, and almost every
-# field here is nullable.
-#
-# It is one literal on purpose, repetition included. Factoring the repeated shapes into
-# helpers made it shorter and made it impossible to read one endpoint without assembling
-# it from four definitions, which is the one thing a reference has to allow.
-#
-# MCP is not in it. `/mcp` speaks JSON-RPC over one POST, which OpenAPI describes as
-# "a POST that takes an object" — true and useless. It is documented where it is used.
-#
-# There is no `securitySchemes`, and linters flag that. OpenAPI can describe a header, a
-# cookie or a query parameter as a credential, but not a path segment, and ours is the
-# uuid in the path. Inventing a scheme to quiet the warning would describe an API we do
-# not serve.
 module OpenApi
   DESCRIPTION = <<~TEXT
     Report progress from anything that runs without a screen.

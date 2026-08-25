@@ -20,11 +20,6 @@ module Tasks
       render(task, children, states)
     end
 
-    # Children are passed in empty because nesting is one level: this never recurses
-    # more than once.
-    #
-    # iso8601(6) because created_at is the pagination cursor: truncated to the second,
-    # `after=` hands back the row it was built from.
     def render(task, children, states)
       {
         'uuid' => task.uuid,
@@ -57,15 +52,12 @@ module Tasks
       }
     end
 
-    # Only the ratio: a count that was never sent is not a count of one.
     def leaf(task, state)
       return state&.as_json unless task.finished_at?
 
       (state&.as_json || FINISHED_WITHOUT_STATE).merge('ratio' => 1.0)
     end
 
-    # finished_at? wins over the stored state because Redis may have expired since,
-    # while finished_at is on disk.
     def child_ratio(child, state)
       return 1.0 if child.finished_at?
 

@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# Nothing outside this module may touch ProgressWatch::PROGRESS_REDIS.
 module TaskStates
   InvalidValues = Class.new(StandardError)
 
@@ -51,8 +50,6 @@ module TaskStates
     nil
   end
 
-  # Numeric strings are accepted on purpose: shell scripts interpolating into curl
-  # produce them constantly.
   def numeric(value, field)
     return nil if value.nil?
     return value if value.is_a?(Numeric)
@@ -64,8 +61,6 @@ module TaskStates
     raise InvalidValues, "#{field} must be a number"
   end
 
-  # Nesting is rejected rather than stored, so no client starts depending on a shape
-  # the app has no way to render.
   def normalize_values(values)
     return {} if values.nil?
     raise InvalidValues, 'values must be an object' unless values.is_a?(Hash)

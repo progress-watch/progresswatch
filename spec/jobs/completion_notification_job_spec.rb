@@ -18,8 +18,6 @@ RSpec.describe CompletionNotificationJob do
     expect(deliveries.first).to include(task_uuid: task.uuid, title: 'Nightly backup')
   end
 
-  # One job, one line on the phone: steps share the root's tag so each replaces the last
-  # rather than stacking, and only the job's own completion re-alerts.
   it 'tags a step with its parent, and names both' do
     space = create_space
     parent = create_task(space, title: 'Deploy')

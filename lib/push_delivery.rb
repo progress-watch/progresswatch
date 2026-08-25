@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# The seam where FCM/APNs will plug in. A backend is anything responding to
-# #call(payload), and it must be safe to retry — Sidekiq will.
 module PushDelivery
   CONTENT_MODE = ENV.fetch('PUSH_CONTENT', 'full')
 
@@ -21,8 +19,6 @@ module PushDelivery
     backend.call(
       space_uuid:,
       task_uuid:,
-      # Steps of one job share a tag, so the device shows one line that updates instead of
-      # a stack. The job's own completion is the last to arrive and re-alerts.
       tag: root_uuid,
       renotify: task_uuid == root_uuid,
       duration:,

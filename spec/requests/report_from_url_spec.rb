@@ -2,9 +2,6 @@
 
 require 'rails_helper'
 
-# A GET that writes, which exists for one reason: a client that can fire a URL and nothing
-# else. Everything here is about it being the same write as PUT, and about the read staying
-# a read.
 RSpec.describe 'GET /tasks/:uuid/report' do
   let(:task) { create_task(create_space) }
 
@@ -15,8 +12,6 @@ RSpec.describe 'GET /tasks/:uuid/report' do
     expect(response.parsed_body['progress']).to include('current' => 1200, 'end' => 50_000, 'ratio' => 0.024)
   end
 
-  # A query string carries no types, and a shell interpolating into curl produces strings
-  # constantly. TaskStates already coerced them; this is the caller that made it matter.
   it 'takes the numbers as the text a query string can carry' do
     get "/tasks/#{task.uuid}/report", params: { current: '3', end: '4', 'values' => { 'errors' => '2' } }
 
@@ -33,8 +28,6 @@ RSpec.describe 'GET /tasks/:uuid/report' do
     expect(response.parsed_body['finished_at']).to be_present
   end
 
-  # The reason it is not GET /tasks/:uuid?current=…: a browser prefetching a link or a chat
-  # app unfurling one must not be able to write by reading.
   it 'leaves reading a task a read' do
     get "/tasks/#{task.uuid}", params: { current: 99, end: 100 }
 

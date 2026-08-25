@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# Progress and the Sidekiq queue are kept on separate logical databases so that
-# flushing stale progress cannot drop undelivered notifications with it.
 module ProgressWatch
   REDIS_URL = ENV.fetch('REDIS_URL', 'redis://localhost:6379')
 

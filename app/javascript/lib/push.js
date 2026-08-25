@@ -12,7 +12,6 @@ export async function subscription () {
   return registration ? registration.pushManager.getSubscription() : null
 }
 
-// The endpoint is shared by every space here, so dropping it would switch the others off.
 export async function disable (uuid) {
   const existing = await subscription()
 
@@ -23,12 +22,6 @@ export async function disable (uuid) {
   if (!anyPushEnabled()) await existing.unsubscribe()
 }
 
-// The server row can be gone without the browser knowing: it is deleted when the push
-// service answers 404 or 410, and nothing tells the page. So a subscribed space re-asserts
-// itself on every load, which is free — the write is an upsert — and repairs it silently.
-//
-// A rotated subscription leaves the row it used to have behind, and the server cannot tell
-// that orphan from another device of yours. Only this browser knows, so it says so.
 export async function reassert (uuid, current) {
   const previous = pushEndpoint(uuid)
 
@@ -57,14 +50,6 @@ export function send (uuid, method, body) {
   })
 }
 
-// Chrome grants persistent storage off the back of signals like a granted notification
-// permission, so subscribing is the one moment this can succeed without springing a
-// prompt on somebody who asked for nothing — Firefox shows one, and `/` mints a space on
-// arrival, so calling it on load would meet people before they know what the site is.
-// Safari answers no unless the page is a Home Screen web app, which is the same thing
-// that already exempts it from the seven-day eviction.
-//
-// The space list is the only thing here that cannot be recovered from the server.
 export async function keepStorage () {
   if (!window.navigator.storage?.persist) return
   if (await window.navigator.storage.persisted()) return

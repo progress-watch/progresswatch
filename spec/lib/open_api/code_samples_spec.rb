@@ -2,9 +2,6 @@
 
 require 'rails_helper'
 
-# The samples are written by hand rather than generated, so what rots is coverage: an
-# endpoint added to the document and forgotten here, or a path that moved and left the
-# snippets calling the old one.
 RSpec.describe OpenApi::CodeSamples do
   it 'has samples for every operation the reference shows' do
     expect(described_class::SAMPLES.keys).to match_array(OpenApi::Operations.call.pluck(:id))
@@ -22,10 +19,6 @@ RSpec.describe OpenApi::CodeSamples do
     end
   end
 
-  # The CLI is not a transport: `progresswatch list` reads a space without naming a URL,
-  # so only the HTTP languages can be checked against the document. Segments rather than
-  # the whole URL, because several of them configure a base_uri once and then pass a
-  # relative path, which is the idiomatic shape in those libraries.
   it 'names the host and every fixed segment of the path the document defines' do
     OpenApi::Operations.call.each do |operation|
       samples = described_class.call(operation, base_url: 'https://progress.watch')
@@ -59,15 +52,11 @@ RSpec.describe OpenApi::CodeSamples do
     expect(described_class.tabs({})).to be_empty
   end
 
-  # The page's opening block. It is the one sample that is not an operation, so nothing
-  # else checks it — and a language missing from it silently falls back to another tab.
   describe 'the lifecycle block' do
     it 'covers every language the switcher offers' do
       expect(described_class::LIFECYCLE.keys).to match_array(described_class::LANGUAGES.keys)
     end
 
-    # Paths only for the transports: the CLI names no URL, which is the same reason
-    # HTTP_LANGUAGES exists for the per-operation samples.
     it 'walks create, report and close, in that order' do
       samples = described_class.lifecycle(base_url: 'https://progress.watch')
 
@@ -80,8 +69,6 @@ RSpec.describe OpenApi::CodeSamples do
       end
     end
 
-    # It closes with done and nothing else, which is what keeps the last counts. Repeating
-    # current here would teach the workaround for a bug that no longer exists.
     it 'closes with a bare done' do
       described_class.lifecycle(base_url: 'https://progress.watch').each do |language, code|
         expect(code.lines.last).not_to include('current'), language

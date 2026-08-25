@@ -20,9 +20,6 @@ class ApplicationController < ActionController::API
     render json: { error: error.message }, status: :bad_request
   end
 
-  # No Retry-After. The window is an hour and that is public — it is the variable's name
-  # and it is on the docs page — but where an address sits inside its own window is not,
-  # and handing that over turns a blind retry into a schedule.
   def too_many_requests
     render json: { error: 'Too many spaces or tasks created from this address. The limit resets within the hour.' },
            status: :too_many_requests

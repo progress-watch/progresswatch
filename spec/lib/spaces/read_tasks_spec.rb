@@ -23,8 +23,6 @@ RSpec.describe Spaces::ReadTasks do
     expect(titles).to eq(['Task 0', 'Task 1', 'Task 2'])
   end
 
-  # A client asking for some of a year-old space wants the recent end of it, not the
-  # oldest rows. The window still comes back oldest first.
   it 'counts a bare limit back from the newest' do
     seed(5)
 
@@ -59,8 +57,6 @@ RSpec.describe Spaces::ReadTasks do
     expect(titles(state: :active).size).to eq(2)
   end
 
-  # The window is over top-level tasks. A limit that could fall between a parent and its
-  # steps would draw a task with half its work missing.
   it 'never counts a child against the limit, and never cuts one off' do
     parent = create_task(space, title: 'Deploy')
     2.times { |index| create_task(space, title: "Step #{index}", parent_uuid: parent.uuid) }

@@ -2,7 +2,6 @@ import { bind } from '@github/catalyst/lib/bind'
 
 const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i
 
-// Navigation, not a request: opening the page is what records the space.
 export default class extends HTMLElement {
   connectedCallback () {
     bind(this)
@@ -23,7 +22,6 @@ export default class extends HTMLElement {
     const uuid = value.match(UUID)
     if (!uuid) return null
 
-    // A full URL keeps its own origin, which is the only way to add another server.
     try {
       const url = new URL(value)
 

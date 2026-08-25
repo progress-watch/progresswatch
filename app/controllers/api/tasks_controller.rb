@@ -28,9 +28,6 @@ module Api
       report
     end
 
-    # The write itself, and the action behind GET /tasks/:uuid/report. `update` is the same
-    # thing once PATCH is turned away. Numeric strings are what a query string and a shell
-    # both produce, so TaskStates coerces them and nothing here has to.
     def report
       task = Task.find(params[:uuid])
       permitted = params.permit(:current, :end, :done, values: {})

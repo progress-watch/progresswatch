@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# A task row records what a task is, never where it is: `current`, `end` and `values`
-# live in Redis and must never gain a column here.
 class Task < ApplicationRecord
   self.primary_key = :uuid
 

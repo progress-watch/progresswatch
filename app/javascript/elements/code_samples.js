@@ -34,8 +34,6 @@ export default class extends HTMLElement {
     })
   }
 
-  // Not every endpoint has every language — the CLI has no command for a health check.
-  // Without this the block would render its tabs above nothing at all.
   resolve (language) {
     return this.languages.includes(language) ? language : this.languages[0]
   }

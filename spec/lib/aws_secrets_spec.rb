@@ -4,8 +4,6 @@ require 'rails_helper'
 require Rails.root.join('config/aws_secrets')
 
 RSpec.describe AwsSecrets do
-  # The gem is `require: false` and this is the only thing that loads it. A self-hosted
-  # instance must never reach AWS, so the check is that nothing happens at all.
   it 'does nothing without AWS_SECRET_MANAGER_ID' do
     expect(described_class.load!).to be_nil
   end
@@ -32,8 +30,6 @@ RSpec.describe AwsSecrets do
       expect(ENV.fetch('WEB_CONCURRENCY')).to eq('2')
     end
 
-    # Overriding one value for one run must not mean editing configuration everything
-    # else shares.
     it 'leaves a value already in the environment alone' do
       ENV['DATABASE_URL'] = 'postgresql://from-the-container'
 

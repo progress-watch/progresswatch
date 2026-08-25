@@ -1,7 +1,5 @@
 import { bind } from '@github/catalyst/lib/bind'
 
-// The polled frame replaces the list every couple of seconds, which would snap every
-// <details> shut again.
 export default class extends HTMLElement {
   connectedCallback () {
     bind(this)

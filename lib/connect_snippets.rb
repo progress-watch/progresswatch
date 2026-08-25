@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 module ConnectSnippets
-  # A shell variable, not <SPACE_UUID>: these are meant to be pasted into a console,
-  # where an angle bracket is a redirect and would fail on the first line.
   PLACEHOLDER = '$SPACE_UUID'
 
   MCP_IN_URL = <<~JSON.strip
@@ -30,7 +28,6 @@ module ConnectSnippets
 
   COMPOSE = Rails.root.join('docker-compose.yml').read.strip
 
-  # Everything but `body` is an i18n key: a command is the same in every language.
   SECTIONS = {
     'cli' => {
       heading: 'report_progress_from_the_command_line',
@@ -202,11 +199,6 @@ module ConnectSnippets
 
   module_function
 
-  # A step may be marked for one kind of reader and is dropped for the others. Two axes:
-  # where they are — progress.watch is the CLI's default server, so configuring one is
-  # noise there and unskippable on somebody's own box — and whether they already have a
-  # space, because a page reached without one has to show how to make it rather than
-  # assume it.
   def call(section, base_url:, space_uuid: nil, hosted: ProgressWatch.multitenant?)
     here = [hosted ? :hosted : :self_hosted, space_uuid ? :with_space : :without_space]
 

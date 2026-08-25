@@ -19,8 +19,6 @@ class CompletionNotificationJob < ApplicationJob
 
   private
 
-  # A step reads as "Deploy — Build", so a collapsed notification still says which job
-  # moved and how far.
   def display_title(task)
     return task.title if task.parent_uuid.blank?
 

@@ -19,7 +19,6 @@ class RobotsController < WebController
     TXT
   end
 
-  # Somebody's own box has nothing it wants found, and no sitemap to point at.
   def self_hosted
     <<~TXT
       User-agent: *

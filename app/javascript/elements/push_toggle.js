@@ -14,8 +14,6 @@ export default class extends HTMLElement {
     if (on) await this.repair()
   }
 
-  // What the button claims is a browser-local flag, so it can outlive the row it stands
-  // for. Saying it again on every load is what keeps it true.
   async repair () {
     const existing = await subscription()
 
@@ -56,7 +54,6 @@ export default class extends HTMLElement {
     this.setAttribute('data-state', on ? 'on' : 'off')
   }
 
-  // base64url in the markup, bytes in the API.
   get applicationServerKey () {
     const padded = (this.dataset.key + '='.repeat((4 - this.dataset.key.length % 4) % 4))
       .replace(/-/g, '+').replace(/_/g, '/')
