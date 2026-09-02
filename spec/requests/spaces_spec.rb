@@ -83,6 +83,30 @@ RSpec.describe 'Spaces' do
       expect(json['tasks'].pluck('title')).to eq(['Task 2'])
     end
 
+    it 'returns one state at a time when asked for one' do
+      space = create_space
+      3.times { |index| create_task(space, title: "Task #{index}") }
+      Tasks::Report.call(space.tasks.order(:created_at).first, done: true)
+
+      get "/spaces/#{space.uuid}", params: { state: 'active' }
+      expect(json['tasks'].pluck('title')).to eq(['Task 1', 'Task 2'])
+
+      get "/spaces/#{space.uuid}", params: { state: 'finished' }
+      expect(json['tasks'].pluck('title')).to eq(['Task 0'])
+    end
+
+    it 'keeps a long-running task reachable behind a page of newer ones' do
+      space = create_space
+      create_task(space, title: 'Crawl').update!(created_at: 3.days.ago)
+      3.times { |index| Tasks::Report.call(create_task(space, title: "Task #{index}"), done: true) }
+
+      get "/spaces/#{space.uuid}", params: { limit: 2 }
+      expect(json['tasks'].pluck('title')).not_to include('Crawl')
+
+      get "/spaces/#{space.uuid}", params: { state: 'active', limit: 2 }
+      expect(json['tasks'].pluck('title')).to eq(['Crawl'])
+    end
+
     it '400s on a window it cannot read, rather than quietly returning everything' do
       space = create_space
 
@@ -90,6 +114,11 @@ RSpec.describe 'Spaces' do
 
       expect(response).to have_http_status(:bad_request)
       expect(json['error']).to include('ISO 8601')
+
+      get "/spaces/#{space.uuid}", params: { state: 'running' }
+
+      expect(response).to have_http_status(:bad_request)
+      expect(json['error']).to include('active or finished')
     end
 
     it '404s for an unknown space, and says which uuid it could not find' do

@@ -4,10 +4,12 @@ module Spaces
   module ReadTasks
     InvalidWindow = Class.new(StandardError)
 
+    STATES = %w[active finished].freeze
+
     module_function
 
     def call(space, before: nil, after: nil, limit: nil, state: nil)
-      parents = window(space.tasks.where(parent_uuid: nil), before:, after:, limit:, state:)
+      parents = window(space.tasks.where(parent_uuid: nil), before:, after:, limit:, state: state_filter(state))
       children = space.tasks.where(parent_uuid: parents.map(&:uuid)).order(:created_at).to_a
       states = TaskStates.read_many((parents + children).map(&:uuid))
       by_parent = children.group_by(&:parent_uuid)
@@ -30,6 +32,14 @@ module Spaces
       Time.iso8601(value.to_s)
     rescue ArgumentError
       raise InvalidWindow, "#{value.inspect} is not an ISO 8601 timestamp"
+    end
+
+    def state_filter(state)
+      return nil if state.nil?
+
+      raise InvalidWindow, "state must be active or finished, got #{state.inspect}" unless STATES.include?(state.to_s)
+
+      state.to_sym
     end
 
     def count(limit)

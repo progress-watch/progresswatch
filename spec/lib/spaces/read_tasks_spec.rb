@@ -73,6 +73,11 @@ RSpec.describe Spaces::ReadTasks do
         .to raise_error(described_class::InvalidWindow, /ISO 8601/)
     end
 
+    it 'refuses a state that is neither' do
+      expect { described_class.call(space, state: 'running') }
+        .to raise_error(described_class::InvalidWindow, /active or finished/)
+    end
+
     it 'refuses a limit that is not a whole number' do
       expect { described_class.call(space, limit: '3.5') }
         .to raise_error(described_class::InvalidWindow, /whole number/)

@@ -71,7 +71,7 @@ module OpenApi
         'summary' => 'Read a space and every task in it',
         'description' => 'Returns every task by default. Tasks and their children come back in creation order, ' \
                          'oldest first; any other order is a display decision and belongs to the client. ' \
-                         'A space that has run for months is worth paging through — see the three parameters below.',
+                         'A space that has run for months is worth paging through — see the parameters below.',
         'parameters' => [
           {
             'name' => 'space_uuid',
@@ -107,6 +107,15 @@ module OpenApi
             'description' => 'Only tasks created strictly after this instant, oldest first, for asking what is ' \
                              'new. Pass the created_at of the newest task you hold.',
             'schema' => { 'type' => 'string', 'format' => 'date-time' }
+          },
+          {
+            'name' => 'state',
+            'in' => 'query',
+            'required' => false,
+            'description' => 'Only tasks that are still running, or only those that have finished. Omit it for ' \
+                             'both. Ask for active without a limit and finished with one: a task that has run ' \
+                             'for a week is otherwise lost behind a page of things that finished since.',
+            'schema' => { 'type' => 'string', 'enum' => %w[active finished] }
           }
         ],
         'responses' => {
@@ -115,7 +124,8 @@ module OpenApi
             'content' => { 'application/json' => { 'schema' => { '$ref' => '#/components/schemas/Space' } } }
           },
           '400' => {
-            'description' => 'A cursor that is not a timestamp, or a limit that is not a whole number',
+            'description' => 'A cursor that is not a timestamp, a limit that is not a whole number, ' \
+                             'or a state that is neither active nor finished',
             'content' => { 'application/json' => { 'schema' => { '$ref' => '#/components/schemas/Error' } } }
           },
           '404' => {

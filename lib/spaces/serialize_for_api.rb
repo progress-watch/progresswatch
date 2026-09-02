@@ -4,12 +4,12 @@ module Spaces
   module SerializeForApi
     module_function
 
-    def call(space, before: nil, after: nil, limit: nil)
+    def call(space, before: nil, after: nil, limit: nil, state: nil)
       {
         'uuid' => space.uuid,
         'title' => space.title,
         'icon' => space.icon,
-        'tasks' => ReadTasks.call(space, before:, after:, limit:)
+        'tasks' => ReadTasks.call(space, before:, after:, limit:, state:)
       }
     end
   end
