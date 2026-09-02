@@ -59,6 +59,9 @@ fr:
   count_steps:
     one: "%{count} étape"
     other: "%{count} étapes"
+  search_tasks: "Rechercher des tâches"
+  clear: "Effacer"
+  nothing_matches_query: "Rien ne correspond à %{query}"
   nothing_running: "Rien en cours"
   report_progress_to_this_space_and_it_appears_here_within_a_couple_of_seconds: "Rapportez de la progression dans cet espace et elle apparaît ici en quelques secondes."
   older_tasks: "Tâches plus anciennes"

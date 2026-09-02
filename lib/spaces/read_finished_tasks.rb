@@ -6,11 +6,13 @@ module Spaces
 
     module_function
 
-    def call(space, before: nil)
-      tasks = ReadTasks.call(space, state: :finished, limit: PAGE, before:)
+    def call(space, before: nil, query: nil)
+      tasks = ReadTasks.call(space, state: :finished, limit: PAGE, before:, query:)
 
-      { 'sections' => Tasks::PrepareForDashboard.sections(tasks),
-        'older_than' => (tasks.first['created_at'] if tasks.size == PAGE) }
+      {
+        'sections' => Tasks::PrepareForDashboard.sections(tasks),
+        'older_than' => (tasks.first['created_at'] if tasks.size == PAGE)
+      }
     end
   end
 end

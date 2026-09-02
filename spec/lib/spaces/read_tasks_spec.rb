@@ -57,6 +57,47 @@ RSpec.describe Spaces::ReadTasks do
     expect(titles(state: :active).size).to eq(2)
   end
 
+  describe 'searching by title' do
+    it 'matches part of a title, whatever the case' do
+      seed(2)
+      create_task(space, title: 'Nightly BACKUP')
+
+      expect(titles(query: 'backup')).to eq(['Nightly BACKUP'])
+    end
+
+    it 'finds a task by the title of one of its steps, and returns all of them' do
+      parent = create_task(space, title: 'Deploy')
+      create_task(space, title: 'Run migrations', parent_uuid: parent.uuid)
+      create_task(space, title: 'Restart workers', parent_uuid: parent.uuid)
+      create_task(space, title: 'Backup')
+
+      result = described_class.call(space, query: 'migrations')
+
+      expect(result.pluck('title')).to eq(['Deploy'])
+      expect(result.first['children'].pluck('title')).to eq(['Run migrations', 'Restart workers'])
+    end
+
+    it 'takes a wildcard as a character somebody typed' do
+      create_task(space, title: 'Deploy')
+      create_task(space, title: '100% done')
+
+      expect(titles(query: '%')).to eq(['100% done'])
+    end
+
+    it 'returns the whole space for a blank query' do
+      seed(2)
+
+      expect(titles(query: '')).to eq(['Task 0', 'Task 1'])
+    end
+
+    it 'narrows a state rather than escaping it' do
+      create_task(space, title: 'Nightly backup')
+      Tasks::Report.call(create_task(space, title: 'Weekly backup'), done: true)
+
+      expect(titles(query: 'backup', state: :active)).to eq(['Nightly backup'])
+    end
+  end
+
   it 'never counts a child against the limit, and never cuts one off' do
     parent = create_task(space, title: 'Deploy')
     2.times { |index| create_task(space, title: "Step #{index}", parent_uuid: parent.uuid) }

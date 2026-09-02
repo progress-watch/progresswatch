@@ -8,8 +8,9 @@ module Spaces
 
     module_function
 
-    def call(space, before: nil, after: nil, limit: nil, state: nil)
-      parents = window(space.tasks.where(parent_uuid: nil), before:, after:, limit:, state: state_filter(state))
+    def call(space, before: nil, after: nil, limit: nil, state: nil, query: nil)
+      tops = matching(space.tasks, query).where(parent_uuid: nil)
+      parents = window(tops, before:, after:, limit:, state: state_filter(state))
       children = space.tasks.where(parent_uuid: parents.map(&:uuid)).order(:created_at).to_a
       states = TaskStates.read_many((parents + children).map(&:uuid))
       by_parent = children.group_by(&:parent_uuid)
@@ -26,6 +27,16 @@ module Spaces
       return scope.order(:created_at).limit(count(limit)).to_a if after || limit.nil?
 
       scope.order(created_at: :desc).limit(count(limit)).to_a.reverse
+    end
+
+    def matching(tasks, query)
+      return tasks if query.blank?
+
+      term = "%#{ActiveRecord::Base.sanitize_sql_like(query.downcase)}%"
+      matched = Task.arel_table[:title].lower.matches(term, '\\')
+      parents = tasks.where(matched).where.not(parent_uuid: nil).select(:parent_uuid)
+
+      tasks.where(matched).or(tasks.where(uuid: parents))
     end
 
     def timestamp(value)

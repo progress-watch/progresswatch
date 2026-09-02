@@ -22,8 +22,17 @@
       <% end %>
     </div>
   </div>
-  <div class="flex items-center gap-3">
-    <span class="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-300">
+  <div class="search-row flex flex-wrap items-center justify-end gap-1">
+    <% if @searchable %>
+      <form action="<%= space_path(@space.uuid) %>" method="get" class="search-box">
+        <%= svg_icon 'search', class: 'pointer-events-none absolute left-2 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-zinc-600 dark:text-zinc-200' %>
+        <input id="task-search" type="search" name="q" value="<%= @query %>" enterkeyhint="search" autocomplete="off" placeholder="<%= t('search_tasks') %>" aria-label="<%= t('search_tasks') %>">
+        <%= link_to space_path(@space.uuid), 'aria-label': t('clear'), title: t('clear'), class: 'absolute right-1 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-zinc-600 transition hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-white' do %>
+          <%= svg_icon 'x', class: 'h-4 w-4' %>
+        <% end %>
+      </form>
+    <% end %>
+    <span class="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-300 pr-1 pl-2">
       <span class="relative flex h-2 w-2">
         <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
         <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
@@ -32,7 +41,7 @@
     </span>
     <dropdown-menu class="contents">
       <details class="relative">
-        <summary class="btn-ghost list-none px-2 py-1 text-xs" title="<%= t('commands_for_reporting_into_this_space_with_its_uuid_already_filled_in') %>">
+        <summary class="btn-ghost list-none pl-2 pr-1 py-1 text-xs" title="<%= t('commands_for_reporting_into_this_space_with_its_uuid_already_filled_in') %>">
           <%= svg_icon 'plug', class: 'h-4 w-4' %>
           <%= t('connect') %>
           <%= svg_icon 'chevron_down', class: 'h-4 w-4' %>
@@ -58,42 +67,49 @@
     <% end %>
     <forget-space data-uuid="<%= @space.uuid %>" data-title="<%= @space.title %>" data-i18n="<%= translations(:remove_what_from_this_device, :this_space) %>">
       <button type="button" data-action="click:forget-space#forgetSpace" class="btn-danger px-2 py-1 text-xs" title="<%= t('removes_this_space_from_this_device_only_the_space_and_its_tasks_are_untouched_but_the_uuid_is_the_only_way_back_to_it_so_copy_it_first') %>">
+        <%= svg_icon 'trash', class: 'h-4 w-4' %>
         <%= t('forget') %>
       </button>
     </forget-space>
   </div>
 </div>
 <poll-frame data-frame="tasks" data-interval="2500"></poll-frame>
-<turbo-frame id="tasks" src="<%= space_tasks_path(@space.uuid) %>">
+<turbo-frame id="tasks" src="<%= space_tasks_path(@space.uuid, q: @query) %>">
   <%= render 'spaces/tasks_list' %>
 </turbo-frame>
 <poll-frame data-frame="finished" data-interval="20000"></poll-frame>
-<turbo-frame id="finished" src="<%= space_tasks_path(@space.uuid, state: 'finished') %>">
+<turbo-frame id="finished" src="<%= space_tasks_path(@space.uuid, state: 'finished', q: @query) %>">
   <%= render 'spaces/history', history: @history, page: @page %>
 </turbo-frame>
 <turbo-frame id="history"></turbo-frame>
 <% if @tasks.empty? && @history['sections'].empty? %>
-  <section class="mt-10">
-    <h2 class="mb-1 text-sm font-medium text-zinc-500 dark:text-zinc-300"><%= t('report_into_this_space') %></h2>
-    <% if ProgressWatch.multitenant? %>
-      <p class="mb-3 text-xs text-zinc-500 dark:text-zinc-300"><%= t('nothing_has_reported_into_this_space_yet_past_count_days_old_it_may_be_deleted_at_any_time', count: Spaces::SweepEmpty::EMPTY_FOR.in_days.to_i) %></p>
-    <% end %>
-    <tab-panels class="card block overflow-hidden">
-      <div class="flex flex-wrap gap-1 border-b border-zinc-200 p-1 dark:border-zinc-600">
-        <% ConnectSnippets::SECTIONS.each_with_index do |(section, config), index| %>
-          <button type="button" data-action="click:tab-panels#select" data-tab="<%= section %>" aria-selected="<%= index.zero? %>" class="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-zinc-600 aria-selected:bg-zinc-200 aria-selected:text-zinc-900 dark:text-zinc-300 dark:aria-selected:bg-zinc-600 dark:aria-selected:text-zinc-100">
-            <%= svg_icon config[:icon], class: 'h-4 w-4 shrink-0' %>
-            <%= t(config[:title]) %>
-          </button>
-        <% end %>
-      </div>
-      <div class="p-4">
-        <% ConnectSnippets::SECTIONS.each_key.with_index do |section, index| %>
-          <div data-panel="<%= section %>" <%= 'hidden' unless index.zero? %>>
-            <%= render 'shared/snippet', steps: ConnectSnippets.call(section, base_url: request.base_url, space_uuid: @space.uuid) %>
-          </div>
-        <% end %>
-      </div>
-    </tab-panels>
-  </section>
+  <% if @query %>
+    <div class="card p-8 text-center">
+      <p class="text-sm font-medium"><%= t('nothing_matches_query', query: @query) %></p>
+    </div>
+  <% else %>
+    <section class="mt-10">
+      <h2 class="mb-1 text-sm font-medium text-zinc-500 dark:text-zinc-300"><%= t('report_into_this_space') %></h2>
+      <% if ProgressWatch.multitenant? %>
+        <p class="mb-3 text-xs text-zinc-500 dark:text-zinc-300"><%= t('nothing_has_reported_into_this_space_yet_past_count_days_old_it_may_be_deleted_at_any_time', count: Spaces::SweepEmpty::EMPTY_FOR.in_days.to_i) %></p>
+      <% end %>
+      <tab-panels class="card block overflow-hidden">
+        <div class="flex flex-wrap gap-1 border-b border-zinc-200 p-1 dark:border-zinc-600">
+          <% ConnectSnippets::SECTIONS.each_with_index do |(section, config), index| %>
+            <button type="button" data-action="click:tab-panels#select" data-tab="<%= section %>" aria-selected="<%= index.zero? %>" class="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-zinc-600 aria-selected:bg-zinc-200 aria-selected:text-zinc-900 dark:text-zinc-300 dark:aria-selected:bg-zinc-600 dark:aria-selected:text-zinc-100">
+              <%= svg_icon config[:icon], class: 'h-4 w-4 shrink-0' %>
+              <%= t(config[:title]) %>
+            </button>
+          <% end %>
+        </div>
+        <div class="p-4">
+          <% ConnectSnippets::SECTIONS.each_key.with_index do |section, index| %>
+            <div data-panel="<%= section %>" <%= 'hidden' unless index.zero? %>>
+              <%= render 'shared/snippet', steps: ConnectSnippets.call(section, base_url: request.base_url, space_uuid: @space.uuid) %>
+            </div>
+          <% end %>
+        </div>
+      </tab-panels>
+    </section>
+  <% end %>
 <% end %>

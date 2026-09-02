@@ -59,6 +59,9 @@ pt:
   count_steps:
     one: "%{count} passo"
     other: "%{count} passos"
+  search_tasks: "Buscar tarefas"
+  clear: "Limpar"
+  nothing_matches_query: "Nada corresponde a %{query}"
   nothing_running: "Nada em curso"
   report_progress_to_this_space_and_it_appears_here_within_a_couple_of_seconds: "Reporte progresso para este espaço e ele aparece aqui em poucos segundos."
   older_tasks: "Tarefas anteriores"

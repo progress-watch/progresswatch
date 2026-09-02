@@ -59,6 +59,9 @@ en:
   count_steps:
     one: "%{count} step"
     other: "%{count} steps"
+  search_tasks: "Search tasks"
+  clear: "Clear"
+  nothing_matches_query: "Nothing matches %{query}"
   nothing_running: "Nothing running"
   report_progress_to_this_space_and_it_appears_here_within_a_couple_of_seconds: "Report progress to this space and it appears here within a couple of seconds."
   older_tasks: "Older tasks"

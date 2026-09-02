@@ -59,6 +59,9 @@ nl:
   count_steps:
     one: "%{count} stap"
     other: "%{count} stappen"
+  search_tasks: "Taken zoeken"
+  clear: "Wissen"
+  nothing_matches_query: "Niets komt overeen met %{query}"
   nothing_running: "Niets bezig"
   report_progress_to_this_space_and_it_appears_here_within_a_couple_of_seconds: "Rapporteer voortgang naar deze ruimte en die verschijnt hier binnen een paar seconden."
   older_tasks: "Oudere taken"

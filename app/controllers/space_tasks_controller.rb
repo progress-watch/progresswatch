@@ -4,7 +4,9 @@ class SpaceTasksController < WebController
   def index
     @space = Space.find(params[:uuid])
 
-    return redirect_to space_path(@space.uuid) unless turbo_frame_request?
+    @query = params[:q].presence
+
+    return redirect_to space_path(@space.uuid, q: @query) unless turbo_frame_request?
 
     params[:state] == 'finished' ? finished : active
   end
@@ -12,13 +14,13 @@ class SpaceTasksController < WebController
   private
 
   def active
-    @tasks = Spaces::ReadActiveTasks.call(@space)
+    @tasks = Spaces::ReadActiveTasks.call(@space, query: @query)
 
     render :index, layout: false
   end
 
   def finished
-    @history = Spaces::ReadFinishedTasks.call(@space, before: params[:before])
+    @history = Spaces::ReadFinishedTasks.call(@space, before: params[:before], query: @query)
     @page = params[:page].to_i.clamp(0, 999)
 
     render :finished, layout: false

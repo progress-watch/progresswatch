@@ -59,6 +59,9 @@ de:
   count_steps:
     one: "%{count} Schritt"
     other: "%{count} Schritte"
+  search_tasks: "Aufgaben suchen"
+  clear: "Zurücksetzen"
+  nothing_matches_query: "Nichts passt zu %{query}"
   nothing_running: "Nichts läuft"
   report_progress_to_this_space_and_it_appears_here_within_a_couple_of_seconds: "Berichten Sie Fortschritt in diesen Bereich, und er erscheint hier innerhalb weniger Sekunden."
   older_tasks: "Ältere Aufgaben"

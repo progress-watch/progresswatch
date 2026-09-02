@@ -1,11 +1,15 @@
 # frozen_string_literal: true
 
 class SpacesController < WebController
+  SEARCH_FROM = 10
+
   def show
     @space = Space.find(params[:uuid])
-    @tasks = Spaces::ReadActiveTasks.call(@space)
-    @history = Spaces::ReadFinishedTasks.call(@space)
+    @query = params[:q].presence
+    @tasks = Spaces::ReadActiveTasks.call(@space, query: @query)
+    @history = Spaces::ReadFinishedTasks.call(@space, query: @query)
     @page = 0
+    @searchable = @query.present? || on_the_page >= SEARCH_FROM
   end
 
   def new
@@ -30,5 +34,11 @@ class SpacesController < WebController
     Spaces::Update.call(space, title: params[:title], icon: params[:icon])
 
     redirect_to space_path(space.uuid)
+  end
+
+  private
+
+  def on_the_page
+    @tasks.size + @history['sections'].sum { |section| section['tasks'].size }
   end
 end

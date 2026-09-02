@@ -59,6 +59,9 @@ it:
   count_steps:
     one: "%{count} passaggio"
     other: "%{count} passaggi"
+  search_tasks: "Cerca attività"
+  clear: "Cancella"
+  nothing_matches_query: "Nessun risultato per %{query}"
   nothing_running: "Niente in corso"
   report_progress_to_this_space_and_it_appears_here_within_a_couple_of_seconds: "Riporta l'avanzamento in questo spazio e comparirà qui in un paio di secondi."
   older_tasks: "Attività precedenti"
