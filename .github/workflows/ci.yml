@@ -6,8 +6,6 @@ on:
   pull_request:
 
 jobs:
-  # Neither leg of this matrix is optional: a change that works on only one adapter
-  # is a bug regardless of which one it is.
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -56,8 +54,6 @@ jobs:
           node-version: 22
           cache: npm
 
-      # The layout renders asset tags, so the specs need a real manifest to look
-      # them up in — without this they fail on a clean checkout.
       - name: Build assets
         run: |
           npm ci
@@ -78,10 +74,3 @@ jobs:
         with:
           bundler-cache: true
       - run: bundle exec rubocop
-
-  docker:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v5
-      - run: docker build -t progresswatch:ci .

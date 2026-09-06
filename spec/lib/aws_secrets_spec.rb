@@ -14,7 +14,10 @@ RSpec.describe AwsSecrets do
 
     before do
       require 'aws-sdk-secretsmanager'
-      stub_const('ENV', ENV.to_h.merge('AWS_SECRET_MANAGER_ID' => '/progresswatch/production'))
+      # CI exports DATABASE_URL and a developer's shell does not, so the keys the secret
+      # carries are removed rather than assumed absent.
+      environment = ENV.to_h.except(*secret.keys)
+      stub_const('ENV', environment.merge('AWS_SECRET_MANAGER_ID' => '/progresswatch/production'))
       allow(Aws::SecretsManager::Client).to receive(:new).and_return(client)
       allow(client).to receive(:get_secret_value).with(secret_id: '/progresswatch/production')
                                                  .and_return(instance_double(
