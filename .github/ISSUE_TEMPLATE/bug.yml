@@ -1,0 +1,53 @@
+name: Bug report
+description: Something behaves differently from how it reads
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, and what it did instead of what you expected.
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The image tag you are running, or `progresswatch --version` for the CLI.
+      placeholder: "progresswatch/progresswatch:1.0.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: how
+    attributes:
+      label: How it is running
+      options:
+        - Docker Compose
+        - A single container
+        - Render
+        - DigitalOcean
+        - The hosted service at progress.watch
+        - From a checkout, bin/dev
+        - Something else
+    validations:
+      required: true
+
+  - type: input
+    id: health
+    attributes:
+      label: What /up says
+      description: >
+        `curl http://your-host/up` — it reports the database, Redis and the worker, and it
+        answers most of what we would ask next.
+      placeholder: '{"status":"ok","database":true,"redis":true,"worker":true}'
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: >
+        Anything the container printed around the failure. **A space UUID is a credential**
+        — replace it with `xxx` before pasting.
+      render: text

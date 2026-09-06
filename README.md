@@ -37,11 +37,11 @@ This repository is the server. The command line client is <a href="https://githu
 
 ## Deploy
 
-|Render|DigitalOcean|Railway|
-|:--:|:--:|:--:|
-| [<img alt="Deploy to Render" src="https://render.com/images/deploy-to-render-button.svg" height="40">](https://render.com/deploy?repo=https://github.com/progress-watch/progresswatch) | [<img alt="Deploy to DigitalOcean" src="https://www.deploytodo.com/do-btn-blue.svg" height="40">](https://cloud.digitalocean.com/apps/new?repo=https://github.com/progress-watch/progresswatch/tree/master) | [<img alt="Deploy on Railway" src="https://railway.com/button.svg" height="40">](https://railway.com/deploy/REPLACE-ME) |
+|Render|DigitalOcean|
+|:--:|:--:|
+| [<img alt="Deploy to Render" src="https://render.com/images/deploy-to-render-button.svg" height="40">](https://render.com/deploy?repo=https://github.com/progress-watch/progresswatch) | [<img alt="Deploy to DigitalOcean" src="https://www.deploytodo.com/do-btn-blue.svg" height="40">](https://cloud.digitalocean.com/apps/new?repo=https://github.com/progress-watch/progresswatch/tree/master) |
 
-Render and DigitalOcean read a spec from this repository — `render.yaml` and `.do/deploy.template.yaml` — so each button creates the app, the worker, a Redis and a Postgres in one pass, with nothing to fork and nothing to keep in step. Railway is the exception: its button resolves a template held in Railway rather than a file here.
+Both buttons read a spec from this repository — `render.yaml` and `.do/deploy.template.yaml` — so each one creates the app, the worker, a Redis and a Postgres in one pass, with nothing to fork and nothing to keep in step.
 
 They are the convenient option rather than the cheap one: four billable components on a managed platform is several times the same thing as `docker compose up` on the smallest VPS anyone sells.
 

@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: An idea, or something you wish it did
+    url: https://github.com/progress-watch/progresswatch/discussions/categories/ideas
+    about: The shape of this is not settled yet, and what you are tracking decides it.
+  - name: A question about running it
+    url: https://github.com/progress-watch/progresswatch/discussions/categories/q-a
+    about: Setup, configuration, notifications, self-hosting.
+  - name: Documentation
+    url: https://progress.watch/docs
+    about: Environment variables, the API, notifications, self-hosting.
+  - name: Something wrong with the CLI itself
+    url: https://github.com/progress-watch/progresswatch-cli/issues
+    about: The progresswatch command, the MCP server and the agent skill live there.
