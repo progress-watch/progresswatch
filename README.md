@@ -47,11 +47,13 @@ They are the convenient option rather than the cheap one: four billable componen
 
 #### Docker Compose
 
-Save this as `docker-compose.yml`. It runs the published image, so there is nothing to clone and nothing to build:
+Save this as `docker-compose.yml` — it runs the published image, so there is nothing to clone and nothing to build. Three things about it before you paste:
+
+- **The `environment:` block is the whole configuration surface.** Postgres, TLS, the notification keys and process sizing are all lines in it — [Environment variables](https://progress.watch/docs/environment-variables) is the list.
+- **`SECRET_KEY_BASE` is a placeholder**, and `openssl rand -hex 64` is what replaces it.
+- **Redis is not persisted, on purpose.** Progress is volatile: if that container restarts, whatever was running reads "Waiting for data…" until its next report, and nothing else is lost.
 
 ```yaml
-# Progress Watch. Everything is an environment variable, and the whole list — Postgres,
-# notifications, TLS, process sizing — is at https://progress.watch/docs/environment-variables
 services:
   progresswatch:
     image: progresswatch/progresswatch:latest
@@ -72,24 +74,19 @@ services:
     image: redis:8-alpine
     container_name: progresswatch-redis
     restart: unless-stopped
-    # No persistence: progress is volatile by design, and a restart costs one
-    # "Waiting for data..." cycle.
     command: redis-server --save "" --appendonly no
 
 volumes:
   storage:
 ```
 
-Replace the placeholder secret, then start it:
+Then:
 
 ```sh
-openssl rand -hex 64
 docker compose up -d
 ```
 
-The app on `http://localhost:7979`, a Redis, and a SQLite file on a named volume. Sidekiq runs inside the app, so the notifications need no service of their own. Open it, create a space, and the Connect menu on that space gives you snippets with its UUID already in them.
-
-That file is the only place anything is configured — Postgres, the published port and the notification keys are all lines in one `environment:` block. [Environment variables](https://progress.watch/docs/environment-variables) is the full list.
+The app on `http://localhost:7979`, a Redis, and a SQLite file on a named volume. Open it, create a space, and the Connect menu on that space gives you snippets with its UUID already in them.
 
 ```sh
 curl http://localhost:7979/up
@@ -150,4 +147,4 @@ The specs render the layout, which needs a webpack manifest — run `./bin/shaka
 
 ## License
 
-The server is [AGPL-3.0](LICENSE), because it is a network service and AGPL is what stops a modified copy being run as a competing hosted service without the changes being published. The [CLI](https://github.com/progress-watch/progresswatch-cli) is MIT — it is a client, it goes in CI scripts and Dockerfiles, and a copyleft licence there would cost adoption and protect nothing.
+The server is [AGPL-3.0](LICENSE), because it is a network service and AGPL is what stops a modified copy being run as a competing hosted service without the changes being published.

@@ -2,10 +2,9 @@
 
 ## <%= I18n.t('one_file') %>
 
-<%= I18n.t('docker_compose_yml_is_the_whole_install_html', file: '`docker-compose.yml`', docker: "[#{I18n.t('the_docker_page')}](#{docs_section_url(section: 'docker', format: :md)})") %>
+<%= I18n.t('docker_compose_yml_is_the_whole_install_html', file: '`docker-compose.yml`', generate: '`openssl rand -hex 64`', docker: "[#{I18n.t('the_docker_page')}](#{docs_section_url(section: 'docker', format: :md)})") %>
 
 ```
-openssl rand -hex 64
 docker compose up -d
 ```
 

@@ -1,7 +1,7 @@
 <p><%= t('the_server_is_open_source_under_the_agpl') %></p>
 <h2><%= t('one_file') %></h2>
-<p><%= t('docker_compose_yml_is_the_whole_install_html', file: tag.code('docker-compose.yml'), docker: link_to(t('the_docker_page'), docs_section_path(section: 'docker'))) %></p>
-<%= render 'shared/command', body: "openssl rand -hex 64\ndocker compose up -d" %>
+<p><%= t('docker_compose_yml_is_the_whole_install_html', file: tag.code('docker-compose.yml'), generate: tag.code('openssl rand -hex 64'), docker: link_to(t('the_docker_page'), docs_section_path(section: 'docker'))) %></p>
+<%= render 'shared/command', body: 'docker compose up -d' %>
 <p><%= t('that_is_the_whole_setup_the_app_on_localhost_html', url: tag.code('http://localhost:7979')) %></p>
 <h2><%= t('configuring_it') %></h2>
 <p><%= t('the_file_is_yours_from_the_moment_you_save_it_html', environment: tag.code('environment:')) %></p>

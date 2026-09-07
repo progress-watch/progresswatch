@@ -1,5 +1,3 @@
-# Progress Watch. Everything is an environment variable, and the whole list — Postgres,
-# notifications, TLS, process sizing — is at https://progress.watch/docs/environment-variables
 services:
   progresswatch:
     image: progresswatch/progresswatch:latest
@@ -20,8 +18,6 @@ services:
     image: redis:8-alpine
     container_name: progresswatch-redis
     restart: unless-stopped
-    # No persistence: progress is volatile by design, and a restart costs one
-    # "Waiting for data..." cycle.
     command: redis-server --save "" --appendonly no
 
 volumes:
