@@ -149,7 +149,7 @@ de:
   your_own_server_on_your_own_box: "Ihr eigener Server, auf Ihrer eigenen Maschine. Nichts hiervon spricht mit progress.watch."
   save_this_as_docker_compose_yml_it_runs_the_published_image: "Speichern Sie dies als docker-compose.yml. Sie startet das veröffentlichte Image, es gibt also nichts zu klonen und nichts zu bauen — und ab hier gehört sie Ihnen."
   generate_a_secret_and_paste_it_over_the_placeholder: "Erzeugen Sie ein Secret und setzen Sie es über den Platzhalter, in beiden Diensten."
-  start_it_the_app_a_worker_for_notifications_a_redis_and_a_sqlite_file: "Starten Sie es. Die App, ein Worker für Benachrichtigungen, ein Redis und eine SQLite-Datei auf einem Volume."
+  start_it_the_app_a_redis_and_a_sqlite_file: "Starten Sie es. Die App, ein Redis und eine SQLite-Datei auf einem Volume."
   then_point_the_cli_at_it_this_page_is_served_from_server: "Richten Sie dann die CLI darauf. Diese Seite wird von {{server}} ausgeliefert."
   that_is_a_working_server_notifications_postgres_and_the_one_click_deploy: "Das ist ein funktionierender Server. Benachrichtigungen, Postgres, das eine, was auf einen Cron gehört, und das Ein-Klick-Deployment stehen alle unter Selbst hosten in der Seitenleiste."
   an_introduction_to_progress_watch_an_open_source_progress_tracker: "Eine Einführung in Progress Watch, einen quelloffenen Fortschritts-Tracker für alles, was ohne Sie läuft."
@@ -269,3 +269,4 @@ de:
   puma_threads_per_process_and_the_size_of_both_pools: "Puma-Threads pro Prozess, und die Größe sowohl des Datenbank- als auch des Redis-Verbindungspools."
   puma_worker_processes_zero_runs_a_single_process: "Puma-Worker-Prozesse. Null lässt einen einzelnen Prozess laufen, was auf einer kleinen Maschine die richtige Antwort ist."
   threads_in_the_sidekiq_process: "Threads im Sidekiq-Prozess. Benachrichtigungen zu senden ist der einzige Job, den es gibt."
+  sidekiq_runs_inside_puma_set_false_to_run_it_as_its_own_process: "Sidekiq läuft in Puma. Auf `false` setzen, wo ein eigener Worker-Prozess läuft."

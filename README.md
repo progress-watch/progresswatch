@@ -68,22 +68,6 @@ services:
     depends_on:
       - redis
 
-  # Sends the notifications and does nothing else. Whatever you add above, add here too:
-  # a VAPID key set on one and not the other renders the button and never delivers.
-  progresswatch-worker:
-    image: progresswatch/progresswatch:latest
-    container_name: progresswatch-worker
-    restart: unless-stopped
-    command: bundle exec sidekiq -C config/sidekiq.yml
-    volumes:
-      - storage:/rails/storage
-    environment:
-      - SECRET_KEY_BASE=replace-me-with-openssl-rand-hex-64
-      - DATABASE_URL=sqlite3:storage/production.sqlite3?timeout=5000
-      - REDIS_URL=redis://redis:6379
-    depends_on:
-      - redis
-
   redis:
     image: redis:8-alpine
     container_name: progresswatch-redis
@@ -96,20 +80,20 @@ volumes:
   storage:
 ```
 
-Replace the placeholder secret in both services, then start it:
+Replace the placeholder secret, then start it:
 
 ```sh
 openssl rand -hex 64
 docker compose up -d
 ```
 
-The app on `http://localhost:7979`, a worker, a Redis and a SQLite file on a named volume. Open it, create a space, and the Connect menu on that space gives you snippets with its UUID already in them.
+The app on `http://localhost:7979`, a Redis, and a SQLite file on a named volume. Sidekiq runs inside the app, so the notifications need no service of their own. Open it, create a space, and the Connect menu on that space gives you snippets with its UUID already in them.
 
-That file is the only place anything is configured — Postgres, the published port and the notification keys are all lines in an `environment:` block, and both services want the same ones. [Environment variables](https://progress.watch/docs/environment-variables) is the full list.
+That file is the only place anything is configured — Postgres, the published port and the notification keys are all lines in one `environment:` block. [Environment variables](https://progress.watch/docs/environment-variables) is the full list.
 
 ```sh
 curl http://localhost:7979/up
-# {"status":"ok","database":true,"redis":true}
+# {"status":"ok","database":true,"redis":true,"worker":true}
 ```
 
 ## Reporting into it
@@ -155,7 +139,7 @@ bin/rails db:prepare
 bin/dev
 ```
 
-`bin/dev` runs the server, a webpack watcher and Sidekiq — without the worker, completion notifications never fire locally. Set `PW_PORT` to move the server; plain `PORT` will not work, because foreman assigns its own to every process. `docker compose up` runs the published image rather than your working tree, so it is not a way to try a change.
+`bin/dev` runs the server and a webpack watcher; Sidekiq runs inside the server, as it does in the image. Set `PW_PORT` to move the server; plain `PORT` will not work, because foreman assigns its own to every process. `docker compose up` runs the published image rather than your working tree, so it is not a way to try a change.
 
 ```sh
 bundle exec rspec

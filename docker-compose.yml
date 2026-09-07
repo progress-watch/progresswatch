@@ -16,22 +16,6 @@ services:
     depends_on:
       - redis
 
-  # Sends the notifications and does nothing else. Whatever you add above, add here too:
-  # a VAPID key set on one and not the other renders the button and never delivers.
-  progresswatch-worker:
-    image: progresswatch/progresswatch:latest
-    container_name: progresswatch-worker
-    restart: unless-stopped
-    command: bundle exec sidekiq -C config/sidekiq.yml
-    volumes:
-      - storage:/rails/storage
-    environment:
-      - SECRET_KEY_BASE=replace-me-with-openssl-rand-hex-64
-      - DATABASE_URL=sqlite3:storage/production.sqlite3?timeout=5000
-      - REDIS_URL=redis://redis:6379
-    depends_on:
-      - redis
-
   redis:
     image: redis:8-alpine
     container_name: progresswatch-redis

@@ -185,7 +185,7 @@ module ConnectSnippets
           body: 'openssl rand -hex 64'
         },
         {
-          label: 'start_it_the_app_a_worker_for_notifications_a_redis_and_a_sqlite_file',
+          label: 'start_it_the_app_a_redis_and_a_sqlite_file',
           body: 'docker compose up -d'
         },
         {

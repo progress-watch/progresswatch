@@ -19,6 +19,9 @@ spec:
           value: redis://${redis.PRIVATE_DOMAIN}:${redis.PRIVATE_PORT}
         - key: FORCE_SSL
           value: "true"
+        # A worker below runs Sidekiq, so the app must not embed one too.
+        - key: PW_EMBEDDED_WORKER
+          value: "false"
 
     # Our own Redis rather than a managed one: App Platform creates development
     # databases for Postgres only, and its Valkey is a cluster you have to create

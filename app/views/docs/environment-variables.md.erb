@@ -43,3 +43,4 @@
 | `RAILS_MAX_THREADS` | `5` | <%= I18n.t('puma_threads_per_process_and_the_size_of_both_pools') %> |
 | `WEB_CONCURRENCY` | `0` | <%= I18n.t('puma_worker_processes_zero_runs_a_single_process') %> |
 | `SIDEKIQ_CONCURRENCY` | `5` | <%= I18n.t('threads_in_the_sidekiq_process') %> |
+| `PW_EMBEDDED_WORKER` | `true` | <%= I18n.t('sidekiq_runs_inside_puma_set_false_to_run_it_as_its_own_process') %> |

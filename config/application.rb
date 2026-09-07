@@ -35,7 +35,7 @@ module Progresswatch
     # `tasks` is not ignored, unlike the Rails default: the domain here is literally
     # called Task, so lib/tasks holds Tasks::Create and friends. Rake files are .rake
     # and Zeitwerk skips them, but a .rb helper dropped in there would break booting.
-    config.autoload_lib(ignore: %w[assets])
+    config.autoload_lib(ignore: %w[assets puma])
 
     # Configuration for the application, engines, and railties goes here.
     #

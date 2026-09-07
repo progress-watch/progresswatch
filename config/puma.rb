@@ -14,6 +14,9 @@ preload_app! if Integer(ENV.fetch('WEB_CONCURRENCY', 0)) > 0
 # killed mid-response.
 worker_shutdown_timeout 25
 
+require_relative '../lib/puma/plugin/sidekiq_embed'
+
 plugin :tmp_restart
+plugin :sidekiq_embed
 
 pidfile ENV['PIDFILE'] if ENV['PIDFILE']

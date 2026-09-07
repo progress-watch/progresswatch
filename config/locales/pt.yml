@@ -149,7 +149,7 @@ pt:
   your_own_server_on_your_own_box: "O seu próprio servidor, na sua própria máquina. Nada disto fala com o progress.watch."
   save_this_as_docker_compose_yml_it_runs_the_published_image: "Guarde isto como docker-compose.yml. Corre a imagem publicada, por isso não há nada para clonar nem nada para compilar — e daqui em diante é seu para editar."
   generate_a_secret_and_paste_it_over_the_placeholder: "Gere um segredo e cole-o por cima do exemplo, nos dois serviços."
-  start_it_the_app_a_worker_for_notifications_a_redis_and_a_sqlite_file: "Arranque-o. A aplicação, um worker para as notificações, um Redis e um ficheiro SQLite num volume."
+  start_it_the_app_a_redis_and_a_sqlite_file: "Arranque-o. A aplicação, um Redis e um ficheiro SQLite num volume."
   then_point_the_cli_at_it_this_page_is_served_from_server: "Depois aponte a CLI para lá. Esta página é servida a partir de {{server}}."
   that_is_a_working_server_notifications_postgres_and_the_one_click_deploy: "Isso é um servidor a funcionar. As notificações, o Postgres, a única coisa que merece um cron e o deploy de um clique estão todos em Alojamento próprio, na barra lateral."
   an_introduction_to_progress_watch_an_open_source_progress_tracker: "Uma introdução ao Progress Watch, um seguidor de progresso de código aberto para tudo o que corre sem si."
@@ -269,3 +269,4 @@ pt:
   puma_threads_per_process_and_the_size_of_both_pools: "Threads do Puma por processo, e o tamanho tanto do conjunto de ligações à base de dados como ao Redis."
   puma_worker_processes_zero_runs_a_single_process: "Processos worker do Puma. Zero corre um único processo, que é a resposta certa numa máquina pequena."
   threads_in_the_sidekiq_process: "Threads no processo do Sidekiq. Enviar notificações é o único trabalho que existe."
+  sidekiq_runs_inside_puma_set_false_to_run_it_as_its_own_process: "O Sidekiq corre dentro do Puma. Defina `false` onde corre um processo worker dedicado."

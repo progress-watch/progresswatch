@@ -1,3 +1,2 @@
 web: PORT=${PW_PORT:-7979} bin/rails server
 js: bin/shakapacker-watch --watch
-worker: bundle exec sidekiq -C config/sidekiq.yml

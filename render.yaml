@@ -6,6 +6,9 @@ services:
     healthCheckPath: /up
     envVars:
       - fromGroup: progresswatch
+      # A worker service below runs Sidekiq, so the web service must not embed one too.
+      - key: PW_EMBEDDED_WORKER
+        value: "false"
       - key: DATABASE_URL
         fromDatabase:
           name: progresswatch-db

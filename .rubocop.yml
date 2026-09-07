@@ -19,6 +19,7 @@ Metrics/BlockLength:
     - spec/**/*
     - config/environments/**/*
     - config/routes.rb
+    - lib/puma/plugin/*.rb
 
 Style/Documentation:
   Enabled: false
