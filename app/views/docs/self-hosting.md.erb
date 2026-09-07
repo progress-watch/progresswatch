@@ -23,8 +23,6 @@ environment:
   - VAPID_PRIVATE_KEY=xK2p…
 ```
 
-<%= I18n.t('two_services_run_the_same_image_and_both_boot_the_whole_application_html', both: "**#{I18n.t('both')}**") %>
-
 <%= I18n.t('environment_variables_is_the_full_list_html', link: "[#{I18n.t('environment_variables')}](#{docs_section_url(section: 'environment-variables', format: :md)})", ports: '`7979:3000`') %>
 
 ```
@@ -35,7 +33,18 @@ curl http://localhost:7979/up
 
 ## <%= I18n.t('what_is_running') %>
 
-<%= I18n.t('three_processes_and_a_file_the_app_answers_requests') %>
+<%= I18n.t('two_processes_and_a_file_the_app_answers_requests') %>
+
+## <%= I18n.t('updating_it') %>
+
+<%= I18n.t('name_the_service_a_bare_pull_takes_redis_with_it_html', pull: '`docker compose pull`', redis: '`redis:8-alpine`', up: '`up -d`') %>
+
+```sh
+docker compose pull progresswatch
+docker compose up -d progresswatch
+```
+
+<%= I18n.t('replacing_only_the_app_container_leaves_every_running_task_where_it_was_html', down: '`docker compose down`') %>
 
 ## <%= I18n.t('why_7979') %>
 

@@ -6,11 +6,14 @@
 <h2><%= t('configuring_it') %></h2>
 <p><%= t('the_file_is_yours_from_the_moment_you_save_it_html', environment: tag.code('environment:')) %></p>
 <%= render 'shared/command', body: "    environment:\n      - SECRET_KEY_BASE=8f3c…\n      - DATABASE_URL=postgresql://progresswatch:secret@db.internal/progresswatch\n      - VAPID_PUBLIC_KEY=BJ1w…\n      - VAPID_PRIVATE_KEY=xK2p…" %>
-<p><%= t('two_services_run_the_same_image_and_both_boot_the_whole_application_html', both: tag.strong(t('both'))) %></p>
 <p><%= t('environment_variables_is_the_full_list_html', link: link_to(t('environment_variables'), docs_section_path(section: 'environment-variables')), ports: tag.code('7979:3000')) %></p>
 <%= render 'shared/command', body: %(curl http://localhost:7979/up\n\n{"status":"ok","database":true,"redis":true,"worker":true}) %>
 <h2><%= t('what_is_running') %></h2>
-<p><%= t('three_processes_and_a_file_the_app_answers_requests') %></p>
+<p><%= t('two_processes_and_a_file_the_app_answers_requests') %></p>
+<h2><%= t('updating_it') %></h2>
+<p><%= t('name_the_service_a_bare_pull_takes_redis_with_it_html', pull: tag.code('docker compose pull'), redis: tag.code('redis:8-alpine'), up: tag.code('up -d')) %></p>
+<%= render 'shared/command', body: "docker compose pull progresswatch\ndocker compose up -d progresswatch" %>
+<p><%= t('replacing_only_the_app_container_leaves_every_running_task_where_it_was_html', down: tag.code('docker compose down')) %></p>
 <h2><%= t('why_7979') %></h2>
 <p><%= t('not_3000_this_is_a_service_you_leave_running_for_weeks_html', run: tag.code('docker run')) %></p>
 <p><%= t('inside_the_container_it_is_still_3000_html', ports: tag.code('7979:3000')) %></p>
