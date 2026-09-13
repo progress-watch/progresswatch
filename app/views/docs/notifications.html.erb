@@ -16,7 +16,7 @@
 <h2><%= t('self_hosting_generating_the_keys') %></h2>
 <p><%= t('both_keys_unset_means_the_feature_does_not_exist_generate_a_pair_once') %></p>
 <%= render 'shared/command', body: %(docker compose exec -T progresswatch ./bin/rails runner 'k = WebPush.generate_key; puts k.public_key, k.private_key') %>
-<p><%= t('put_both_into_the_environment_block_of_both_services_html', environment: tag.code('environment:'), both: tag.strong(t('both_services')), up: tag.code('docker compose up -d'), restart: tag.code('restart')) %></p>
+<p><%= t('put_both_into_the_environment_block_and_run_up_again_html', environment: tag.code('environment:'), up: tag.code('docker compose up -d'), restart: tag.code('restart')) %></p>
 <p><%= t('there_is_nothing_to_register_anywhere_html', nothing: tag.strong(t('there_is_nothing_to_register_anywhere_lead')), subject: tag.code('VAPID_SUBJECT')) %></p>
 <p><%= t('do_not_rotate_the_keys_existing_subscriptions_are_bound_to_them') %></p>
 <h2><%= t('why_there_is_no_mobile_app') %></h2>

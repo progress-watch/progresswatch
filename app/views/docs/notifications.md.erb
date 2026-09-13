@@ -36,7 +36,7 @@
 docker compose exec -T progresswatch ./bin/rails runner 'k = WebPush.generate_key; puts k.public_key, k.private_key'
 ```
 
-<%= I18n.t('put_both_into_the_environment_block_of_both_services_html', environment: '`environment:`', both: "**#{I18n.t('both_services')}**", up: '`docker compose up -d`', restart: '`restart`') %>
+<%= I18n.t('put_both_into_the_environment_block_and_run_up_again_html', environment: '`environment:`', up: '`docker compose up -d`', restart: '`restart`') %>
 
 <%= I18n.t('there_is_nothing_to_register_anywhere_html', nothing: "**#{I18n.t('there_is_nothing_to_register_anywhere_lead')}**", subject: '`VAPID_SUBJECT`') %>
 
