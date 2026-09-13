@@ -57,7 +57,7 @@
   }
 
   .search-box {
-    @apply h-8 w-6 shrink-0;
+    @apply relative h-8 w-6 shrink-0;
   }
 
   .search-box input {
@@ -76,6 +76,10 @@
 
   .search-row:has(.search-box:focus-within, .search-box input:not(:placeholder-shown)) {
     @apply w-full sm:w-auto;
+  }
+
+  .search-row:has(.search-box:focus-within, .search-box input:not(:placeholder-shown)) .search-box {
+    @apply static;
   }
 
   .search-row:has(.search-box:focus-within, .search-box input:not(:placeholder-shown)) .search-box input {

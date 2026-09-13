@@ -25,9 +25,9 @@
   <div class="search-row flex flex-wrap items-center justify-end gap-1">
     <% if @searchable %>
       <form action="<%= space_path(@space.uuid) %>" method="get" class="search-box">
-        <%= svg_icon 'search', class: 'pointer-events-none absolute left-2 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-zinc-600 dark:text-zinc-200' %>
+        <%= svg_icon 'search', class: 'pointer-events-none absolute left-2 top-2 z-10 h-4 w-4 text-zinc-600 dark:text-zinc-200' %>
         <input id="task-search" type="search" name="q" value="<%= @query %>" enterkeyhint="search" autocomplete="off" placeholder="<%= t('search_tasks') %>" aria-label="<%= t('search_tasks') %>">
-        <%= link_to space_path(@space.uuid), 'aria-label': t('clear'), title: t('clear'), class: 'absolute right-1 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-zinc-600 transition hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-white' do %>
+        <%= link_to space_path(@space.uuid), 'aria-label': t('clear'), title: t('clear'), class: 'absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-md text-zinc-600 transition hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-white' do %>
           <%= svg_icon 'x', class: 'h-4 w-4' %>
         <% end %>
       </form>

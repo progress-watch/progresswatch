@@ -11,8 +11,8 @@ you would rather not be.
 
 ## Supported versions
 
-The latest `1.x` release. There is one maintained line, and fixes land in a new patch
-release rather than being backported.
+The latest release. There is one maintained line, and fixes land in a new release rather
+than being backported to an older one.
 
 ## What is worth reporting
 
