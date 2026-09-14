@@ -4,8 +4,8 @@
   <table>
     <thead><tr><th><%= t('variable') %></th><th><%= t('default') %></th><th><%= t('what_it_does') %></th></tr></thead>
     <tbody>
-      <tr><td><code>SECRET_KEY_BASE</code></td><td>—</td><td><%= t('the_only_variable_that_is_required_in_production_html', generate: tag.code('openssl rand -hex 64')) %></td></tr>
-      <tr><td><code>DATABASE_URL</code></td><td><code>sqlite3:storage/production.sqlite3</code></td><td><%= t('where_spaces_and_task_structure_live_html', postgres: tag.code('postgresql://…')) %></td></tr>
+      <tr><td><code>SECRET_KEY_BASE</code></td><td><code>/data/progresswatch/progresswatch.env</code></td><td><%= t('generated_on_first_start_and_kept_on_the_volume') %></td></tr>
+      <tr><td><code>DATABASE_URL</code></td><td><code>sqlite3:/data/progresswatch/db.sqlite3</code></td><td><%= t('where_spaces_and_task_structure_live_html', postgres: tag.code('postgresql://…')) %></td></tr>
       <tr><td><code>FORCE_SSL</code></td><td><code>false</code></td><td><%= t('set_true_when_something_in_front_terminates_tls_html', value: tag.code('true'), assume: tag.code('assume_ssl')) %></td></tr>
       <tr><td><code>PORT</code></td><td><code>3000</code></td><td><%= t('the_port_puma_binds_inside_the_container_html', compose: tag.code('docker-compose.yml')) %></td></tr>
       <tr><td><code>RAILS_LOG_LEVEL</code></td><td><code>info</code></td><td><%= t('logs_go_to_stdout_and_nowhere_else_this_is_how_much_of_them') %></td></tr>
@@ -20,7 +20,7 @@
   <table>
     <thead><tr><th><%= t('variable') %></th><th><%= t('default') %></th><th><%= t('what_it_does') %></th></tr></thead>
     <tbody>
-      <tr><td><code>REDIS_URL</code></td><td><code>redis://localhost:6379</code></td><td><%= t('the_server_used_for_both_roles_split_into_db_0_and_db_1') %></td></tr>
+      <tr><td><code>REDIS_URL</code></td><td>—</td><td><%= t('the_server_used_for_both_roles_split_into_db_0_and_db_1') %></td></tr>
       <tr><td><code>PROGRESS_REDIS_URL</code></td><td><code>REDIS_URL</code>, db 0</td><td><%= t('overrides_the_progress_store_alone') %></td></tr>
       <tr><td><code>SIDEKIQ_REDIS_URL</code></td><td><code>REDIS_URL</code>, db 1</td><td><%= t('overrides_the_queue_alone') %></td></tr>
       <tr><td><code>PROGRESS_TTL_SECONDS</code></td><td><code>86400</code></td><td><%= t('how_long_a_task_keeps_its_progress_without_being_written_to') %></td></tr>

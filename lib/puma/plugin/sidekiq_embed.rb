@@ -2,52 +2,59 @@
 
 require 'erb'
 require 'puma/plugin'
+require 'redis_client'
 require 'yaml'
 
 Puma::Plugin.create do
-  def config(dsl)
-    return unless embedded? && clustered?
+  def config(cfg)
+    return if cfg.instance_variable_get(:@options)[:workers] <= 0
 
-    dsl.before_worker_boot { |index| boot_sidekiq if index.zero? }
-    dsl.before_worker_shutdown { stop_sidekiq }
+    cfg.before_worker_boot { start_sidekiq! }
+
+    cfg.before_worker_shutdown { @sidekiq&.stop }
+    cfg.before_refork { @sidekiq&.stop }
   end
 
   def start(launcher)
-    return unless embedded? && !clustered?
+    launcher.events.after_booted do
+      next if Puma.stats_hash[:workers].to_i != 0
 
-    launcher.events.after_booted { boot_sidekiq }
-    launcher.events.after_stopped { stop_sidekiq }
-    launcher.events.before_restart { stop_sidekiq }
-  end
-
-  private
-
-  def embedded?
-    ENV['PW_EMBEDDED_WORKER'] != 'false'
-  end
-
-  def clustered?
-    Integer(ENV.fetch('WEB_CONCURRENCY', 0)).positive?
-  end
-
-  def boot_sidekiq
-    settings = YAML.safe_load(ERB.new(File.read(sidekiq_yml)).result, permitted_classes: [Symbol])
-
-    @sidekiq = Sidekiq.configure_embed do |config|
-      config.queues = settings[:queues]
-      config.concurrency = Integer(settings[:concurrency])
-      config[:timeout] = Integer(settings[:timeout])
+      start_sidekiq!
     end
 
-    @sidekiq.run
+    launcher.events.after_stopped { Thread.new { @sidekiq&.stop }.join }
+    launcher.events.before_restart { Thread.new { @sidekiq&.stop }.join }
   end
 
-  def stop_sidekiq
-    @sidekiq&.stop
-    @sidekiq = nil
+  def start_sidekiq!
+    Thread.new do
+      wait_for_redis!
+
+      sidekiq_config = YAML.safe_load(ERB.new(File.read('config/sidekiq.yml')).result, permitted_classes: [Symbol])
+
+      @sidekiq = Sidekiq.configure_embed do |config|
+        config.queues = sidekiq_config[:queues]
+        config.concurrency = Integer(sidekiq_config[:concurrency])
+        config[:timeout] = Integer(sidekiq_config[:timeout])
+      end
+
+      @sidekiq.run
+    end
   end
 
-  def sidekiq_yml
-    File.expand_path('../../../config/sidekiq.yml', __dir__)
+  def wait_for_redis!
+    attempt = 0
+
+    loop do
+      attempt += 1
+
+      sleep((attempt - 1) / 10.0)
+
+      RedisClient.new(url: ProgressWatch::SIDEKIQ_REDIS_URL).call('GET', '1')
+
+      break
+    rescue RedisClient::CannotConnectError
+      raise('Unable to connect to redis') if attempt > 30
+    end
   end
 end

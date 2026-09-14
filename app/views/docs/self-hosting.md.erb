@@ -2,7 +2,7 @@
 
 ## <%= I18n.t('one_file') %>
 
-<%= I18n.t('docker_compose_yml_is_the_whole_install_html', file: '`docker-compose.yml`', generate: '`openssl rand -hex 64`', docker: "[#{I18n.t('the_docker_page')}](#{docs_section_url(section: 'docker', format: :md)})") %>
+<%= I18n.t('docker_compose_yml_is_the_whole_install_html', file: '`docker-compose.yml`', docker: "[#{I18n.t('the_docker_page')}](#{docs_section_url(section: 'docker', format: :md)})") %>
 
 ```
 docker compose up -d
@@ -16,7 +16,6 @@ docker compose up -d
 
 ```
 environment:
-  - SECRET_KEY_BASE=8f3c…
   - DATABASE_URL=postgresql://progresswatch:secret@db.internal/progresswatch
   - VAPID_PUBLIC_KEY=BJ1w…
   - VAPID_PRIVATE_KEY=xK2p…
@@ -36,14 +35,14 @@ curl http://localhost:7979/up
 
 ## <%= I18n.t('updating_it') %>
 
-<%= I18n.t('name_the_service_a_bare_pull_takes_redis_with_it_html', pull: '`docker compose pull`', redis: '`redis:8-alpine`', up: '`up -d`') %>
+<%= I18n.t('pull_the_new_image_and_start_it_again') %>
 
 ```sh
-docker compose pull progresswatch
-docker compose up -d progresswatch
+docker compose pull
+docker compose up -d
 ```
 
-<%= I18n.t('replacing_only_the_app_container_leaves_every_running_task_where_it_was_html', down: '`docker compose down`') %>
+<%= I18n.t('every_running_task_stays_where_it_was') %>
 
 ## <%= I18n.t('why_7979') %>
 
@@ -53,7 +52,7 @@ docker compose up -d progresswatch
 
 ## <%= I18n.t('losing_the_volume_is_recoverable') %>
 
-<%= I18n.t('spaces_and_task_structure_are_on_it_and_nothing_else') %>
+<%= I18n.t('spaces_task_structure_a_snapshot_of_redis_and_the_secret_key_are_on_it') %>
 
 ## <%= I18n.t('sqlite_or_postgresql') %>
 

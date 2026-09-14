@@ -6,11 +6,12 @@ WORKDIR /rails
 ENV RAILS_ENV=production \
     BUNDLE_DEPLOYMENT=1 \
     BUNDLE_PATH=/usr/local/bundle \
-    BUNDLE_WITHOUT="development:test"
+    BUNDLE_WITHOUT="development:test" \
+    WORKDIR=/data/progresswatch
 
 # Both database libraries: DATABASE_URL picks the adapter at boot, so neither can
 # be dropped as bloat.
-RUN apk add --no-cache sqlite-libs libpq tzdata
+RUN apk add --no-cache sqlite-libs libpq tzdata redis
 
 # Assets are built in their own stage so Node never reaches the final image.
 FROM node:22-alpine AS assets
@@ -43,13 +44,13 @@ COPY Gemfile Gemfile.lock ./
 # running container usefully.
 RUN bundle install && \
     rm -rf ~/.bundle "${BUNDLE_PATH}"/cache "${BUNDLE_PATH}"/ruby/*/cache && \
-    ruby -e "puts Dir['${BUNDLE_PATH}/gems/*/{test,tests,spec,examples,sample,doc,docs}'] + \
-                  Dir['${BUNDLE_PATH}/gems/*/ext/**/*.{c,h,o,S}']" | xargs rm -rf && \
-    bundle exec bootsnap precompile --gemfile
+    ruby -e "puts Dir['${BUNDLE_PATH}/ruby/*/gems/*/{test,tests,spec,examples,sample,misc,doc,docs,rdoc}'] + \
+                  Dir['${BUNDLE_PATH}/ruby/*/gems/*/ext/**/*.{c,h,o,S}']" | xargs rm -rf && \
+    bundle exec bootsnap precompile -j 1 --gemfile
 
 COPY . .
 COPY --from=assets /rails/public/packs ./public/packs
-RUN bundle exec bootsnap precompile app/ lib/
+RUN bundle exec bootsnap precompile -j 1 app/ lib/
 
 FROM base
 
@@ -58,8 +59,8 @@ COPY --from=build /rails /rails
 
 RUN addgroup -g 1000 -S rails && \
     adduser -u 1000 -G rails -S -h /home/rails rails && \
-    mkdir -p storage tmp && \
-    chown -R rails:rails db storage tmp
+    mkdir -p storage tmp "$WORKDIR" && \
+    chown -R rails:rails db storage tmp /data
 USER 1000:1000
 
 ENTRYPOINT ["/rails/bin/docker-entrypoint"]

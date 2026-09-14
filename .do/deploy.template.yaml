@@ -13,24 +13,16 @@ spec:
         http_path: /up
       envs:
         - key: SECRET_KEY_BASE
+          scope: RUN_TIME
           type: SECRET
         - key: DATABASE_URL
-          value: ${db.DATABASE_URL}
-        - key: REDIS_URL
-          value: redis://${redis.PRIVATE_DOMAIN}:${redis.PRIVATE_PORT}
+          scope: RUN_TIME
+          value: ${progresswatch-db.DATABASE_URL}
         - key: FORCE_SSL
+          scope: RUN_TIME
           value: "true"
-    - name: redis
-      image:
-        registry_type: DOCKER_HUB
-        registry: docker.io
-        repository: library/redis
-        tag: 8-alpine
-      internal_ports:
-        - 6379
-      instance_count: 1
-      instance_size_slug: apps-s-1vcpu-0.5gb
   databases:
-    - name: db
+    - name: progresswatch-db
       engine: PG
+      version: "18"
       production: false

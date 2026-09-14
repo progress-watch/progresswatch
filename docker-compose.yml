@@ -6,19 +6,7 @@ services:
     ports:
       - 7979:3000
     volumes:
-      - storage:/rails/storage
-    environment:
-      - SECRET_KEY_BASE=replace-me-with-openssl-rand-hex-64
-      - DATABASE_URL=sqlite3:storage/production.sqlite3?timeout=5000
-      - REDIS_URL=redis://redis:6379
-    depends_on:
-      - redis
-
-  redis:
-    image: redis:8-alpine
-    container_name: progresswatch-redis
-    restart: unless-stopped
-    command: redis-server --save "" --appendonly no
+      - progresswatch:/data
 
 volumes:
-  storage:
+  progresswatch:

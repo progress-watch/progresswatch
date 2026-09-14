@@ -41,17 +41,19 @@ This repository is the server. The command line client is <a href="https://githu
 |:--:|:--:|:--:|
 | [<img alt="Deploy to Render" src="https://render.com/images/deploy-to-render-button.svg" height="40">](https://render.com/deploy?repo=https://github.com/progress-watch/progresswatch) | [<img alt="Deploy to DigitalOcean" src="https://www.deploytodo.com/do-btn-blue.svg" height="40">](https://cloud.digitalocean.com/apps/new?repo=https://github.com/progress-watch/progresswatch/tree/master) | [<img alt="Deploy on Railway" src="https://railway.com/button.svg" height="40">](https://railway.com/deploy/progress-watch?referralCode=P9RGBN&utm_medium=integration&utm_source=template&utm_campaign=generic) |
 
-Each one creates the app, a Redis and a Postgres in one pass, with nothing to fork. Render and DigitalOcean read their spec from this repository, `render.yaml` and `.do/deploy.template.yaml`; Railway's lives in a template that runs the published image.
+Each one creates the app and a Postgres in one pass, with nothing to fork. Render and DigitalOcean read their spec from this repository, `render.yaml` and `.do/deploy.template.yaml`; Railway's lives in a template that runs the published image.
 
 They are the convenient option rather than the cheap one: paying a managed platform for each component costs several times what the same thing costs as `docker compose up` on the smallest VPS anyone sells.
 
+#### Docker
+
+```sh
+docker run --name progresswatch -p 7979:3000 -v progresswatch:/data progresswatch/progresswatch
+```
+
+The app on `http://localhost:7979`, with Redis and SQLite inside the same container. What they keep lives on the volume, in `/data/progresswatch`: the database, a snapshot of Redis, and the secret key generated on first start. Open it, create a space, and the Connect menu on that space gives you snippets with its UUID already in them.
+
 #### Docker Compose
-
-Save this as `docker-compose.yml` — it runs the published image, so there is nothing to clone and nothing to build. Three things about it before you paste:
-
-- **The `environment:` block is the whole configuration surface.** Postgres, TLS, the notification keys and process sizing are all lines in it — [Environment variables](https://progress.watch/docs/environment-variables) is the list.
-- **`SECRET_KEY_BASE` is a placeholder**, and `openssl rand -hex 64` is what replaces it.
-- **Redis is not persisted, on purpose.** Progress is volatile: if that container restarts, whatever was running reads "Waiting for data…" until its next report, and nothing else is lost.
 
 ```yaml
 services:
@@ -62,31 +64,17 @@ services:
     ports:
       - 7979:3000
     volumes:
-      - storage:/rails/storage
-    environment:
-      - SECRET_KEY_BASE=replace-me-with-openssl-rand-hex-64
-      - DATABASE_URL=sqlite3:storage/production.sqlite3?timeout=5000
-      - REDIS_URL=redis://redis:6379
-    depends_on:
-      - redis
-
-  redis:
-    image: redis:8-alpine
-    container_name: progresswatch-redis
-    restart: unless-stopped
-    command: redis-server --save "" --appendonly no
+      - progresswatch:/data
 
 volumes:
-  storage:
+  progresswatch:
 ```
-
-Then:
 
 ```sh
 docker compose up -d
 ```
 
-The app on `http://localhost:7979`, a Redis, and a SQLite file on a named volume. Open it, create a space, and the Connect menu on that space gives you snippets with its UUID already in them.
+Settings are environment variables, in an `environment:` block under the service or as `-e` on `docker run`; [Environment variables](https://progress.watch/docs/environment-variables) is the list. Updating is `docker compose pull` and `up -d` again, and running tasks keep their progress through it, because Redis writes its snapshot to the volume as the container stops.
 
 ```sh
 curl http://localhost:7979/up

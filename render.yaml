@@ -5,36 +5,10 @@ services:
     plan: 0.5c-512mb
     healthCheckPath: /up
     envVars:
-      - fromGroup: progresswatch
       - key: DATABASE_URL
         fromDatabase:
           name: progresswatch-db
           property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: keyvalue
-          name: progresswatch-keyvalue
-          property: connectionString
-      - key: SIDEKIQ_REDIS_URL
-        fromService:
-          type: keyvalue
-          name: progresswatch-keyvalue
-          property: connectionString
-
-  - type: keyvalue
-    name: progresswatch-keyvalue
-    plan: free
-    maxmemoryPolicy: noeviction
-    ipAllowList: []
-
-databases:
-  - name: progresswatch-db
-    plan: 0.1c-256mb
-    diskSizeGB: 1
-
-envVarGroups:
-  - name: progresswatch
-    envVars:
       - key: SECRET_KEY_BASE
         generateValue: true
       - key: FORCE_SSL
@@ -43,3 +17,8 @@ envVarGroups:
         sync: false
       - key: VAPID_PRIVATE_KEY
         sync: false
+
+databases:
+  - name: progresswatch-db
+    plan: 0.1c-256mb
+    diskSizeGB: 1

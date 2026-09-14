@@ -181,10 +181,6 @@ module ConnectSnippets
           body: COMPOSE
         },
         {
-          label: 'generate_a_secret_and_paste_it_over_the_placeholder',
-          body: 'openssl rand -hex 64'
-        },
-        {
           label: 'start_it_the_app_a_redis_and_a_sqlite_file',
           body: 'docker compose up -d'
         },

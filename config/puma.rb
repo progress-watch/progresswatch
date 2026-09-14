@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'dotenv'
+
 threads_count = Integer(ENV.fetch('RAILS_MAX_THREADS', 5))
 threads threads_count, threads_count
 
@@ -14,9 +16,12 @@ preload_app! if Integer(ENV.fetch('WEB_CONCURRENCY', 0)) > 0
 # killed mid-response.
 worker_shutdown_timeout 25
 
+plugin :tmp_restart
+
+require_relative '../lib/puma/plugin/redis_server'
 require_relative '../lib/puma/plugin/sidekiq_embed'
 
-plugin :tmp_restart
-plugin :sidekiq_embed
+plugin :sidekiq_embed if ENV['PW_EMBEDDED_WORKER'] != 'false'
+plugin :redis_server
 
 pidfile ENV['PIDFILE'] if ENV['PIDFILE']
