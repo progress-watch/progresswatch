@@ -6,9 +6,18 @@ export default class extends HTMLElement {
   }
 
   copy () {
-    if (!navigator.clipboard) return
+    const text = this.dataset.text || this.innerText.trim()
+    const app = window.webkit?.messageHandlers?.native
 
-    navigator.clipboard.writeText(this.dataset.text || this.innerText.trim()).then(() => this.flash())
+    if (app) {
+      app.postMessage({ type: 'copy', text })
+
+      return this.flash()
+    }
+
+    if (navigator.clipboard) return navigator.clipboard.writeText(text).then(() => this.flash())
+
+    if (copySelection(text)) this.flash()
   }
 
   flash () {
@@ -29,4 +38,21 @@ export default class extends HTMLElement {
       if (label) label.textContent = original
     }, 1500)
   }
+}
+
+function copySelection (text) {
+  const field = document.createElement('textarea')
+
+  field.value = text
+  field.setAttribute('readonly', '')
+  field.style.position = 'fixed'
+  field.style.opacity = '0'
+  document.body.append(field)
+  field.select()
+
+  const copied = document.execCommand('copy')
+
+  field.remove()
+
+  return copied
 }

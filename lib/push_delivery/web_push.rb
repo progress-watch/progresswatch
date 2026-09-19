@@ -4,18 +4,6 @@ module PushDelivery
   class WebPush
     GONE = [404, 410].freeze
 
-    def call(payload)
-      subscriptions(payload).find_each do |subscription|
-        deliver(subscription, payload)
-      end
-    end
-
-    private
-
-    def subscriptions(payload)
-      PushSubscription.where(space_uuid: payload.fetch(:space_uuid))
-    end
-
     def deliver(subscription, payload)
       ::WebPush.payload_send(
         endpoint: subscription.endpoint,
@@ -31,11 +19,10 @@ module PushDelivery
     rescue ::WebPush::ResponseError => e
       raise unless GONE.include?(e.response.code.to_i)
 
-      Rails.logger.warn({ event: 'push.gone', code: e.response.code.to_i,
-                          space_uuid: payload.fetch(:space_uuid),
-                          endpoint_digest: subscription.endpoint_digest }.to_json)
-      subscription.destroy
+      PushDelivery.forget(subscription, payload, code: e.response.code.to_i)
     end
+
+    private
 
     def message(payload)
       {

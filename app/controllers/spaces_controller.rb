@@ -10,6 +10,8 @@ class SpacesController < WebController
     @history = Spaces::ReadFinishedTasks.call(@space, query: @query)
     @page = 0
     @searchable = @query.present? || on_the_page >= SEARCH_FROM
+    @push = turbo_native_app? ? ProgressWatch.native_push? : ProgressWatch.web_push?
+    @snippets = turbo_native_app? ? ConnectSnippets::SECTIONS.except('docker') : ConnectSnippets::SECTIONS
   end
 
   def new

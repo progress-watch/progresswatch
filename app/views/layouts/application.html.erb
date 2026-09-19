@@ -3,7 +3,7 @@
   <head>
     <title><%= (content_for(:native_title).presence if turbo_native_app?) || content_for(:html_title).presence || "Progress Watch | #{t('watch_any_process')}" %></title>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1<%= ', maximum-scale=1, user-scalable=no' if turbo_native_app? %>">
     <%= render 'shared/meta' %>
     <% if indexable? %>
       <link rel="canonical" href="<%= locale_url(I18n.locale) %>">

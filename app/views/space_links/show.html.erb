@@ -14,6 +14,6 @@
       <%= render 'shared/command', body: @space.uuid %>
     </div>
     <p class="text-xs leading-relaxed text-zinc-500 dark:text-zinc-300"><%= t('whoever_has_this_can_read_and_write_here_there_are_no_accounts_so_the_link_is_the_credential') %></p>
-    <p class="text-xs leading-relaxed text-zinc-500 dark:text-zinc-300"><span class="font-medium text-zinc-900 dark:text-zinc-100"><%= t('keep_the_link') %></span> <%= t('this_browser_is_the_only_place_your_spaces_are_listed_and_browsers_do_clear_that') %></p>
+    <p class="text-xs leading-relaxed text-zinc-500 dark:text-zinc-300"><span class="font-medium text-zinc-900 dark:text-zinc-100"><%= t('keep_the_link') %></span> <%= t(turbo_native_app? ? 'this_phone_is_the_only_place_your_spaces_are_listed' : 'this_browser_is_the_only_place_your_spaces_are_listed_and_browsers_do_clear_that') %></p>
   </div>
 <% end %>

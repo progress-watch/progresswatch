@@ -13,7 +13,7 @@ RSpec.describe 'OpenAPI' do
     Rails.application.routes.routes.filter_map do |route|
       controller = route.defaults[:controller].to_s
       next unless controller.start_with?('api/') || controller == 'health'
-      next if %w[api/mcp api/open_api].include?(controller)
+      next if %w[api/mcp api/open_api api/relay].include?(controller)
 
       [route.path.spec.to_s.sub('(.:format)', '').gsub(/:(\w+)/, '{\1}'), route.verb.downcase]
     end.uniq

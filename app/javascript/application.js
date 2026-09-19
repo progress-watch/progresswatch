@@ -1,7 +1,7 @@
 import '@hotwired/turbo'
 import './elements/native_bridge'
 
-import { remember } from './lib/profile'
+import { remember, restored } from './lib/profile'
 
 import AddSpace from './elements/add_space'
 import ClipboardCopy from './elements/clipboard_copy'
@@ -48,11 +48,11 @@ safeRegisterElement('tab-panels', TabPanels)
 
 safeRegisterElement('remember-space', class extends HTMLElement {
   connectedCallback () {
-    remember({
+    restored.then(() => remember({
       uuid: this.dataset.uuid,
       title: this.dataset.title || null,
       icon: this.dataset.icon || null,
       server: this.dataset.server
-    })
+    }))
   }
 })

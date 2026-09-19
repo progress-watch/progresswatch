@@ -44,6 +44,42 @@ RSpec.describe 'Push subscriptions' do
     expect(response).to have_http_status(:no_content)
   end
 
+  it 'tells a registration its id, which is all a notification to the app will carry' do
+    subscribe
+
+    expect(response.parsed_body).to eq('id' => space.push_subscriptions.first.uuid)
+  end
+
+  describe 'from the iOS app' do
+    let(:device) { { token: 'AB' * 32, environment: 'sandbox' } }
+
+    it 'registers a device by its token, and builds the endpoint itself' do
+      expect { post space_push_path(space.uuid), params: { apns: device }, as: :json }
+        .to change(PushSubscription, :count).by(1)
+
+      expect(response).to have_http_status(:created)
+      expect(space.push_subscriptions.first).to have_attributes(
+        endpoint: "https://api.sandbox.push.apple.com/3/device/#{'ab' * 32}", p256dh: nil, auth: nil
+      )
+    end
+
+    it 'replaces the row when the same device returns, and removes it by the same token' do
+      post space_push_path(space.uuid), params: { apns: device }, as: :json
+
+      expect { post space_push_path(space.uuid), params: { apns: device }, as: :json }
+        .not_to change(PushSubscription, :count)
+      expect { delete space_push_path(space.uuid), params: { apns: device }, as: :json }
+        .to change(PushSubscription, :count).by(-1)
+    end
+
+    it 'refuses a token that is not one' do
+      post space_push_path(space.uuid), params: { apns: device.merge(token: 'example.com/x') }, as: :json
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(PushSubscription.count).to eq(0)
+    end
+  end
+
   it 'answers the not-found page for a space that does not exist' do
     post space_push_path(SecureRandom.uuid), params: { subscription: subscription }, as: :json
 

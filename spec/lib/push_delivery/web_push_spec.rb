@@ -16,13 +16,17 @@ RSpec.describe PushDelivery::WebPush do
     PushSubscriptions::Create.call(space:, endpoint: 'https://push.example.com/a', p256dh: 'k', auth: 's')
   end
 
+  def deliver
+    PushDelivery::Subscribers.new.call(payload)
+  end
+
   it 'sends to every browser registered on the space, and to no other space' do
     PushSubscriptions::Create.call(space: create_space, endpoint: 'https://push.example.com/b',
                                    p256dh: 'k', auth: 's')
     sent = []
     allow(WebPush).to receive(:payload_send) { |args| sent << args }
 
-    described_class.new.call(payload)
+    deliver
 
     expect(sent.size).to eq(1)
     expect(sent.first[:endpoint]).to eq('https://push.example.com/a')
@@ -34,15 +38,24 @@ RSpec.describe PushDelivery::WebPush do
     allow(WebPush).to receive(:payload_send).and_raise(gone(410))
     allow(Rails.logger).to receive(:warn)
 
-    expect { described_class.new.call(payload) }.to change(PushSubscription, :count).by(-1)
+    expect { deliver }.to change(PushSubscription, :count).by(-1)
     expect(Rails.logger).to have_received(:warn).with(/"event":"push.gone".*"code":410/)
   end
 
   it 'lets any other failure reach Sidekiq, which retries' do
     allow(WebPush).to receive(:payload_send).and_raise(gone(503))
 
-    expect { described_class.new.call(payload) }.to raise_error(WebPush::ResponseError)
+    expect { deliver }.to raise_error(WebPush::ResponseError)
     expect(PushSubscription.count).to eq(1)
+  end
+
+  it 'sends nothing to a browser when the VAPID keys are gone' do
+    stub_const('ProgressWatch::VAPID_PRIVATE_KEY', nil)
+    allow(WebPush).to receive(:payload_send)
+
+    deliver
+
+    expect(WebPush).not_to have_received(:payload_send)
   end
 
   def gone(code)

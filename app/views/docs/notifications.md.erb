@@ -42,6 +42,6 @@ docker compose exec -T progresswatch ./bin/rails runner 'k = WebPush.generate_ke
 
 <%= I18n.t('do_not_rotate_the_keys_existing_subscriptions_are_bound_to_them') %>
 
-## <%= I18n.t('why_there_is_no_mobile_app') %>
+## <%= I18n.t('the_ios_app') %>
 
-<%= I18n.t('a_react_native_app_was_designed_for_this_and_has_not_been_built') %>
+<%= I18n.t('an_ios_app_is_on_its_way_to_the_app_store_html', minimal: '`PUSH_CONTENT=minimal`', off: '`PUSH_RELAY=false`') %>

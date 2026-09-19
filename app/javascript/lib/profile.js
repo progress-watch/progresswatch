@@ -1,5 +1,19 @@
 const KEY = 'progresswatch.profile'
 
+// The iOS app keeps a copy of the list in its keychain, because this storage is the only record of
+// the uuids and a web view's storage does get lost. Anything that writes on arrival waits for this:
+// a write into an emptied list would otherwise replace the copy with one space.
+export const restored = restore()
+
+async function restore () {
+  const keychain = window.webkit?.messageHandlers?.spaces
+  if (!keychain || read().length > 0) return
+
+  const spaces = await keychain.postMessage({ action: 'read' }).catch(() => null)
+
+  if (Array.isArray(spaces) && spaces.length > 0) write(spaces)
+}
+
 export function read () {
   return readProfile().spaces
 }
@@ -9,7 +23,10 @@ export function readProfile () {
 }
 
 export function writeProfile (profile) {
-  window.localStorage.setItem(KEY, JSON.stringify(normalise(profile)))
+  const normalised = normalise(profile)
+
+  window.localStorage.setItem(KEY, JSON.stringify(normalised))
+  window.webkit?.messageHandlers?.spaces?.postMessage({ action: 'write', spaces: normalised.spaces })
 }
 
 export function write (spaces) {

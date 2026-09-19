@@ -13,6 +13,12 @@ module PushDelivery
 
   module_function
 
+  def forget(subscription, payload, code:)
+    Rails.logger.warn({ event: 'push.gone', code:, space_uuid: payload.fetch(:space_uuid),
+                        endpoint_digest: subscription.endpoint_digest }.to_json)
+    subscription.destroy
+  end
+
   def deliver(space_uuid:, task_uuid:, root_uuid:, title:, duration:)
     minimal = CONTENT_MODE == 'minimal'
 

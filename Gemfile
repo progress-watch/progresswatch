@@ -5,6 +5,8 @@ source 'https://rubygems.org'
 gem 'aws-sdk-secretsmanager', require: false
 gem 'connection_pool'
 gem 'dotenv', require: false
+gem 'httpx', require: false
+gem 'jwt', require: false
 gem 'pg'
 gem 'puma'
 gem 'rails', '~> 8.1'

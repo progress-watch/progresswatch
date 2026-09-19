@@ -1,5 +1,5 @@
 import { bind } from '@github/catalyst/lib/bind'
-import { pushEnabled, setPush } from '../lib/profile'
+import { pushEnabled, restored, setPush } from '../lib/profile'
 import { disable, keepStorage, reassert, register, subscription, supported } from '../lib/push'
 
 export default class extends HTMLElement {
@@ -7,6 +7,8 @@ export default class extends HTMLElement {
     bind(this)
 
     if (!supported()) return this.setAttribute('data-state', 'unsupported')
+
+    await restored
 
     const on = pushEnabled(this.dataset.uuid)
     this.render(on)
@@ -34,6 +36,8 @@ export default class extends HTMLElement {
   }
 
   async subscribe () {
+    if (window.webkit?.messageHandlers?.push) return this.subscribeDevice()
+
     if (await window.Notification.requestPermission() !== 'granted') {
       return this.setAttribute('data-state', 'denied')
     }
@@ -50,8 +54,27 @@ export default class extends HTMLElement {
     this.render(true)
   }
 
+  async subscribeDevice () {
+    const device = await subscription({ prompt: true })
+
+    if (!device) {
+      return window.webkit.messageHandlers.flash?.postMessage({ style: 'alert', message: this.dataset.denied })
+    }
+
+    await register(this.dataset.uuid, device)
+
+    this.render(true)
+  }
+
   render (on) {
     this.setAttribute('data-state', on ? 'on' : 'off')
+
+    const action = this.closest('native-action')
+
+    if (!action) return
+
+    action.setAttribute('data-icon', on ? 'bell_on' : 'bell')
+    action.setAttribute('data-label', on ? this.dataset.on : this.dataset.off)
   }
 
   get applicationServerKey () {

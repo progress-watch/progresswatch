@@ -1,5 +1,5 @@
 import { bind } from '@github/catalyst/lib/bind'
-import { read, forget } from '../lib/profile'
+import { read, forget, restored } from '../lib/profile'
 import { disable } from '../lib/push'
 
 export default class extends HTMLElement {
@@ -11,7 +11,7 @@ export default class extends HTMLElement {
     })
 
     bind(this)
-    this.render({ arriving: true })
+    restored.then(() => this.render({ arriving: true }))
   }
 
   async forgetSpace (event) {

@@ -68,6 +68,44 @@ RSpec.describe 'Native app' do
       expect(response.body.scan('data-menu="Connect"').size).to eq(ConnectSnippets::SECTIONS.size)
     end
 
+    it 'offers the bell without any VAPID keys, since the app is not a browser' do
+      get "/s/#{space.uuid}", headers: app_headers
+
+      expect(response.body).to include('data-placement="bar" data-icon="bell" data-label="Notify me"')
+      expect(response.body).to include('data-on="Notifying"')
+
+      get "/s/#{space.uuid}"
+      expect(response.body).not_to include('<push-toggle')
+    end
+
+    it 'offers no bell once the relay is off and the server holds no key of its own' do
+      stub_const('ProgressWatch::PUSH_RELAY', 'false')
+
+      get "/s/#{space.uuid}", headers: app_headers
+
+      expect(response.body).not_to include('<push-toggle')
+      expect(path_configuration['rules'].filter_map { |rule| rule.dig('properties', 'native_actions') })
+        .to eq([%w[share menu]])
+    end
+
+    it 'cannot be zoomed, which a browser always can' do
+      get '/', headers: app_headers
+      expect(response.body).to include('initial-scale=1, maximum-scale=1, user-scalable=no">')
+
+      get '/'
+      expect(response.body).to include('content="width=device-width, initial-scale=1"')
+    end
+
+    it 'leaves Docker out of an empty space, and a phone browser hides its tab' do
+      get "/s/#{space.uuid}", headers: app_headers
+      expect(response.body).to include('data-tab="curl"')
+      expect(response.body).not_to include('data-tab="docker"')
+
+      get "/s/#{space.uuid}"
+      expect(response.body).to match(/data-tab="docker"[^>]*class="hidden md:flex /)
+      expect(response.body).to match(/data-tab="curl"[^>]*class="flex /)
+    end
+
     it 'offers New space from the list alone, as a native button and not as a card' do
       get '/'
       expect(response.body).to include('<template data-template="add">')
@@ -109,6 +147,15 @@ RSpec.describe 'Native app' do
 
         expect(response.body).to include("<title>#{title}</title>"), "#{path} is not titled #{title}"
       end
+    end
+
+    it 'does not talk about a browser or a Home Screen in the share sheet' do
+      get "/s/#{space.uuid}/link", headers: app_headers
+      expect(response.body).to include('This phone is the only place your spaces are listed')
+      expect(response.body).not_to include('Safari')
+
+      get "/s/#{space.uuid}/link"
+      expect(response.body).to include('This browser is the only place your spaces are listed')
     end
 
     it 'renders a modal route as a sheet: no heading of its own, the title in <title>' do

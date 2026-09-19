@@ -10,16 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_03_160027) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_19_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "push_subscriptions", primary_key: "uuid", id: { type: :string, limit: 36 }, force: :cascade do |t|
-    t.string "auth", null: false
+    t.string "auth"
     t.datetime "created_at", null: false
     t.text "endpoint", null: false
     t.string "endpoint_digest", limit: 64, null: false
-    t.string "p256dh", null: false
+    t.string "p256dh"
     t.string "space_uuid", limit: 36, null: false
     t.index ["space_uuid", "endpoint_digest"], name: "index_push_subscriptions_on_space_uuid_and_endpoint_digest", unique: true
     t.index ["space_uuid"], name: "index_push_subscriptions_on_space_uuid"
