@@ -1,5 +1,6 @@
 <% content_for :indexable, true %>
 <% content_for :html_title, "#{t('get_started')} | Progress Watch" %>
+<% content_for :native_title, t('get_started') %>
 <% content_for :meta_description, t('an_introduction_to_progress_watch_an_open_source_progress_tracker') %>
 <% mono = ->(text) { tag.span(text, class: 'font-mono text-xs') } %>
 <% link = ->(text, path) { link_to(text, path, class: 'text-brand-600 underline dark:text-brand-400') } %>

@@ -1,0 +1,29 @@
+<script type="application/json" id="native_path_configuration"><%= render partial: 'layouts/native_path_configuration', formats: :json %></script>
+<% if controller_name == 'home' %>
+  <native-action data-placement="create" data-icon="plus">
+    <%= link_to t('new_space'), new_space_path, data: { turbo_frame: 'modal' } %>
+  </native-action>
+  <native-action data-placement="menu" data-icon="book">
+    <%= link_to t('documentation'), docs_path(locale: docs_locale) %>
+  </native-action>
+  <space-backup data-i18n="<%= translations(:could_not_import_message) %>">
+    <native-action data-placement="menu" data-section="backup" data-icon="download">
+      <button type="button" data-action="click:space-backup#export"><%= t('export_spaces') %></button>
+    </native-action>
+    <native-action data-placement="menu" data-section="backup" data-icon="upload" data-label="<%= t('import_spaces') %>">
+      <input type="file" accept="application/json" data-action="change:space-backup#import">
+    </native-action>
+  </space-backup>
+  <theme-toggle>
+    <% { 'system' => 'monitor', 'light' => 'sun', 'dark' => 'moon' }.each do |choice, icon| %>
+      <native-action data-placement="menu" data-section="settings" data-menu="<%= t('theme') %>" data-menu-icon="sun" data-icon="<%= icon %>">
+        <button type="button" data-choice="<%= choice %>" data-action="click:theme-toggle#select"><%= t(choice) %></button>
+      </native-action>
+    <% end %>
+  </theme-toggle>
+  <% Locales::NAMES.each do |code, name| %>
+    <native-action data-placement="menu" data-section="settings" data-menu="<%= t('language') %>" data-menu-icon="globe" data-selected="<%= I18n.locale == code %>">
+      <%= link_to name, switch_to(code) %>
+    </native-action>
+  <% end %>
+<% end %>

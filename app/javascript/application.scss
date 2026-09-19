@@ -7,6 +7,11 @@
 // DaisyUI is deliberately not used. These are the handful of component classes it
 // would otherwise have provided — defined here so the ERB stays readable instead of
 // repeating a dozen utilities per button.
+// A native-action wraps a control the iOS app redraws as its own; in a browser it is not there.
+native-action {
+  display: contents;
+}
+
 @layer components {
   .btn {
     @apply inline-flex items-center justify-center gap-2 rounded-lg border border-transparent

@@ -1,4 +1,5 @@
 import '@hotwired/turbo'
+import './elements/native_bridge'
 
 import { remember } from './lib/profile'
 
@@ -8,6 +9,9 @@ import CodeSamples from './elements/code_samples'
 import DropdownMenu from './elements/dropdown_menu'
 import ForgetSpace from './elements/forget_space'
 import IconInput from './elements/icon_input'
+import NativeAction from './elements/native_action'
+import NativeMenu from './elements/native_menu'
+import NativeModal from './elements/native_modal'
 import TurboModal from './elements/turbo_modal'
 import PollFrame from './elements/poll_frame'
 import PushToggle from './elements/push_toggle'
@@ -30,6 +34,9 @@ safeRegisterElement('code-samples', CodeSamples)
 safeRegisterElement('dropdown-menu', DropdownMenu)
 safeRegisterElement('forget-space', ForgetSpace)
 safeRegisterElement('icon-input', IconInput)
+safeRegisterElement('native-action', NativeAction)
+safeRegisterElement('native-menu', NativeMenu)
+safeRegisterElement('native-modal', NativeModal)
 safeRegisterElement('turbo-modal', TurboModal)
 safeRegisterElement('poll-frame', PollFrame)
 safeRegisterElement('theme-toggle', ThemeToggle)

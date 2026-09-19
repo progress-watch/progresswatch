@@ -1,0 +1,44 @@
+{
+  "settings": {
+    "strings": {
+      "more": <%== t('more').to_json %>,
+      "close": <%== t('close').to_json %>,
+      "change_server": <%== t('change_server').to_json %>,
+      "could_not_export": <%== t('could_not_export').to_json %>
+    }
+  },
+  "rules": [
+    {
+      "patterns": [".*"],
+      "properties": {
+        "query_string_presentation": "replace"
+      }
+    },
+    {
+      "patterns": ["^/$"],
+      "properties": {
+        "native_title": <%== t('spaces').to_json %>
+      }
+    },
+    {
+      "patterns": ["^/s/new$", "^/s/[^/]+/edit$"],
+      "properties": {
+        "context": "modal",
+        "modal_style": "medium"
+      }
+    },
+    {
+      "patterns": ["^/s/[^/]+/link$"],
+      "properties": {
+        "context": "modal"
+      }
+    },
+    {
+      "patterns": ["^/s/[0-9a-f-]{36}($|\\?)"],
+      "properties": {
+        "native_actions": ["share", "menu"],
+        "large_title": true
+      }
+    }
+  ]
+}

@@ -3,6 +3,7 @@
 <% description = t(@doc ? source[:meta_description] : source[:description]) %>
 <% content_for :indexable, true unless @space_uuid %>
 <% content_for :html_title, "#{heading} | Progress Watch" %>
+<% content_for :native_title, t(source[:title]) %>
 <% content_for :meta_description, description %>
 <div class="flex flex-col gap-8 lg:flex-row lg:items-start">
   <%= render 'shared/docs_nav', current: @section, space_uuid: @space_uuid %>

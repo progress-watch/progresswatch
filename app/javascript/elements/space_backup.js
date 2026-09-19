@@ -26,11 +26,23 @@ export default class extends HTMLElement {
   }
 
   export () {
+    const name = `${window.location.host.replace(':', '-')}-${stamp()}.json`
+    const download = window.webkit?.messageHandlers?.download
+
+    if (download) {
+      const reader = new FileReader()
+
+      reader.onload = () => download.postMessage({ name, data: reader.result.split(',')[1] })
+      reader.readAsDataURL(exportBlob())
+
+      return
+    }
+
     const url = URL.createObjectURL(exportBlob())
     const link = document.createElement('a')
 
     link.href = url
-    link.download = `${window.location.host.replace(':', '-')}-${stamp()}.json`
+    link.download = name
     link.click()
 
     URL.revokeObjectURL(url)
@@ -50,8 +62,10 @@ export default class extends HTMLElement {
 
   report (message) {
     const target = this.querySelector('[data-import-error]')
-    const text = JSON.parse(this.dataset.i18n)
+    const text = JSON.parse(this.dataset.i18n).could_not_import_message.replace('%{message}', message)
 
-    if (target) target.textContent = text.could_not_import_message.replace('%{message}', message)
+    window.webkit?.messageHandlers?.flash?.postMessage({ style: 'alert', message: text })
+
+    if (target) target.textContent = text
   }
 }

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="<%= I18n.locale %>" class="h-full">
   <head>
-    <title><%= content_for(:html_title).presence || "Progress Watch | #{t('watch_any_process')}" %></title>
+    <title><%= (content_for(:native_title).presence if turbo_native_app?) || content_for(:html_title).presence || "Progress Watch | #{t('watch_any_process')}" %></title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <%= render 'shared/meta' %>
@@ -33,13 +33,17 @@
         if (theme === 'light' || theme === 'dark') document.documentElement.setAttribute('data-theme', theme)
       } catch (error) {}
     </script>
+    <% if turbo_native_app? %>
+      <meta name="turbo-cache-control" content="no-preview">
+      <style>native-action { display: none !important; }</style>
+    <% end %>
     <%= csrf_meta_tags %>
     <%= javascript_pack_tag 'application', defer: true %>
     <%= stylesheet_pack_tag 'application', media: 'all' %>
   </head>
   <body class="h-full bg-zinc-100 text-zinc-900 antialiased dark:bg-zinc-800 dark:text-zinc-100">
-    <%= render 'shared/navbar' %>
-    <main class="mx-auto <%= content_for(:container_width).presence || 'max-w-5xl' %> px-4 py-8 sm:py-12">
+    <%= render turbo_native_app? ? 'shared/native_navbar' : 'shared/navbar' %>
+    <main class="mx-auto <%= content_for(:container_width).presence || 'max-w-5xl' %> px-4 <%= turbo_native_app? ? 'py-4' : 'py-8 sm:py-12' %>">
       <%= yield %>
     </main>
     <turbo-frame id="modal"></turbo-frame>

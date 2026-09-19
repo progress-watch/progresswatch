@@ -15,6 +15,8 @@ export default class extends HTMLElement {
 
     if (!destination) return this.reject(input)
 
+    if (window.webkit?.messageHandlers?.native) return window.Turbo.visit(destination)
+
     window.location.href = destination
   }
 

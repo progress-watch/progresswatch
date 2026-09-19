@@ -12,6 +12,10 @@ export default class extends HTMLElement {
   }
 
   flash () {
+    const toast = window.webkit?.messageHandlers?.flash
+
+    if (toast && this.dataset.copiedLabel) return toast.postMessage({ style: 'notice', message: this.dataset.copiedLabel })
+
     this.dataset.copied = ''
 
     const label = this.querySelector('[data-copy-label]')

@@ -23,8 +23,10 @@ export default class extends HTMLElement {
     const theme = readTheme()
 
     this.querySelectorAll('[data-choice]').forEach((option) => {
-      option.setAttribute('aria-selected', String(option.dataset.choice === theme))
-    })
+      const selected = String(option.dataset.choice === theme)
 
+      option.setAttribute('aria-selected', selected)
+      option.closest('native-action')?.setAttribute('data-selected', selected)
+    })
   }
 }

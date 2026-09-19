@@ -7,8 +7,8 @@ class WebController < ActionController::Base
 
   around_action :with_locale
 
-  helper_method :turbo_frame_request?, :frame_id, :svg_icon, :locale_url, :translated?, :translations,
-                :docs_locale, :switch_to
+  helper_method :turbo_frame_request?, :turbo_native_app?, :frame_id, :svg_icon, :locale_url, :translated?,
+                :translations, :docs_locale, :switch_to
 
   helper do
     def indexable?
@@ -79,6 +79,10 @@ class WebController < ActionController::Base
 
   def turbo_frame_request?
     request.headers['Turbo-Frame'].present?
+  end
+
+  def turbo_native_app?
+    request.user_agent.to_s.match?(/Hotwire Native|Turbo Native/)
   end
 
   def frame_id

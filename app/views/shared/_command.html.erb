@@ -1,5 +1,5 @@
 <% block = local_assigns.fetch(:block, body.include?("\n")) %>
-<clipboard-copy class="relative block" data-action="click:clipboard-copy#copy" data-text="<%= body %>">
+<clipboard-copy class="relative block" data-action="click:clipboard-copy#copy" data-text="<%= body %>" data-copied-label="<%= t('copied') %>">
   <% if block %>
     <pre class="snippet pr-12"><%= body %></pre>
   <% else %>

@@ -12,6 +12,9 @@ export default class extends HTMLElement {
 
     await disable(this.dataset.uuid)
     forget(this.dataset.uuid)
+
+    if (window.webkit?.messageHandlers?.native) return window.Turbo.visit('/')
+
     window.location.href = '/'
   }
 

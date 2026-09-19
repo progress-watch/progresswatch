@@ -30,13 +30,13 @@ export default class extends HTMLElement {
     this.querySelector('[data-list]')?.remove()
     if (spaces.length === 0 && !this.refused) return this.createFirstSpace()
 
-    if (arriving && spaces.length === 1) return this.open(linkTo(spaces[0]))
+    if (arriving && spaces.length === 1 && !window.webkit?.messageHandlers?.native) return this.open(linkTo(spaces[0]))
 
     const list = this.clone('list')
     const cards = list.querySelector('[data-cards]')
 
     spaces.forEach((space) => cards.append(this.card(space)))
-    cards.append(this.clone('add'))
+    if (this.templates.add) cards.append(this.clone('add'))
 
     list.firstElementChild.dataset.list = ''
     this.append(list)
@@ -58,6 +58,8 @@ export default class extends HTMLElement {
 
   // replace, not href: Back from the space lands here and is thrown forward again.
   open (url) {
+    if (window.webkit?.messageHandlers?.native) return window.Turbo.visit(url)
+
     window.location.replace(url)
   }
 

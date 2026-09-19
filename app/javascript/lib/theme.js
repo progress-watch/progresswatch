@@ -17,6 +17,8 @@ export function applyTheme (theme = readTheme()) {
   } else {
     document.documentElement.setAttribute('data-theme', theme)
   }
+
+  window.webkit?.messageHandlers?.native?.postMessage({ type: 'theme', theme })
 }
 
 export function writeTheme (theme) {
