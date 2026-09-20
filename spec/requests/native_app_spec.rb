@@ -149,6 +149,30 @@ RSpec.describe 'Native app' do
       end
     end
 
+    it 'hands the documentation sections to the title menu, and draws no list of its own' do
+      get '/de/docs/self-hosting', headers: app_headers
+
+      sections = response.parsed_body.css('native-action[data-placement=title]')
+
+      expect(sections.size).to eq(ConnectSnippets::SECTIONS.size + Docs::DOCUMENTS.size + 2)
+      expect(sections.select { |action| action['data-selected'] == 'true' }.map { |action| action.text.strip })
+        .to eq(['Selbst hosten'])
+      expect(sections.pluck('data-icon').uniq.size).to eq(sections.size)
+      expect(response.body).not_to include('<details')
+    end
+
+    it 'replaces the screen between documentation sections, so Back leaves the documentation in one tap' do
+      get '/docs/cli', headers: app_headers
+
+      links = response.parsed_body.css('native-action[data-placement=title] a')
+      pushed = links.reject { |a| a['data-turbo-action'] == 'replace' }
+
+      expect(pushed.pluck('href')).to eq(['/docs/api'])
+
+      get '/docs/cli'
+      expect(response.body).not_to include('data-turbo-action')
+    end
+
     it 'does not talk about a browser or a Home Screen in the share sheet' do
       get "/s/#{space.uuid}/link", headers: app_headers
       expect(response.body).to include('This phone is the only place your spaces are listed')

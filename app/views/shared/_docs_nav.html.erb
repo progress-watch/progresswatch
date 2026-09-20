@@ -1,33 +1,44 @@
 <% active = ->(here) { here ? 'bg-zinc-100 text-zinc-900 dark:bg-zinc-600 dark:text-zinc-100' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-600 dark:hover:text-zinc-100' } %>
-<nav class="shrink-0 lg:w-52">
-  <ul class="flex flex-wrap gap-1 lg:flex-col lg:flex-nowrap">
-    <li>
-      <%= link_to docs_path, 'aria-current': ('page' if current == :docs), class: "flex items-center gap-2.5 rounded-lg px-3 py-2 text-base font-medium transition #{active.call(current == :docs)}" do %>
-        <%= svg_icon 'book', class: 'h-4 w-4 shrink-0' %>
-        <%= t('get_started') %>
+<% sibling = turbo_native_app? ? { turbo_action: 'replace' } : {} %>
+<% items = [[:docs, docs_path, 'book', t('get_started'), sibling]] %>
+<% items += ConnectSnippets::SECTIONS.map { |section, config| [section, docs_section_path(section: section, space: local_assigns[:space_uuid]), config[:icon], t(config[:title]), sibling] } %>
+<% items << [:api, api_docs_path(locale: nil), 'code', 'API', {}] %>
+<% items += Docs::DOCUMENTS.map { |doc| [doc[:slug], docs_section_path(section: doc[:slug]), doc[:icon], t(doc[:title]), sibling] } %>
+<% if turbo_native_app? %>
+  <% items.each do |key, path, icon, title, data| %>
+    <native-action data-placement="title" data-icon="<%= icon %>" data-selected="<%= key == current %>">
+      <%= link_to title, path, data: data %>
+    </native-action>
+  <% end %>
+<% else %>
+  <% _, _, current_icon, current_title = items.find { |key, *| key == current } %>
+  <% links = capture do %>
+    <ul class="flex flex-col gap-1">
+      <% items.each do |key, path, icon, title, data| %>
+        <li>
+          <%= link_to path, 'aria-current': ('page' if key == current), data: data, class: "flex items-center gap-2.5 rounded-lg px-3 py-2 text-base font-medium transition #{active.call(key == current)}" do %>
+            <%= svg_icon icon, class: 'h-4 w-4 shrink-0' %>
+            <%= title %>
+          <% end %>
+        </li>
       <% end %>
-    </li>
-    <% ConnectSnippets::SECTIONS.each do |section, config| %>
-      <li>
-        <%= link_to docs_section_path(section: section, space: local_assigns[:space_uuid]), 'aria-current': ('page' if section == current), class: "flex items-center gap-2.5 rounded-lg px-3 py-2 text-base font-medium transition #{active.call(section == current)}" do %>
-          <%= svg_icon config[:icon], class: 'h-4 w-4 shrink-0' %>
-          <%= t(config[:title]) %>
-        <% end %>
-      </li>
-    <% end %>
-    <li>
-      <%= link_to api_docs_path(locale: nil), class: "flex items-center gap-2.5 rounded-lg px-3 py-2 text-base font-medium transition #{active.call(false)}" do %>
-        <%= svg_icon 'code', class: 'h-4 w-4 shrink-0' %>
-        API
-      <% end %>
-    </li>
-    <% Docs::DOCUMENTS.each do |doc| %>
-      <li>
-        <%= link_to docs_section_path(section: doc[:slug]), 'aria-current': ('page' if doc[:slug] == current), class: "flex items-center gap-2.5 rounded-lg px-3 py-2 text-base font-medium transition #{active.call(doc[:slug] == current)}" do %>
-          <%= svg_icon doc[:icon], class: 'h-4 w-4 shrink-0' %>
-          <%= t(doc[:title]) %>
-        <% end %>
-      </li>
-    <% end %>
-  </ul>
-</nav>
+    </ul>
+  <% end %>
+  <nav class="shrink-0 lg:w-52">
+    <dropdown-menu class="contents">
+      <details class="group relative lg:hidden">
+        <summary class="flex cursor-pointer list-none items-center gap-2.5 rounded-lg border border-zinc-200 px-3 py-2.5 text-base font-medium dark:border-zinc-600 [&::-webkit-details-marker]:hidden">
+          <%= svg_icon current_icon, class: 'h-4 w-4 shrink-0' %>
+          <span class="min-w-0 flex-1 truncate"><%= current_title %></span>
+          <%= svg_icon 'chevron_down', class: 'h-4 w-4 shrink-0 text-zinc-500 transition group-open:rotate-180 dark:text-zinc-400' %>
+        </summary>
+        <div class="card absolute inset-x-0 z-10 mt-2 overflow-hidden p-1 shadow-lg">
+          <%= links %>
+        </div>
+      </details>
+    </dropdown-menu>
+    <div class="hidden lg:block">
+      <%= links %>
+    </div>
+  </nav>
+<% end %>

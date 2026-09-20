@@ -551,6 +551,23 @@ RSpec.describe 'Web UI' do
       expect(seen.map(&:first)).to all(end_with('| Progress Watch'))
     end
 
+    it 'folds the sections under the name of the one being read, below the width that has room for a sidebar' do
+      folds = { '/docs' => 'Get started', '/docs/mcp' => 'MCP', '/de/docs/self-hosting' => 'Selbst hosten' }
+
+      folds.each do |path, title|
+        get path
+
+        folded = response.parsed_body.at_css('nav details.lg\:hidden')
+
+        expect(folded.at_css('summary').text.strip).to eq(title), "#{path} is folded under something else"
+        expect(folded.css('a').size).to eq(ConnectSnippets::SECTIONS.size + Docs::DOCUMENTS.size + 2)
+        expect(folded.css('a[aria-current=page]').map { |a| a.text.strip }).to eq([title])
+        expect(folded['open']).to be_nil
+        expect(folded.at_css('summary + div')['class']).to include('absolute'), 'the list would push the page down'
+        expect(folded.parent.name).to eq('dropdown-menu')
+      end
+    end
+
     it 'fills the space uuid into the snippet when one is given' do
       space = create_space
 
