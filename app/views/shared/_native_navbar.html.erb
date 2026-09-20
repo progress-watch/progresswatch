@@ -6,6 +6,11 @@
   <native-action data-placement="menu" data-icon="book">
     <%= link_to t('documentation'), docs_path(locale: docs_locale) %>
   </native-action>
+  <% if ProgressWatch.multitenant? %>
+    <native-action data-placement="menu" data-icon="shield">
+      <%= link_to t('privacy'), privacy_path %>
+    </native-action>
+  <% end %>
   <space-backup data-i18n="<%= translations(:could_not_import_message) %>">
     <native-action data-placement="menu" data-section="backup" data-icon="download">
       <button type="button" data-action="click:space-backup#export"><%= t('export_spaces') %></button>

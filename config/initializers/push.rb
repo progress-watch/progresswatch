@@ -3,7 +3,7 @@
 module ProgressWatch
   VAPID_PUBLIC_KEY = ENV.fetch('VAPID_PUBLIC_KEY', nil)
   VAPID_PRIVATE_KEY = ENV.fetch('VAPID_PRIVATE_KEY', nil)
-  VAPID_SUBJECT = ENV.fetch('VAPID_SUBJECT', 'mailto:hello@progress.watch')
+  VAPID_SUBJECT = ENV.fetch('VAPID_SUBJECT', REPOSITORY_URL)
 
   APNS_KEY = ENV.fetch('APNS_KEY', nil)
   APNS_KEY_ID = ENV.fetch('APNS_KEY_ID', nil)

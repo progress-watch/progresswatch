@@ -36,7 +36,7 @@
     <tbody>
       <tr><td><code>VAPID_PUBLIC_KEY</code></td><td>—</td><td><%= t('public_half_of_the_pair_that_signs_every_push') %></td></tr>
       <tr><td><code>VAPID_PRIVATE_KEY</code></td><td>—</td><td><%= t('private_half_never_leaves_the_server') %></td></tr>
-      <tr><td><code>VAPID_SUBJECT</code></td><td><code>mailto:hello@progress.watch</code></td><td><%= t('a_contact_address_the_push_services_can_reach') %></td></tr>
+      <tr><td><code>VAPID_SUBJECT</code></td><td><code><%= ProgressWatch::REPOSITORY_URL %></code></td><td><%= t('a_contact_address_the_push_services_can_reach') %></td></tr>
       <tr><td><code>PUSH_CONTENT</code></td><td><code>full</code></td><td><%= t('full_puts_the_task_title_in_the_notification_html', full: tag.code('full'), minimal: tag.code('minimal')) %></td></tr>
       <tr><td><code>PUSH_RELAY</code></td><td><code>https://progress.watch</code></td><td><%= t('where_notifications_for_the_ios_app_are_sent_html', minimal: tag.code('PUSH_CONTENT=minimal'), off: tag.code('false')) %></td></tr>
     </tbody>

@@ -1,0 +1,46 @@
+<% content_for :indexable, true %>
+<% content_for :container_width, 'max-w-3xl' %>
+<% content_for :html_title, 'Privacy Policy | Progress Watch' %>
+<% content_for :native_title, 'Privacy' %>
+<% content_for :meta_description, 'What the hosted Progress Watch service keeps, for how long, who else handles it, and how to have it deleted. There are no accounts, no analytics and no advertising.' %>
+<article lang="en">
+  <h1 class="text-2xl font-semibold tracking-tight sm:text-3xl">Privacy Policy</h1>
+  <div class="prose mt-2">
+    <p class="mb-4"><b>Last Updated: 20 September 2026</b></p>
+    <p>This policy covers the hosted Progress Watch service at <%= link_to 'progress.watch', root_url %> and the Progress Watch app for iOS when it is connected to that service. Progress Watch is also open source software that anyone can run. A server that somebody else runs is theirs, what it keeps is up to them, and this policy does not describe it.</p>
+    <p>The short version: there are no accounts, so we do not know who you are. We keep what your scripts report, and a way to reach the devices that asked to be notified.</p>
+    <h2>What we keep</h2>
+    <p><strong>Spaces.</strong> A space has an identifier, the name and icon you give it if you give it any, and the times it was created and changed.</p>
+    <p><strong>Tasks.</strong> Whatever your scripts and agents report into a space: titles, the name of the source when one is sent, counts, any values sent with them, and timestamps. We do not look inside this data, and we ask you not to put secrets, or personal information about other people, into it.</p>
+    <p><strong>Notification registrations.</strong> When you press the bell in a space we store what is needed to reach that browser or device. For a browser that is the address its push service issued and the keys for encrypting to it. For the iOS app it is the device token Apple issued. A registration belongs to one space and is used for nothing but that space's notifications.</p>
+    <p><strong>Server logs.</strong> Requests are logged with the network address they came from, the path, the time and the result. The identifier of a space is part of its address, so it appears in these logs. Logs are used to run and secure the service.</p>
+    <p><strong>Rate limits.</strong> To limit abuse we count some requests per network address. Those counters expire within the hour.</p>
+    <h2>What stays on your device</h2>
+    <p>The list of spaces you have opened and your choice of theme are kept in your browser's storage, not on our server. In the iOS app a copy of that list is kept in the device keychain, so that it survives the web storage being cleared, along with the server you chose. None of it is sent to us.</p>
+    <h2>What we do not collect</h2>
+    <p>No names, email addresses, passwords or payment details. No advertising identifiers. No analytics or tracking scripts, and no third-party code in the pages or in the app that reports on you. We do not sell data and we do not use it for advertising.</p>
+    <h2>A space link is a key</h2>
+    <p>There is no sign in. Anyone who has the link to a space, or its identifier, can read everything in it and report into it. Share it the way you would share a password, and do not report anything into a space that you would not want its holders to read.</p>
+    <h2>What we use it for</h2>
+    <p>To show a space to whoever opens it, to send the notifications that were asked for, to keep the service running and to stop abuse. Nothing else.</p>
+    <h2>Who else handles it</h2>
+    <p><strong>Amazon Web Services</strong> hosts the servers and the database, in the United States.</p>
+    <p><strong>Push services</strong> deliver notifications: Apple for the iOS app and for Safari, Google for Chrome, Mozilla for Firefox, and the equivalent for other browsers. A notification carries the title of the task and how it ended. For a browser the content is encrypted so that only that browser can read it. For the iOS app it travels through Apple's notification service to your device.</p>
+    <p>We may disclose information when the law requires it. We do not share data with anyone else.</p>
+    <h2>Self-hosted servers and the relay</h2>
+    <p>Apple accepts notifications for the app only from its publisher, so a self-hosted server that wants to notify the iOS app sends them through progress.watch. What passes through is the device token and the text of the notification. We forward it to Apple and do not store it. The operator of such a server can turn the relay off, or set the server to send no titles.</p>
+    <h2>How long we keep it</h2>
+    <p>Live progress numbers expire 24 hours after the last report for that task. Tasks, and the spaces that hold them, are kept until they are deleted at your request. A space that has never held a task may be removed once it is 30 days old. A notification registration is kept until you turn the bell off or the push service tells us the device is gone. Server logs are kept for about 30 days and database backups for 7 days.</p>
+    <h2>Cookies</h2>
+    <p>Two cookies, both set by us: one remembers your language, the other protects forms against forgery. Neither is used to follow you, and there are no third-party cookies.</p>
+    <h2>Your choices and rights</h2>
+    <p>Turning the bell off in a space removes that device's registration. Forgetting a space removes it from your device only. Everything in a space can be read at any time through the <%= link_to 'API', api_docs_path %>. To have a space and everything in it deleted, write to us and include the identifier of the space, which is what shows that you hold it.</p>
+    <p>Depending on where you live, laws such as the GDPR and the CCPA give you rights to access, correct, delete and object to the use of your data, and the right to complain to your data protection authority. We answer such requests the same way for everyone, wherever they live.</p>
+    <h2>Children</h2>
+    <p>Progress Watch is a tool for people who run software. It is not directed at children, and we do not knowingly collect information from them.</p>
+    <h2>Changes</h2>
+    <p>When this policy changes, the date at the top changes with it. We have no way to contact you, so this page is where a change is announced.</p>
+    <h2>Contact</h2>
+    <p><%= mail_to 'hi@progress.watch' %></p>
+  </div>
+</article>

@@ -321,7 +321,7 @@ RSpec.describe 'Web UI' do
       get '/sitemap.xml'
       locs = response.body.scan(%r{<loc>(.*?)</loc>}).flatten
 
-      wanted = [api_docs_url] + [nil, *Locales::ALTERNATES].flat_map do |locale|
+      wanted = [api_docs_url, privacy_url] + [nil, *Locales::ALTERNATES].flat_map do |locale|
         [docs_url(locale:),
          *Docs::DOCUMENTS.map { |doc| docs_section_url(section: doc[:slug], locale:) },
          *ConnectSnippets::SECTIONS.each_key.map { |s| docs_section_url(section: s, locale:) }]

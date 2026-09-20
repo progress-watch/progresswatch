@@ -46,6 +46,10 @@
               <%= svg_icon 'github', class: 'h-4 w-4 shrink-0' %>
               <%= t('star_on_github') %>
             <% end %>
+            <%= link_to privacy_path, class: 'flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600' do %>
+              <%= svg_icon 'shield', class: 'h-4 w-4 shrink-0' %>
+              <%= t('privacy') %>
+            <% end %>
           <% end %>
           <space-backup class="block" data-i18n="<%= translations(:could_not_import_message) %>">
             <button type="button" data-action="click:space-backup#export" class="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600">

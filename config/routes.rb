@@ -36,9 +36,15 @@ Rails.application.routes.draw do
 
   get 'openapi.json', to: 'open_api#show', as: :openapi, format: false
   get 'openapi.yml', to: 'open_api#show', as: :openapi_yaml, format: false, defaults: { format: :yaml }
-  get 'sitemap.xml', to: 'sitemap#show', as: :sitemap, format: false, defaults: { format: :xml }
   get 'robots.txt', to: 'robots#show', as: :robots, format: false
-  get 'llms.txt', to: 'llms#show', as: :llms, format: false, defaults: { format: :text }
+
+  constraints ->(_request) { ProgressWatch.multitenant? } do
+    scope controller: :pages, format: false do
+      get 'privacy', action: :privacy, as: :privacy
+      get 'sitemap.xml', action: :sitemap, as: :sitemap, defaults: { format: :xml }
+      get 'llms.txt', action: :llms, as: :llms, defaults: { format: :text }
+    end
+  end
 
   get 'up', to: 'health#show'
 end

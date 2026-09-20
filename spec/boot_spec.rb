@@ -26,6 +26,14 @@ RSpec.describe 'Booting' do
     expect(output).to include('PushDelivery::Subscribers')
   end
 
+  it 'signs Web Push as the software until an operator names a contact, and never as our mailbox' do
+    expect(ProgressWatch::VAPID_SUBJECT).to eq(ProgressWatch::REPOSITORY_URL)
+
+    ours = Rails.root.glob('{app,config,lib}/**/*.rb').select { |path| path.read.include?('@progress.watch') }
+
+    expect(ours).to be_empty
+  end
+
   it 'boots with the relay turned off too, and notifies nowhere' do
     output, ok = boot('VAPID_PUBLIC_KEY' => '', 'VAPID_PRIVATE_KEY' => '', 'PUSH_RELAY' => 'false')
 

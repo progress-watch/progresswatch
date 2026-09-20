@@ -39,6 +39,9 @@
     </dropdown-menu>
     <div class="hidden lg:block">
       <%= links %>
+      <% if ProgressWatch.multitenant? %>
+        <%= link_to t('privacy'), privacy_path, class: 'mt-4 block px-3 text-xs text-zinc-500 transition hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200' %>
+      <% end %>
     </div>
   </nav>
 <% end %>
