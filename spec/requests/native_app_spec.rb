@@ -149,6 +149,19 @@ RSpec.describe 'Native app' do
       end
     end
 
+    it 'asks for a native search field in place of the one in the header, once there is something to search' do
+      get "/s/#{space.uuid}", params: { q: 'crawl' }, headers: app_headers
+      expect(response.body).to include('data-placement="search" data-native="search" data-label="Search tasks"')
+      expect(response.body).not_to include('id="task-search"')
+
+      get "/s/#{space.uuid}", headers: app_headers
+      expect(response.body).not_to include('data-placement="search"')
+
+      get "/s/#{space.uuid}", params: { q: 'crawl' }
+      expect(response.body).to include('id="task-search"')
+      expect(response.body).not_to include('data-placement="search"')
+    end
+
     it 'hands the documentation sections to the title menu, and draws no list of its own' do
       get '/de/docs/self-hosting', headers: app_headers
 
