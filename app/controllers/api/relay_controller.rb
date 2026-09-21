@@ -9,7 +9,7 @@ module Api
     end
 
     def create
-      return head :not_found unless ProgressWatch.apns?
+      return head :not_found unless params.require(:service) == 'apns' && ProgressWatch.apns?
 
       RateLimit.call("relay:#{request.remote_ip}")
 

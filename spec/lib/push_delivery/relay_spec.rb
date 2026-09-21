@@ -28,9 +28,9 @@ RSpec.describe PushDelivery::Relay do
 
     deliver
 
-    expect(sent.first).to eq('https://progress.watch/relay/apns')
-    expect(sent.last).to eq('token' => token, 'environment' => 'production', 'title' => 'Crawl docs',
-                            'body' => 'Crawl docs completed', 'tag' => root, 'sound' => true,
+    expect(sent.first).to eq('https://progress.watch/relay')
+    expect(sent.last).to eq('service' => 'apns', 'token' => token, 'environment' => 'production',
+                            'title' => 'Crawl docs', 'body' => 'Crawl docs completed', 'tag' => root, 'sound' => true,
                             'subscription' => subscription.uuid)
     expect(sent.last.to_json).not_to include(space.uuid)
   end

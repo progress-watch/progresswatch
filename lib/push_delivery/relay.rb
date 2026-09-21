@@ -6,7 +6,7 @@ module PushDelivery
   class Relay
     Error = Class.new(StandardError)
 
-    PATH = '/relay/apns'
+    PATH = '/relay'
 
     def deliver(subscription, payload)
       response = Net::HTTP.post(URI.join(ProgressWatch::PUSH_RELAY, PATH), body(subscription, payload).to_json,
@@ -23,13 +23,15 @@ module PushDelivery
     private
 
     def body(subscription, payload)
-      Apns.device(subscription.endpoint).merge(
+      {
+        service: 'apns',
+        **Apns.device(subscription.endpoint),
         title: payload[:title],
         body: payload.fetch(:body),
         tag: payload[:tag],
         sound: payload[:renotify],
         subscription: subscription.uuid
-      )
+      }
     end
   end
 end

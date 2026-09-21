@@ -2,15 +2,15 @@
 
 require 'rails_helper'
 
-RSpec.describe 'APNs relay' do
+RSpec.describe 'Push relay' do
   let(:apns) { instance_double(PushDelivery::Apns, push: :ok) }
   let(:notification) do
-    { token: 'ef' * 32, environment: 'production', title: 'Crawl docs', body: 'Crawl docs completed',
+    { service: 'apns', token: 'ef' * 32, environment: 'production', title: 'Crawl docs', body: 'Crawl docs completed',
       tag: SecureRandom.uuid, subscription: SecureRandom.uuid }
   end
 
   def relay(body = notification)
-    post '/relay/apns', params: body, as: :json
+    post '/relay', params: body, as: :json
   end
 
   it 'does not exist on a server with no key for the app' do
@@ -49,6 +49,16 @@ RSpec.describe 'APNs relay' do
       expect(response).to have_http_status(:bad_request)
 
       relay(notification.except(:body))
+      expect(response).to have_http_status(:bad_request)
+
+      expect(apns).not_to have_received(:push)
+    end
+
+    it 'names the service in the body, and answers a service it holds no key for as it answers no key' do
+      relay(notification.merge(service: 'fcm'))
+      expect(response).to have_http_status(:not_found)
+
+      relay(notification.except(:service))
       expect(response).to have_http_status(:bad_request)
 
       expect(apns).not_to have_received(:push)

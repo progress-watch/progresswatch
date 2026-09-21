@@ -29,7 +29,7 @@ Rails.application.routes.draw do
     resources :tasks, only: %i[show update], param: :uuid
 
     get 'tasks/:uuid/report', to: 'tasks#report', as: :report_task
-    post 'relay/apns', to: 'relay#create', as: :apns_relay
+    post 'relay', to: 'relay#create', as: :relay
     post 'mcp(/:space_uuid)', to: 'mcp#create', as: :mcp
     get 'mcp(/:space_uuid)', to: 'mcp#show'
   end
