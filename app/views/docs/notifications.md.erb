@@ -22,11 +22,17 @@
 
 <%= I18n.t('if_you_are_self_hosting_push_content_minimal_html', minimal: '`PUSH_CONTENT=minimal`') %>
 
-## <%= I18n.t('self_hosting_it_has_to_be_https') %>
+## <%= I18n.t('a_server_at_home') %>
 
-<%= I18n.t('a_browser_hands_out_a_service_worker_only_on_a_secure_origin_html', address: '`http://192.168.1.50:7979`', localhost: '`localhost`') %>
+<%= I18n.t('notifications_leave_your_server_so_it_can_sit_at_home_html', address: '`http://192.168.1.50:7979`', localhost: '`localhost`') %>
 
-<%= I18n.t('so_notifications_mean_a_certificate_html', force_ssl: '`FORCE_SSL=true`') %>
+<%= I18n.t('without_a_domain_tailscale_gives_the_server_a_public_https_address_html', tailscale: '[Tailscale](https://tailscale.com/download)') %>
+
+```
+tailscale funnel --bg 7979
+```
+
+<%= I18n.t('the_first_time_it_asks_you_to_allow_funnel_html', address: '`https://your-machine.your-tailnet.ts.net`', configure: '`progresswatch configure --server`') %>
 
 ## <%= I18n.t('self_hosting_generating_the_keys') %>
 

@@ -10,9 +10,11 @@
 <p><%= t('payloads_are_encrypted_for_the_browser_that_subscribed') %></p>
 <p><%= t('your_own_server_learns_one_thing_it_otherwise_would_not') %></p>
 <p><%= t('if_you_are_self_hosting_push_content_minimal_html', minimal: tag.code('PUSH_CONTENT=minimal')) %></p>
-<h2><%= t('self_hosting_it_has_to_be_https') %></h2>
-<p><%= t('a_browser_hands_out_a_service_worker_only_on_a_secure_origin_html', address: tag.code('http://192.168.1.50:7979'), localhost: tag.code('localhost')) %></p>
-<p><%= t('so_notifications_mean_a_certificate_html', force_ssl: tag.code('FORCE_SSL=true')) %></p>
+<h2><%= t('a_server_at_home') %></h2>
+<p><%= t('notifications_leave_your_server_so_it_can_sit_at_home_html', address: tag.code('http://192.168.1.50:7979'), localhost: tag.code('localhost')) %></p>
+<p><%= t('without_a_domain_tailscale_gives_the_server_a_public_https_address_html', tailscale: link_to('Tailscale', 'https://tailscale.com/download')) %></p>
+<%= render 'shared/command', body: 'tailscale funnel --bg 7979' %>
+<p><%= t('the_first_time_it_asks_you_to_allow_funnel_html', address: tag.code('https://your-machine.your-tailnet.ts.net'), configure: tag.code('progresswatch configure --server')) %></p>
 <h2><%= t('self_hosting_generating_the_keys') %></h2>
 <p><%= t('both_keys_unset_means_the_feature_does_not_exist_generate_a_pair_once') %></p>
 <%= render 'shared/command', body: %(docker compose exec -T progresswatch ./bin/rails runner 'k = WebPush.generate_key; puts k.public_key, k.private_key') %>
