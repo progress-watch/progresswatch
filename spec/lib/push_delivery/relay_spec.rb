@@ -5,34 +5,77 @@ require 'rails_helper'
 RSpec.describe PushDelivery::Relay do
   let(:space) { create_space }
   let(:root) { SecureRandom.uuid }
-  let(:token) { 'cd' * 32 }
   let(:payload) do
     { space_uuid: space.uuid, task_uuid: root, root_uuid: root, tag: root, renotify: true,
       title: 'Crawl docs', body: 'Crawl docs completed', duration: 12 }
   end
-  let!(:subscription) do
-    PushSubscriptions::Create.call(space:, endpoint: PushDelivery::Apns.endpoint(token:, environment: 'production'))
+  let!(:phone) { register('cd' * 32, 'production') }
+  let!(:tablet) { register('ab' * 32, 'sandbox') }
+
+  def register(token, environment)
+    PushSubscriptions::Create.call(space:, endpoint: PushDelivery::Apns.endpoint(token:, environment:))
   end
 
-  def answer(code)
-    instance_double(Net::HTTPResponse, code: code.to_s)
+  def answer(code, gone: [], unavailable: [])
+    instance_double(Net::HTTPResponse, code: code.to_s, body: { gone:, unavailable: }.to_json)
   end
 
   def deliver
     PushDelivery::Subscribers.new.call(payload)
   end
 
-  it 'hands the notification to the hosted service, without the space uuid' do
-    sent = nil
-    allow(Net::HTTP).to receive(:post) { |uri, body, _headers| (sent = [uri.to_s, JSON.parse(body)]) && answer(204) }
+  it 'hands one notification for every device in the space to the hosted service, without the space uuid' do
+    sent = []
+    allow(Net::HTTP).to receive(:post) { |uri, body, _headers| (sent << [uri.to_s, JSON.parse(body)]) && answer(200) }
 
     deliver
 
-    expect(sent.first).to eq('https://progress.watch/relay')
-    expect(sent.last).to eq('service' => 'apns', 'token' => token, 'environment' => 'production',
-                            'title' => 'Crawl docs', 'body' => 'Crawl docs completed', 'tag' => root, 'sound' => true,
-                            'subscription' => subscription.uuid)
-    expect(sent.last.to_json).not_to include(space.uuid)
+    expect(sent.size).to eq(1)
+    url, body = sent.first
+    expect(url).to eq('https://progress.watch/relay')
+    expect(body.except('devices')).to eq('title' => 'Crawl docs', 'body' => 'Crawl docs completed', 'tag' => root,
+                                         'sound' => true)
+    expect(body['devices']).to contain_exactly(
+      { 'service' => 'apns', 'token' => 'cd' * 32, 'environment' => 'production', 'subscription' => phone.uuid },
+      { 'service' => 'apns', 'token' => 'ab' * 32, 'environment' => 'sandbox', 'subscription' => tablet.uuid }
+    )
+    expect(body.to_json).not_to include(space.uuid)
+  end
+
+  it 'sends an Android device in the same request, by its own service and with no environment' do
+    token = "fcm-token:#{'a' * 40}"
+    android = PushSubscriptions::Create.call(space:, endpoint: PushDelivery::Fcm.endpoint(token:))
+    sent = nil
+    allow(Net::HTTP).to receive(:post) { |_uri, body, _headers| (sent = JSON.parse(body)) && answer(200) }
+
+    deliver
+
+    expect(Net::HTTP).to have_received(:post).once
+    expect(sent['devices']).to include(
+      { 'service' => 'fcm', 'token' => token, 'subscription' => android.uuid }
+    )
+  end
+
+  it 'never hands an Android device to Web Push, and sends it nowhere where there is no relay' do
+    web_push = instance_double(PushDelivery::WebPush, deliver: nil)
+    allow(ProgressWatch).to receive_messages(web_push?: true, multitenant?: true)
+    allow(PushDelivery::WebPush).to receive(:new).and_return(web_push)
+    allow(Net::HTTP).to receive(:post)
+    PushSubscriptions::Create.call(space:, endpoint: PushDelivery::Fcm.endpoint(token: 'b' * 40))
+
+    deliver
+
+    expect(web_push).not_to have_received(:deliver)
+    expect(Net::HTTP).not_to have_received(:post)
+  end
+
+  it 'splits a space watched by more devices than one request takes' do
+    stub_const('PushDelivery::Relay::BATCH', 1)
+    allow(Net::HTTP).to receive(:post).and_return(answer(200))
+
+    deliver
+
+    expect(Net::HTTP).to have_received(:post).twice
   end
 
   it 'is not used when the server is told not to' do
@@ -53,7 +96,8 @@ RSpec.describe PushDelivery::Relay do
 
     deliver
 
-    expect(apns).to have_received(:deliver).with(subscription, payload)
+    expect(apns).to have_received(:deliver).with(phone, payload)
+    expect(apns).to have_received(:deliver).with(tablet, payload)
     expect(Net::HTTP).not_to have_received(:post)
   end
 
@@ -64,18 +108,23 @@ RSpec.describe PushDelivery::Relay do
     expect(ProgressWatch.native_push?).to be(false)
   end
 
-  it 'drops a registration the relay says Apple no longer knows' do
-    allow(Net::HTTP).to receive(:post).and_return(answer(410))
+  it 'drops the registrations the relay says Apple no longer knows, and only those' do
+    allow(Net::HTTP).to receive(:post).and_return(answer(200, gone: [tablet.uuid]))
 
     expect { deliver }.to change(PushSubscription, :count).by(-1)
+    expect(PushSubscription.exists?(phone.uuid)).to be(true)
   end
 
-  it 'keeps the registration and says so when the relay relays nothing' do
-    allow(Net::HTTP).to receive(:post).and_return(answer(404))
+  it 'keeps the registrations and says so when the relay relays nothing, or not to some of them' do
     allow(Rails.logger).to receive(:warn)
 
+    allow(Net::HTTP).to receive(:post).and_return(answer(404))
     expect { deliver }.not_to change(PushSubscription, :count)
-    expect(Rails.logger).to have_received(:warn).with(/"event":"push.relay_unavailable"/)
+
+    allow(Net::HTTP).to receive(:post).and_return(answer(200, unavailable: [phone.uuid]))
+    expect { deliver }.not_to change(PushSubscription, :count)
+
+    expect(Rails.logger).to have_received(:warn).with(/"event":"push.relay_unavailable"/).twice
   end
 
   it 'lets any other answer reach Sidekiq, which retries' do

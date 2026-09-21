@@ -32,7 +32,7 @@ module PushDelivery
       def device(endpoint)
         uri = URI.parse(endpoint)
 
-        { token: uri.path.split('/').last, environment: HOSTS.key(uri.host) }
+        { service: 'apns', token: uri.path.split('/').last, environment: HOSTS.key(uri.host) }
       end
 
       def notification(title:, body:, tag:, subscription:, sound: true)

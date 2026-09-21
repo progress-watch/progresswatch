@@ -80,6 +80,30 @@ RSpec.describe 'Push subscriptions' do
     end
   end
 
+  describe 'from the Android app, which does not exist yet' do
+    let(:token) { "cV2z#{'x' * 20}:APA91b#{'Q_-' * 40}" }
+
+    it 'registers a device by its FCM token, in a form no browser endpoint can take' do
+      post space_push_path(space.uuid), params: { fcm: { token: } }, as: :json
+
+      expect(response).to have_http_status(:created)
+      expect(space.push_subscriptions.first).to have_attributes(endpoint: "fcm:#{token}", p256dh: nil, auth: nil)
+      expect(space.push_subscriptions.first).to be_fcm
+      expect(space.push_subscriptions.first).not_to be_apns
+    end
+
+    it 'removes it by the same token, and refuses one that is not a token' do
+      post space_push_path(space.uuid), params: { fcm: { token: } }, as: :json
+
+      expect { delete space_push_path(space.uuid), params: { fcm: { token: } }, as: :json }
+        .to change(PushSubscription, :count).by(-1)
+
+      post space_push_path(space.uuid), params: { fcm: { token: 'not a token/..' } }, as: :json
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(PushSubscription.count).to eq(0)
+    end
+  end
+
   it 'answers the not-found page for a space that does not exist' do
     post space_push_path(SecureRandom.uuid), params: { subscription: subscription }, as: :json
 

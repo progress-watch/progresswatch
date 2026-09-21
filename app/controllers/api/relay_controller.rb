@@ -9,25 +9,40 @@ module Api
     end
 
     def create
-      return head :not_found unless params.require(:service) == 'apns' && ProgressWatch.apns?
+      return head :not_found unless ProgressWatch.apns?
+      return head :bad_request if devices.size > PushDelivery::Relay::BATCH
 
       RateLimit.call("relay:#{request.remote_ip}")
 
-      endpoint = PushDelivery::Apns.endpoint(token: params.require(:token), environment: params.require(:environment))
+      served, unavailable = devices.partition { |device| device[:service] == 'apns' }
+      messages = served.map { |device| [device[:subscription], endpoint(device), notification(device)] }
+      gone = messages.select { |_, endpoint, message| apns.push(endpoint, message) == :gone }.map(&:first)
 
-      head PushDelivery::Apns.new.push(endpoint, notification) == :gone ? :gone : :no_content
+      render json: { gone:, unavailable: unavailable.pluck(:subscription) }
     end
 
     private
 
-    def notification
+    def devices
+      @devices ||= params.require(:devices).map { |device| device.permit(%i[service token environment subscription]) }
+    end
+
+    def endpoint(device)
+      PushDelivery::Apns.endpoint(token: device.require(:token), environment: device.require(:environment))
+    end
+
+    def notification(device)
       PushDelivery::Apns.notification(
         title: params[:title].to_s,
         body: params.require(:body),
         tag: params[:tag].to_s.first(64).presence,
-        subscription: params.require(:subscription).to_s.first(36),
+        subscription: device.require(:subscription).to_s.first(36),
         sound: params[:sound] != false
       )
+    end
+
+    def apns
+      @apns ||= PushDelivery::Apns.new
     end
 
     def too_many_requests

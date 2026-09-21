@@ -6,31 +6,45 @@ module PushDelivery
   class Relay
     Error = Class.new(StandardError)
 
-    PATH = '/relay'
+    BATCH = 100
 
-    def deliver(subscription, payload)
-      response = Net::HTTP.post(URI.join(ProgressWatch::PUSH_RELAY, PATH), body(subscription, payload).to_json,
-                                'Content-Type' => 'application/json')
-
-      case response.code.to_i
-      when 200..299 then nil
-      when 410 then PushDelivery.forget(subscription, payload, code: 410)
-      when 404 then Rails.logger.warn({ event: 'push.relay_unavailable', relay: ProgressWatch::PUSH_RELAY }.to_json)
-      else raise Error, "the relay answered #{response.code}"
-      end
+    def deliver(subscriptions, payload)
+      subscriptions.each_slice(BATCH) { |batch| send_batch(batch, payload) }
     end
 
     private
 
-    def body(subscription, payload)
+    def send_batch(subscriptions, payload)
+      response = Net::HTTP.post(URI.join(ProgressWatch::PUSH_RELAY, '/relay'), body(subscriptions, payload).to_json,
+                                'Content-Type' => 'application/json')
+
+      case response.code.to_i
+      when 200..299 then settle(subscriptions, JSON.parse(response.body), payload)
+      when 404 then unavailable(subscriptions.size)
+      else raise Error, "the relay answered #{response.code}"
+      end
+    end
+
+    def settle(subscriptions, answer, payload)
+      subscriptions.select { |subscription| answer.fetch('gone').include?(subscription.uuid) }
+                   .each { |subscription| PushDelivery.forget(subscription, payload, code: 410) }
+
+      unavailable(answer.fetch('unavailable').size) if answer.fetch('unavailable').any?
+    end
+
+    def unavailable(devices)
+      Rails.logger.warn({ event: 'push.relay_unavailable', relay: ProgressWatch::PUSH_RELAY, devices: }.to_json)
+    end
+
+    def body(subscriptions, payload)
       {
-        service: 'apns',
-        **Apns.device(subscription.endpoint),
         title: payload[:title],
         body: payload.fetch(:body),
         tag: payload[:tag],
         sound: payload[:renotify],
-        subscription: subscription.uuid
+        devices: subscriptions.map do |subscription|
+          { **(subscription.fcm? ? Fcm : Apns).device(subscription.endpoint), subscription: subscription.uuid }
+        end
       }
     end
   end
