@@ -568,6 +568,14 @@ RSpec.describe 'Web UI' do
       end
     end
 
+    it 'states the length limits the server falls back to when none is set' do
+      get docs_section_path(section: 'environment-variables')
+
+      Limits.constants.grep(/\AMAX_/).each do |name|
+        expect(response.body).to include("<code>#{name}</code></td><td><code>#{Limits.const_get(name)}</code>")
+      end
+    end
+
     it 'fills the space uuid into the snippet when one is given' do
       space = create_space
 

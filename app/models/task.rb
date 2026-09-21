@@ -5,6 +5,9 @@ class Task < ApplicationRecord
 
   attribute :uuid, :string, default: -> { SecureRandom.uuid }
 
+  normalizes :title, with: ->(title) { Limits.cut(title, Limits::MAX_TASK_TITLE_LENGTH) }
+  normalizes :source, with: ->(source) { Limits.cut(source, Limits::MAX_TASK_SOURCE_LENGTH) }
+
   belongs_to :space, foreign_key: :space_uuid, inverse_of: :tasks
   belongs_to :parent, class_name: 'Task', foreign_key: :parent_uuid, optional: true, inverse_of: :children
   has_many :children, class_name: 'Task', foreign_key: :parent_uuid, inverse_of: :parent, dependent: :destroy

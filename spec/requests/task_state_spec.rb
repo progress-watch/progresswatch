@@ -96,6 +96,21 @@ RSpec.describe 'Task state' do
       expect(json['error']).to match(/values.nested/)
     end
 
+    it 'cuts a long string value, and refuses values too many or too long to be a status line' do
+      put_json "/tasks/#{task.uuid}", { values: { log: 'x' * (Limits::MAX_VALUES_STRING_LENGTH + 1), pages: 3 } }
+      expect(response).to have_http_status(:ok)
+      expect(json['progress']['values'])
+        .to eq('log' => "#{'x' * (Limits::MAX_VALUES_STRING_LENGTH - 1)}…", 'pages' => 3)
+
+      put_json "/tasks/#{task.uuid}", { values: (1..(Limits::MAX_VALUES_KEY_COUNT + 1)).index_by { |n| "k#{n}" } }
+      expect(response).to have_http_status(:bad_request)
+      expect(json['error']).to include("at most #{Limits::MAX_VALUES_KEY_COUNT} keys")
+
+      put_json "/tasks/#{task.uuid}", { values: { 'k' * (Limits::MAX_VALUES_KEY_LENGTH + 1) => 1 } }
+      expect(response).to have_http_status(:bad_request)
+      expect(json['error']).to include("at most #{Limits::MAX_VALUES_KEY_LENGTH} characters")
+    end
+
     it 'rejects a non-numeric current' do
       put_json "/tasks/#{task.uuid}", { current: 'soon', end: 2 }
 

@@ -52,6 +52,15 @@ RSpec.describe 'Task creation' do
     end
   end
 
+  it 'cuts a long title and source rather than refusing the task, and shows where' do
+    post_json "/spaces/#{space.uuid}/tasks", { title: 'a' * (Limits::MAX_TASK_TITLE_LENGTH + 1), source: 'b' * (Limits::MAX_TASK_SOURCE_LENGTH + 1) }
+
+    expect(response).to have_http_status(:created)
+    task = Task.find(json['uuid'])
+    expect(task.title).to eq("#{'a' * (Limits::MAX_TASK_TITLE_LENGTH - 1)}…")
+    expect(task.source).to eq("#{'b' * (Limits::MAX_TASK_SOURCE_LENGTH - 1)}…")
+  end
+
   it '404s for an unknown space' do
     post_json "/spaces/#{SecureRandom.uuid}/tasks", { title: 'Crawl' }
 

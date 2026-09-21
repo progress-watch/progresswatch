@@ -28,6 +28,21 @@
     </tbody>
   </table>
 </div>
+<h2><%= t('limits') %></h2>
+<p><%= t('text_past_a_limit_is_cut_to_it') %></p>
+<div class="scrolls">
+  <table>
+    <thead><tr><th><%= t('variable') %></th><th><%= t('default') %></th><th><%= t('what_it_does') %></th></tr></thead>
+    <tbody>
+      <tr><td><code>MAX_TASK_TITLE_LENGTH</code></td><td><code>500</code></td><td><%= t('longest_task_title_kept') %></td></tr>
+      <tr><td><code>MAX_TASK_SOURCE_LENGTH</code></td><td><code>200</code></td><td><%= t('longest_task_source_kept') %></td></tr>
+      <tr><td><code>MAX_SPACE_TITLE_LENGTH</code></td><td><code>200</code></td><td><%= t('longest_space_title_kept') %></td></tr>
+      <tr><td><code>MAX_VALUES_KEY_COUNT</code></td><td><code>50</code></td><td><%= t('most_keys_in_values') %></td></tr>
+      <tr><td><code>MAX_VALUES_KEY_LENGTH</code></td><td><code>100</code></td><td><%= t('longest_key_in_values') %></td></tr>
+      <tr><td><code>MAX_VALUES_STRING_LENGTH</code></td><td><code>10000</code></td><td><%= t('longest_string_in_values') %></td></tr>
+    </tbody>
+  </table>
+</div>
 <h2><%= t('notifications') %></h2>
 <p><%= t('both_keys_unset_means_the_feature_does_not_exist_no_button_on_a_space') %></p>
 <div class="scrolls">

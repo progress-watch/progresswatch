@@ -12,6 +12,13 @@ RSpec.describe 'Spaces' do
       expect(json['title']).to eq('Production')
     end
 
+    it 'cuts a long title to its limit' do
+      post_json '/spaces', { title: 'n' * (Limits::MAX_SPACE_TITLE_LENGTH + 1) }
+
+      expect(response).to have_http_status(:created)
+      expect(json['title']).to eq("#{'n' * (Limits::MAX_SPACE_TITLE_LENGTH - 1)}…")
+    end
+
     it 'creates a space without a title' do
       post_json '/spaces', {}
 

@@ -30,7 +30,11 @@ module OpenApi
               'schema' => {
                 'type' => 'object',
                 'properties' => {
-                  'title' => { 'type' => %w[string null] },
+                  'title' => {
+                    'type' => %w[string null],
+                    'maxLength' => Limits::MAX_SPACE_TITLE_LENGTH,
+                    'description' => Limits.describe(Limits::MAX_SPACE_TITLE_LENGTH)
+                  },
                   'icon' => {
                     'type' => 'string',
                     'description' => 'One character; an emoji reads best.'
@@ -50,7 +54,11 @@ module OpenApi
                   'type' => 'object',
                   'properties' => {
                     'uuid' => { 'type' => 'string' },
-                    'title' => { 'type' => %w[string null] },
+                    'title' => {
+                      'type' => %w[string null],
+                      'maxLength' => Limits::MAX_SPACE_TITLE_LENGTH,
+                      'description' => Limits.describe(Limits::MAX_SPACE_TITLE_LENGTH)
+                    },
                     'icon' => { 'type' => %w[string null] }
                   },
                   'required' => %w[uuid title icon]
@@ -160,10 +168,15 @@ module OpenApi
               'schema' => {
                 'type' => 'object',
                 'properties' => {
-                  'title' => { 'type' => 'string' },
+                  'title' => {
+                    'type' => 'string',
+                    'maxLength' => Limits::MAX_TASK_TITLE_LENGTH,
+                    'description' => Limits.describe(Limits::MAX_TASK_TITLE_LENGTH)
+                  },
                   'source' => {
                     'type' => 'string',
-                    'description' => 'What is reporting, e.g. crawler.py'
+                    'maxLength' => Limits::MAX_TASK_SOURCE_LENGTH,
+                    'description' => "What is reporting, e.g. crawler.py. #{Limits.describe(Limits::MAX_TASK_SOURCE_LENGTH)}"
                   },
                   'parent_uuid' => {
                     'type' => 'string',
@@ -266,7 +279,9 @@ module OpenApi
                   },
                   'values' => {
                     'type' => 'object',
-                    'additionalProperties' => true
+                    'additionalProperties' => true,
+                    'maxProperties' => Limits::MAX_VALUES_KEY_COUNT,
+                    'description' => "Flat. #{Limits::VALUES_DESCRIPTION}"
                   },
                   'done' => {
                     'type' => 'boolean',
@@ -365,8 +380,8 @@ module OpenApi
             'style' => 'deepObject',
             'explode' => true,
             'description' => 'Flat extras, as values[pages]=1200. They arrive as text, since a query string ' \
-                             'carries no types.',
-            'schema' => { 'type' => 'object', 'additionalProperties' => true }
+                             "carries no types. #{Limits::VALUES_DESCRIPTION}",
+            'schema' => { 'type' => 'object', 'additionalProperties' => true, 'maxProperties' => Limits::MAX_VALUES_KEY_COUNT }
           }
         ],
         'responses' => {
@@ -412,7 +427,7 @@ module OpenApi
       'type' => 'object',
       'properties' => {
         'uuid' => { 'type' => 'string' },
-        'title' => { 'type' => %w[string null] },
+        'title' => { 'type' => %w[string null], 'maxLength' => Limits::MAX_SPACE_TITLE_LENGTH },
         'icon' => {
           'type' => %w[string null],
           'description' => 'One character. Counted in grapheme clusters.'
@@ -431,8 +446,8 @@ module OpenApi
         'uuid' => { 'type' => 'string' },
         'space_uuid' => { 'type' => 'string' },
         'parent_uuid' => { 'type' => %w[string null] },
-        'title' => { 'type' => %w[string null] },
-        'source' => { 'type' => %w[string null] },
+        'title' => { 'type' => %w[string null], 'maxLength' => Limits::MAX_TASK_TITLE_LENGTH },
+        'source' => { 'type' => %w[string null], 'maxLength' => Limits::MAX_TASK_SOURCE_LENGTH },
         'created_at' => {
           'type' => 'string',
           'format' => 'date-time'

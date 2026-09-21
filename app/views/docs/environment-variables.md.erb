@@ -25,6 +25,19 @@
 | `PROGRESS_TTL_SECONDS` | `86400` | <%= I18n.t('how_long_a_task_keeps_its_progress_without_being_written_to') %> |
 | `PROGRESS_KEY_PREFIX` | `pw:progress` | <%= I18n.t('key_prefix_for_the_progress_store') %> |
 
+## <%= I18n.t('limits') %>
+
+<%= I18n.t('text_past_a_limit_is_cut_to_it') %>
+
+| <%= I18n.t('variable') %> | <%= I18n.t('default') %> | <%= I18n.t('what_it_does') %> |
+| --- | --- | --- |
+| `MAX_TASK_TITLE_LENGTH` | `500` | <%= I18n.t('longest_task_title_kept') %> |
+| `MAX_TASK_SOURCE_LENGTH` | `200` | <%= I18n.t('longest_task_source_kept') %> |
+| `MAX_SPACE_TITLE_LENGTH` | `200` | <%= I18n.t('longest_space_title_kept') %> |
+| `MAX_VALUES_KEY_COUNT` | `50` | <%= I18n.t('most_keys_in_values') %> |
+| `MAX_VALUES_KEY_LENGTH` | `100` | <%= I18n.t('longest_key_in_values') %> |
+| `MAX_VALUES_STRING_LENGTH` | `10000` | <%= I18n.t('longest_string_in_values') %> |
+
 ## <%= I18n.t('notifications') %>
 
 <%= I18n.t('both_keys_unset_means_the_feature_does_not_exist_no_button_on_a_space') %>

@@ -65,11 +65,18 @@ module TaskStates
     return {} if values.nil?
     raise InvalidValues, 'values must be an object' unless values.is_a?(Hash)
 
+    if values.size > Limits::MAX_VALUES_KEY_COUNT
+      raise InvalidValues, "values holds at most #{Limits::MAX_VALUES_KEY_COUNT} keys"
+    end
+
     values.to_h do |key, value|
+      if key.to_s.length > Limits::MAX_VALUES_KEY_LENGTH
+        raise InvalidValues, "a values key is at most #{Limits::MAX_VALUES_KEY_LENGTH} characters"
+      end
       raise InvalidValues, "values.#{key} must be a string, number, boolean or null" unless
         VALUE_TYPES.any? { |type| value.is_a?(type) }
 
-      [key.to_s, value]
+      [key.to_s, value.is_a?(String) ? Limits.cut(value, Limits::MAX_VALUES_STRING_LENGTH) : value]
     end
   end
 end

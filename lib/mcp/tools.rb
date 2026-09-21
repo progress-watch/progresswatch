@@ -15,7 +15,9 @@ module Mcp
           'properties' => {
             'title' => {
               'type' => 'string',
-              'description' => 'What this collection of tasks is for, e.g. "Nightly builds".'
+              'maxLength' => Limits::MAX_SPACE_TITLE_LENGTH,
+              'description' => 'What this collection of tasks is for, e.g. "Nightly builds". ' \
+                               "#{Limits.describe(Limits::MAX_SPACE_TITLE_LENGTH)}"
             },
             'icon' => {
               'type' => 'string',
@@ -44,7 +46,11 @@ module Mcp
         'inputSchema' => {
           'type' => 'object',
           'properties' => {
-            'title' => { 'type' => 'string', 'description' => 'What this task is doing, in a few words.' },
+            'title' => {
+              'type' => 'string',
+              'maxLength' => Limits::MAX_TASK_TITLE_LENGTH,
+              'description' => "What this task is doing, in a few words. #{Limits.describe(Limits::MAX_TASK_TITLE_LENGTH)}"
+            },
             'parent_uuid' => {
               'type' => 'string',
               'description' => 'Make this a step of an existing task. One level only.'
@@ -55,7 +61,8 @@ module Mcp
             },
             'source' => {
               'type' => 'string',
-              'description' => 'What is reporting, e.g. the agent or tool name.'
+              'maxLength' => Limits::MAX_TASK_SOURCE_LENGTH,
+              'description' => "What is reporting, e.g. the agent or tool name. #{Limits.describe(Limits::MAX_TASK_SOURCE_LENGTH)}"
             }
           },
           'required' => ['title']
@@ -94,7 +101,9 @@ module Mcp
             'end' => { 'type' => 'number', 'description' => 'How much there is in total.' },
             'values' => {
               'type' => 'object',
-              'description' => 'Flat object of extra numbers or strings, e.g. {"errors": 3, "log": "retrying /foo"}.'
+              'maxProperties' => Limits::MAX_VALUES_KEY_COUNT,
+              'description' => 'Flat object of extra numbers or strings, e.g. {"errors": 3, "log": "retrying /foo"}. ' \
+                               "#{Limits::VALUES_DESCRIPTION}"
             }
           },
           'required' => ['task_uuid']
@@ -128,7 +137,9 @@ module Mcp
             'task_uuid' => { 'type' => 'string', 'description' => 'The uuid returned by create_task.' },
             'values' => {
               'type' => 'object',
-              'description' => 'Final numbers or a closing log line, e.g. {"status": "failed", "log": "exit 1"}.'
+              'maxProperties' => Limits::MAX_VALUES_KEY_COUNT,
+              'description' => 'Final numbers or a closing log line, e.g. {"status": "failed", "log": "exit 1"}. ' \
+                               'Same limits as update_task.'
             }
           },
           'required' => ['task_uuid']
