@@ -29,6 +29,7 @@ module Tasks
 
     def finished_label(task)
       return nil if task['finished_at'].blank?
+      return I18n.t('stopped') if task['stopped']
       return I18n.t('finished') if task['duration'].blank?
 
       I18n.t('finished_in_duration', duration: duration(task['duration']))

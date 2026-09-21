@@ -234,7 +234,9 @@ module OpenApi
                          'happens when `current` reaches a positive `end` or when `done` is true, sends the ' \
                          'notification once, and later writes do not move the finish time. A body of just ' \
                          '`{"done": true}` is the exception to the overwrite: it closes the task and keeps ' \
-                         'the last numbers reported, so a finished task still shows what it counted.',
+                         'the last numbers reported, so a finished task still shows what it counted. Finishing ' \
+                         'a parent stops the steps under it that are still open, silently, with their numbers ' \
+                         'as they were; nothing finishes a parent when its steps finish.',
         'parameters' => [
           {
             'name' => 'task_uuid',
@@ -269,7 +271,8 @@ module OpenApi
                   'done' => {
                     'type' => 'boolean',
                     'description' => 'Finish the task. Send it alone to keep the last numbers; send it ' \
-                                     'beside a count and the usual overwrite applies.'
+                                     'beside a count and the usual overwrite applies. On a parent it ' \
+                                     'also stops its open steps.'
                   }
                 }
               },
@@ -353,7 +356,7 @@ module OpenApi
             'name' => 'done',
             'in' => 'query',
             'description' => 'Finish the task. Alone, it keeps the last numbers reported. It also finishes ' \
-                             'on its own once current reaches end.',
+                             'on its own once current reaches end. On a parent it also stops its open steps.',
             'schema' => { 'type' => 'boolean' }
           },
           {
@@ -442,6 +445,11 @@ module OpenApi
           'type' => %w[integer null],
           'description' => 'Seconds, set once when the task completes.'
         },
+        'stopped' => {
+          'type' => 'boolean',
+          'description' => 'True on a step that was still open when its parent finished. It is finished, ' \
+                           'but did not complete: its numbers are as it left them and it counts as not done.'
+        },
         'progress' => { '$ref' => '#/components/schemas/Progress' },
         'children' => {
           'type' => 'array',
@@ -449,7 +457,8 @@ module OpenApi
           'description' => 'One level only. A child is always empty here.'
         }
       },
-      'required' => %w[uuid space_uuid parent_uuid title source created_at finished_at duration progress children]
+      'required' => %w[uuid space_uuid parent_uuid title source created_at finished_at duration stopped progress
+                       children]
     },
     'Progress' => {
       'type' => %w[object null],

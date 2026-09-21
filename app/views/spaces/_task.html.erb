@@ -2,12 +2,15 @@
   progress = task['progress']
   ratio = progress && progress['ratio']
   finished = task['finished_at'].present?
+  stopped = task['stopped']
   log = progress && progress['values'] && progress['values']['log']
 %>
 <li class="<%= nested ? 'rounded-lg border border-zinc-200 p-3 dark:border-zinc-600' : 'card p-4' %>">
   <div class="flex flex-wrap items-center gap-2">
     <span class="min-w-0 break-words text-base font-medium sm:text-sm"><%= task['title'].presence || t('untitled_task') %></span>
-    <% if finished %>
+    <% if stopped %>
+      <span class="badge bg-zinc-100 text-zinc-600 dark:bg-zinc-600 dark:text-zinc-200"><%= task['finished_label'] %></span>
+    <% elsif finished %>
       <span class="badge bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
         <%= task['finished_label'] %>
       </span>
@@ -24,12 +27,14 @@
     <% end %>
   </div>
   <% if progress.nil? %>
-    <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-300"><%= t('waiting_for_data') %></p>
+    <% unless stopped %>
+      <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-300"><%= t('waiting_for_data') %></p>
+    <% end %>
   <% else %>
     <div class="mt-2">
       <div class="h-2 w-full overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-600">
         <% if ratio %>
-          <div class="h-full rounded-full <%= finished ? 'bg-emerald-500' : 'bg-brand-500' %>" style="width: <%= (ratio * 100).round(1) %>%"></div>
+          <div class="h-full rounded-full <%= stopped ? 'bg-zinc-400' : finished ? 'bg-emerald-500' : 'bg-brand-500' %>" style="width: <%= (ratio * 100).round(1) %>%"></div>
         <% end %>
       </div>
       <div class="mt-1.5 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs">

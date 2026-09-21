@@ -17,10 +17,10 @@ module Tasks
       children = task.children.order(:created_at).to_a
       states = TaskStates.read_many([task.uuid] + children.map(&:uuid))
 
-      render(task, children, states)
+      render(task, children, states, parent: (task.parent if task.finished_at?))
     end
 
-    def render(task, children, states)
+    def render(task, children, states, parent: nil)
       {
         'uuid' => task.uuid,
         'space_uuid' => task.space_uuid,
@@ -30,20 +30,21 @@ module Tasks
         'created_at' => task.created_at.utc.iso8601(6),
         'finished_at' => task.finished_at&.utc&.iso8601(6),
         'duration' => task.duration,
-        'progress' => progress(task, children, states),
-        'children' => children.map { |child| render(child, [], states) }
+        'stopped' => stopped?(task, parent),
+        'progress' => progress(task, children, states, parent),
+        'children' => children.map { |child| render(child, [], states, parent: task) }
       }
     end
 
-    def progress(task, children, states)
-      return leaf(task, states[task.uuid]) if children.empty?
+    def progress(task, children, states, parent)
+      return leaf(task, states[task.uuid], parent) if children.empty?
 
       own = states[task.uuid]
-      ratios = children.map { |child| child_ratio(child, states[child.uuid]) }
+      ratios = children.map { |child| child_ratio(child, states[child.uuid], task) }
       updates = children.map { |child| states[child.uuid]&.updated_at } << own&.updated_at
 
       {
-        'current' => children.count(&:finished_at?),
+        'current' => children.count { |child| completed?(child, task) },
         'end' => children.size,
         'ratio' => ratios.sum / ratios.size,
         'values' => own&.values || {},
@@ -52,16 +53,24 @@ module Tasks
       }
     end
 
-    def leaf(task, state)
-      return state&.as_json unless task.finished_at?
+    def leaf(task, state, parent)
+      return state&.as_json unless completed?(task, parent)
 
       (state&.as_json || FINISHED_WITHOUT_STATE).merge('ratio' => 1.0)
     end
 
-    def child_ratio(child, state)
-      return 1.0 if child.finished_at?
+    def child_ratio(child, state, parent)
+      return 1.0 if completed?(child, parent)
 
       state&.ratio || 0.0
+    end
+
+    def completed?(task, parent)
+      task.finished_at? && !stopped?(task, parent)
+    end
+
+    def stopped?(task, parent)
+      parent&.finished_at.present? && task.finished_at == parent.finished_at
     end
   end
 end

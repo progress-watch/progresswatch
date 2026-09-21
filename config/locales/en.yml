@@ -49,6 +49,7 @@ en:
   untitled_task: "Untitled task"
   running: "running"
   finished: "finished"
+  stopped: "stopped"
   finished_in_duration: "finished in %{duration}"
   waiting_duration: "waiting %{duration}"
   idle_duration: "idle %{duration}"

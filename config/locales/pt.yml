@@ -49,6 +49,7 @@ pt:
   untitled_task: "Tarefa sem nome"
   running: "em curso"
   finished: "concluída"
+  stopped: "parada"
   finished_in_duration: "concluída em %{duration}"
   waiting_duration: "à espera há %{duration}"
   idle_duration: "inativa há %{duration}"

@@ -49,6 +49,7 @@ it:
   untitled_task: "Attività senza nome"
   running: "in corso"
   finished: "completata"
+  stopped: "interrotta"
   finished_in_duration: "completata in %{duration}"
   waiting_duration: "in attesa da %{duration}"
   idle_duration: "inattiva da %{duration}"

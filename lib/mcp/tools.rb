@@ -141,6 +141,11 @@ module Mcp
           Call it as part of the step that finishes the work, not in a sweep once
           everything is done. Closing a whole tree at the end is cheaper for you and
           leaves the user watching an empty board for the entire job.
+
+          Nothing finishes a parent for you: complete it once its last step is done.
+          Completing a parent also stops every step under it that is still open, so a job
+          that ends early is closed by completing the parent alone. Those steps show as
+          stopped, not done, with their numbers as they were.
         TEXT
       }
     ].freeze

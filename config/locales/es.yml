@@ -49,6 +49,7 @@ es:
   untitled_task: "Tarea sin nombre"
   running: "en curso"
   finished: "finalizada"
+  stopped: "detenida"
   finished_in_duration: "finalizada en %{duration}"
   waiting_duration: "esperando %{duration}"
   idle_duration: "inactiva %{duration}"

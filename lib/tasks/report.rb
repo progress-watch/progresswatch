@@ -24,7 +24,10 @@ module Tasks
     def finish(task)
       now = Time.current
 
-      task.update!(finished_at: now, duration: (now - task.created_at).round)
+      Task.transaction do
+        task.update!(finished_at: now, duration: (now - task.created_at).round)
+        task.children.where(finished_at: nil).update_all(finished_at: now) if task.parent_uuid.nil?
+      end
 
       CompletionNotificationJob.perform_later(task.uuid)
     end

@@ -107,4 +107,61 @@ RSpec.describe 'Parent aggregation' do
     expect(parent_progress['ratio']).to be_within(0.0001).of(0.5)
     expect(parent_progress['current']).to eq(1)
   end
+
+  describe 'finishing a parent' do
+    let!(:built) { child('Build') }
+    let!(:pushing) { child('Push image') }
+    let!(:restart) { child('Restart workers') }
+
+    before do
+      put_json "/tasks/#{built.uuid}", { done: true }
+      put_json "/tasks/#{pushing.uuid}", { current: 64, end: 100 }
+    end
+
+    it 'stops the steps still open, with their numbers as they were, and notifies for the parent alone' do
+      expect { put_json "/tasks/#{parent.uuid}", { done: true } }
+        .to have_enqueued_job(CompletionNotificationJob).exactly(:once).with(parent.uuid)
+
+      get "/tasks/#{parent.uuid}"
+      steps = json['children'].index_by { |step| step['title'] }
+
+      expect(steps.values.pluck('finished_at')).to all(be_present)
+      expect(steps.transform_values { |step| step['stopped'] })
+        .to eq('Build' => false, 'Push image' => true, 'Restart workers' => true)
+      expect(steps['Push image']['progress']).to include('current' => 64, 'end' => 100, 'ratio' => 0.64)
+      expect(steps['Restart workers']['progress']).to be_nil
+      expect(json['stopped']).to be(false)
+      expect(json['progress']).to include('current' => 1, 'end' => 3)
+    end
+
+    it 'shows a stopped step as stopped on the page, not as done and not as waiting' do
+      put_json "/tasks/#{parent.uuid}", { done: true }
+
+      get "/s/#{space.uuid}/tasks", params: { state: 'finished' }, headers: { 'Turbo-Frame' => 'finished' }
+      page = response.parsed_body
+      badges = page.css('li li').to_h { |step| [step.at_css('span').text.strip, step.css('.badge').text.strip] }
+
+      expect(badges).to include('Push image' => 'stopped', 'Restart workers' => 'stopped')
+      expect(badges['Build']).to start_with('finished')
+      expect(response.body).not_to include('Waiting for data')
+    end
+
+    it 'leaves the parent open when every step has finished on its own' do
+      [pushing, restart].each { |step| put_json "/tasks/#{step.uuid}", { done: true } }
+
+      expect(parent.reload.finished_at).to be_nil
+    end
+
+    it 'tells a step that ended by itself from one its job stopped, asked about the step alone' do
+      put_json "/tasks/#{parent.uuid}", { done: true }
+
+      get "/tasks/#{pushing.uuid}"
+      expect(json).to include('stopped' => true)
+      expect(json['progress']['ratio']).to eq(0.64)
+
+      get "/tasks/#{built.uuid}"
+      expect(json).to include('stopped' => false)
+      expect(json['progress']['ratio']).to eq(1.0)
+    end
+  end
 end

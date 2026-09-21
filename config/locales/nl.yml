@@ -49,6 +49,7 @@ nl:
   untitled_task: "Taak zonder naam"
   running: "bezig"
   finished: "voltooid"
+  stopped: "gestopt"
   finished_in_duration: "voltooid in %{duration}"
   waiting_duration: "wacht al %{duration}"
   idle_duration: "inactief %{duration}"
