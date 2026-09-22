@@ -1,5 +1,6 @@
 import '@hotwired/turbo'
 import './elements/native_bridge'
+import './lib/touch_prefetch'
 
 import { remember, restored } from './lib/profile'
 
