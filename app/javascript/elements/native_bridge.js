@@ -10,9 +10,6 @@ if (handlers?.native && window === window.top) {
   }
 
   document.addEventListener('turbo:load', reportPathConfiguration)
-
-  // A cached snapshot carries the configuration of the page it was taken from, and reports it again
-  // when that page is restored.
   document.addEventListener('turbo:before-cache', () => document.getElementById('native_path_configuration')?.remove())
 
   reportPathConfiguration()

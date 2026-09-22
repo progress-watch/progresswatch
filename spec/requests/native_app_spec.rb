@@ -120,6 +120,7 @@ RSpec.describe 'Native app' do
 
       get '/', headers: app_headers
       expect(response.body).to include('data-placement="create"')
+      expect(response.parsed_body.at('#native_path_configuration').text).to include('"new_space"')
       expect(response.body).not_to include('<template data-template="add">')
 
       get "/s/#{space.uuid}", headers: app_headers

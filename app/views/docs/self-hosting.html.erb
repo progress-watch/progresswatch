@@ -5,7 +5,7 @@
 <p><%= t('that_is_the_whole_setup_the_app_on_localhost_html', url: tag.code('http://localhost:7979')) %></p>
 <h2><%= t('configuring_it') %></h2>
 <p><%= t('the_file_is_yours_from_the_moment_you_save_it_html', environment: tag.code('environment:')) %></p>
-<%= render 'shared/command', body: "    environment:\n      - DATABASE_URL=postgresql://progresswatch:secret@db.internal/progresswatch\n      - VAPID_PUBLIC_KEY=BJ1w…\n      - VAPID_PRIVATE_KEY=xK2p…" %>
+<%= render 'shared/command', body: "environment:\n- DATABASE_URL=postgresql://progresswatch:secret@db.internal/progresswatch\n- VAPID_PUBLIC_KEY=BJ1w…\n- VAPID_PRIVATE_KEY=xK2p…" %>
 <p><%= t('environment_variables_is_the_full_list_html', link: link_to(t('environment_variables'), docs_section_path(section: 'environment-variables')), ports: tag.code('7979:3000')) %></p>
 <%= render 'shared/command', body: %(curl http://localhost:7979/up\n\n{"status":"ok","database":true,"redis":true,"worker":true}) %>
 <h2><%= t('what_is_running') %></h2>
