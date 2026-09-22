@@ -47,7 +47,8 @@ export default class extends HTMLElement {
       menuIcon: this.dataset.menuIcon,
       native: this.dataset.native,
       destructive: this.dataset.destructive === 'true',
-      selected: this.dataset.selected === 'true'
+      selected: this.dataset.selected === 'true',
+      haptic: this.dataset.haptic === 'true'
     })
   }
 }

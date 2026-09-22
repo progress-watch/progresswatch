@@ -68,6 +68,14 @@ RSpec.describe 'Native app' do
       expect(response.body.scan('data-menu="Connect"').size).to eq(ConnectSnippets::SECTIONS.size)
     end
 
+    it 'asks for a tap back from the three controls the app draws itself' do
+      get '/', headers: app_headers
+      expect(response.body).to include('data-placement="create" data-icon="plus" data-haptic="true"')
+
+      get "/s/#{space.uuid}", headers: app_headers
+      expect(response.parsed_body.css('native-action[data-haptic=true]').size).to eq(2)
+    end
+
     it 'offers the bell without any VAPID keys, since the app is not a browser' do
       get "/s/#{space.uuid}", headers: app_headers
 

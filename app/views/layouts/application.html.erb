@@ -37,7 +37,10 @@
     <meta name="turbo-refresh-scroll" content="preserve">
     <% if turbo_native_app? %>
       <meta name="turbo-cache-control" content="no-preview">
-      <style>native-action { display: none !important; }</style>
+      <style>
+        native-action { display: none !important; }
+        a, img { -webkit-user-drag: none; -webkit-touch-callout: none; }
+      </style>
     <% end %>
     <%= csrf_meta_tags %>
     <%= javascript_pack_tag 'application', defer: true %>

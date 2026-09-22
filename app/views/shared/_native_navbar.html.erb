@@ -1,6 +1,6 @@
 <script type="application/json" id="native_path_configuration"><%= render partial: 'layouts/native_path_configuration', formats: :json %></script>
 <% if controller_name == 'home' %>
-  <native-action data-placement="create" data-icon="plus">
+  <native-action data-placement="create" data-icon="plus" data-haptic="true">
     <%= link_to t('new_space'), new_space_path, data: { turbo_frame: 'modal' } %>
   </native-action>
   <native-action data-placement="menu" data-icon="book">
