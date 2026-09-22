@@ -4,6 +4,9 @@ export default class extends HTMLElement {
   static observedAttributes = ['data-selected', 'data-label', 'data-icon']
 
   connectedCallback () {
+    this.declare = this.declare.bind(this)
+    document.addEventListener('turbo:morph', this.declare)
+
     this.declare()
   }
 
@@ -12,6 +15,8 @@ export default class extends HTMLElement {
   }
 
   disconnectedCallback () {
+    document.removeEventListener('turbo:morph', this.declare)
+
     if (this.nativeId) {
       window.webkit?.messageHandlers?.native?.postMessage({ type: 'action', op: 'remove', id: this.nativeId })
     }
@@ -27,7 +32,6 @@ export default class extends HTMLElement {
     if (!target && !this.dataset.native) return
 
     this.nativeId ||= `native-action-${++counter}`
-    this.id = this.nativeId
 
     if (target) target.dataset.nativeId = this.nativeId
 

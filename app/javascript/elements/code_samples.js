@@ -9,12 +9,14 @@ export default class extends HTMLElement {
 
     this.render = this.render.bind(this)
     document.addEventListener(CHANGED, this.render)
+    document.addEventListener('turbo:morph', this.render)
     applyLink()
     this.render()
   }
 
   disconnectedCallback () {
     document.removeEventListener(CHANGED, this.render)
+    document.removeEventListener('turbo:morph', this.render)
   }
 
   select (event) {

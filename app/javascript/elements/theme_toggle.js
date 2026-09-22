@@ -7,12 +7,14 @@ export default class extends HTMLElement {
 
     this.render = this.render.bind(this)
     this.stopListening = onThemeChange(this.render)
+    document.addEventListener('turbo:morph', this.render)
     applyTheme()
     this.render()
   }
 
   disconnectedCallback () {
     this.stopListening()
+    document.removeEventListener('turbo:morph', this.render)
   }
 
   select (event) {

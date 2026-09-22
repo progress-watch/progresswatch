@@ -172,6 +172,17 @@ RSpec.describe 'Web UI' do
       expect(response.body).to include('Production')
     end
 
+    it 'updates the polled frames in place, and names the cards so a poll can match them' do
+      task = create_task(space, title: 'Crawling')
+
+      get space_path(space.uuid)
+
+      expect(response.body).to include('<turbo-frame id="tasks" refresh="morph"')
+      expect(response.body).to include('<turbo-frame id="finished" refresh="morph"')
+      expect(response.body).to include(%(<li id="task_#{task.uuid}"))
+      expect(response.body).to include('<meta name="turbo-refresh-method" content="morph">')
+    end
+
     it 'both remembers the space and offers to forget it' do
       get space_path(space.uuid)
 

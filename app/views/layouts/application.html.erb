@@ -33,6 +33,8 @@
         if (theme === 'light' || theme === 'dark') document.documentElement.setAttribute('data-theme', theme)
       } catch (error) {}
     </script>
+    <meta name="turbo-refresh-method" content="morph">
+    <meta name="turbo-refresh-scroll" content="preserve">
     <% if turbo_native_app? %>
       <meta name="turbo-cache-control" content="no-preview">
       <style>native-action { display: none !important; }</style>

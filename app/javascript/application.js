@@ -56,3 +56,7 @@ safeRegisterElement('remember-space', class extends HTMLElement {
     }))
   }
 })
+
+document.addEventListener('turbo:before-morph-attribute', (event) => {
+  if (event.detail.attributeName === 'value' && event.target === document.activeElement) event.preventDefault()
+})

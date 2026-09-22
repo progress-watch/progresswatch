@@ -8,12 +8,19 @@ export default class extends HTMLElement {
 
     if (!supported()) return this.setAttribute('data-state', 'unsupported')
 
+    this.restore = () => this.render(pushEnabled(this.dataset.uuid))
+    document.addEventListener('turbo:morph', this.restore)
+
     await restored
 
     const on = pushEnabled(this.dataset.uuid)
     this.render(on)
 
     if (on) await this.repair()
+  }
+
+  disconnectedCallback () {
+    document.removeEventListener('turbo:morph', this.restore)
   }
 
   async repair () {

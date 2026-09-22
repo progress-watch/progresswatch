@@ -85,11 +85,11 @@
   </div>
 </div>
 <poll-frame data-frame="tasks" data-interval="2500"></poll-frame>
-<turbo-frame id="tasks" src="<%= space_tasks_path(@space.uuid, q: @query) %>">
+<turbo-frame id="tasks" refresh="morph" src="<%= space_tasks_path(@space.uuid, q: @query) %>">
   <%= render 'spaces/tasks_list' %>
 </turbo-frame>
 <poll-frame data-frame="finished" data-interval="20000"></poll-frame>
-<turbo-frame id="finished" src="<%= space_tasks_path(@space.uuid, state: 'finished', q: @query) %>">
+<turbo-frame id="finished" refresh="morph" src="<%= space_tasks_path(@space.uuid, state: 'finished', q: @query) %>">
   <%= render 'spaces/history', history: @history, page: @page %>
 </turbo-frame>
 <turbo-frame id="history"></turbo-frame>

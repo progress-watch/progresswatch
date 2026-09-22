@@ -11,7 +11,15 @@ export default class extends HTMLElement {
     })
 
     bind(this)
+
+    this.redraw = () => this.render()
+    document.addEventListener('turbo:morph', this.redraw)
+
     restored.then(() => this.render({ arriving: true }))
+  }
+
+  disconnectedCallback () {
+    document.removeEventListener('turbo:morph', this.redraw)
   }
 
   async forgetSpace (event) {

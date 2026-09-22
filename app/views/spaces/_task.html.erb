@@ -5,7 +5,7 @@
   stopped = task['stopped']
   log = progress && progress['values'] && progress['values']['log']
 %>
-<li class="<%= nested ? 'rounded-lg border border-zinc-200 p-3 dark:border-zinc-600' : 'card p-4' %>">
+<li id="task_<%= task['uuid'] %>" class="<%= nested ? 'rounded-lg border border-zinc-200 p-3 dark:border-zinc-600' : 'card p-4' %>">
   <div class="flex flex-wrap items-center gap-2">
     <span class="min-w-0 break-words text-base font-medium sm:text-sm"><%= task['title'].presence || t('untitled_task') %></span>
     <% if stopped %>
