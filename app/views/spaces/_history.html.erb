@@ -5,8 +5,12 @@
   </ul>
 <% end %>
 <% if history['older_than'] %>
-  <% target = page.zero? ? 'history' : "history-#{page}" %>
-  <turbo-frame id="<%= target %>" class="mt-3 block">
-    <%= link_to t('older_tasks'), space_tasks_path(@space.uuid, state: 'finished', before: history['older_than'], page: page + 1, q: @query), data: { turbo_frame: target }, class: 'btn-ghost w-full justify-center py-2 text-xs' %>
-  </turbo-frame>
+  <% path = space_tasks_path(@space.uuid, state: 'finished', before: history['older_than'], page: page + 1, q: @query) %>
+  <% if page.zero? %>
+    <%= link_to t('older_tasks'), path, data: { turbo_frame: 'history' }, class: 'older-tasks btn-ghost mt-3 w-full justify-center py-2 text-xs' %>
+  <% else %>
+    <turbo-frame id="history-<%= page %>" class="mt-3 block">
+      <%= link_to t('older_tasks'), path, data: { turbo_frame: "history-#{page}" }, class: 'btn-ghost w-full justify-center py-2 text-xs' %>
+    </turbo-frame>
+  <% end %>
 <% end %>

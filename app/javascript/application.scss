@@ -252,3 +252,7 @@ details > summary::-webkit-details-marker {
 details[open] > summary [data-chevron] {
   transform: rotate(90deg);
 }
+
+turbo-frame#finished:has(+ turbo-frame#history[complete]) .older-tasks {
+  display: none;
+}

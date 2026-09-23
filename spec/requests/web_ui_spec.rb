@@ -183,6 +183,21 @@ RSpec.describe 'Web UI' do
       expect(response.body).to include('<meta name="turbo-refresh-method" content="morph">')
     end
 
+    it 'loads older tasks into the frame the poll does not touch, and names it once' do
+      (Spaces::ReadFinishedTasks::PAGE + 1).times do |index|
+        Tasks::Report.call(create_task(space, title: "Archived #{index}"), done: true)
+      end
+
+      get space_path(space.uuid)
+
+      expect(response.parsed_body.css('turbo-frame#history').size).to eq(1)
+
+      link = response.parsed_body.at('a[data-turbo-frame="history"]')
+
+      expect(link).to be_present
+      expect(link.ancestors('turbo-frame').pluck('id')).to eq(['finished'])
+    end
+
     it 'both remembers the space and offers to forget it' do
       get space_path(space.uuid)
 
@@ -496,8 +511,8 @@ RSpec.describe 'Web UI' do
       get space_tasks_path(space.uuid, state: 'finished'), headers: frame_request
 
       expect(response.body).to include('Older tasks')
-      expect(response.body).to include('<turbo-frame id="history"')
       expect(response.body).to include('data-turbo-frame="history"')
+      expect(response.body).not_to include('<turbo-frame id="history"')
     end
 
     it 'refuses a history cursor it cannot read' do
