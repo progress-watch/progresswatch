@@ -24,9 +24,7 @@ if (handlers?.native && window === window.top) {
 
     if (!title) return
 
-    const actions = link.closest('[data-native-actions]')?.dataset.nativeActions
-
-    handlers.native.postMessage({ type: 'title', url: link.href, title, actions: actions ? actions.split(',') : null })
+    handlers.native.postMessage({ type: 'title', url: link.href, title })
   }, true)
 
   document.addEventListener('click', (event) => {
