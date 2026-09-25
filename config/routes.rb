@@ -46,5 +46,11 @@ Rails.application.routes.draw do
     end
   end
 
+  constraints ->(_request) { ProgressWatch::IOS_APP_ID } do
+    get '.well-known/apple-app-site-association', to: 'pages#apple_app_site_association',
+                                                  as: :apple_app_site_association,
+                                                  format: false, defaults: { format: :json }
+  end
+
   get 'up', to: 'health#show'
 end
