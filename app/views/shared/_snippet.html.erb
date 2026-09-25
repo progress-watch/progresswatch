@@ -1,6 +1,12 @@
 <div class="space-y-4">
   <% steps.each do |step| %>
     <div>
+      <% if step[:client] %>
+        <p class="mb-1.5 flex items-center gap-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
+          <%= svg_icon step[:icon], class: 'h-4 w-4 shrink-0' %>
+          <%= step[:client] %>
+        </p>
+      <% end %>
       <% if step[:label].present? %>
         <p class="mb-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-300"><%= step[:label] %></p>
       <% end %>

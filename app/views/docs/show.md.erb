@@ -7,5 +7,5 @@
 
 <%= I18n.t(source[:intro] || (@space_uuid ? 'ready_to_paste_with_your_space_uuid_already_in_it' : 'these_create_a_space_and_report_into_it_already_have_one')) %>
 
-<%= ConnectSnippets.call(@section, base_url: request.base_url, space_uuid: @space_uuid).map { |step| [step[:label], ("```\n#{step[:body]}\n```" if step[:body].present?)].compact.join("\n\n") }.join("\n\n") %>
+<%= ConnectSnippets.call(@section, base_url: request.base_url, space_uuid: @space_uuid).map { |step| [("**#{step[:client]}**" if step[:client]), step[:label], ("```\n#{step[:body]}\n```" if step[:body].present?)].compact.join("\n\n") }.join("\n\n") %>
 <% end %>

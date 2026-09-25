@@ -565,6 +565,18 @@ RSpec.describe 'Web UI' do
   end
 
   describe 'GET /docs/:section' do
+    it 'sets MCP up in five clients, and only ever in a place that is not committed' do
+      space = create_space
+
+      get docs_section_path(section: 'mcp', space: space.uuid, format: :md)
+
+      expect(response.body).to include('claude mcp add', 'code --add-mcp', '[mcp_servers.progress-watch]',
+                                       '"mcpServers"', 'gemini mcp add -s user')
+      expect(response.body).not_to include('.mcp.json yourself')
+      expect(response.body).to include('**Claude Code**', '**VS Code**', '**Cursor**', '**Codex**', '**Gemini CLI**')
+      expect(response.body.scan(space.uuid).size).to eq(6)
+    end
+
     it 'gives every section its own title and description' do
       seen = ConnectSnippets::SECTIONS.keys.map do |section|
         get docs_section_path(section: section)

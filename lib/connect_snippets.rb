@@ -3,29 +3,6 @@
 module ConnectSnippets
   PLACEHOLDER = '$SPACE_UUID'
 
-  MCP_IN_URL = <<~JSON.strip
-    {
-      "mcpServers": {
-        "progress-watch": {
-          "type": "http",
-          "url": "{{server}}/mcp/{{space}}"
-        }
-      }
-    }
-  JSON
-
-  MCP_IN_HEADER = <<~JSON.strip
-    {
-      "mcpServers": {
-        "progress-watch": {
-          "type": "http",
-          "url": "{{server}}/mcp",
-          "headers": { "X-Space-Uuid": "{{space}}" }
-        }
-      }
-    }
-  JSON
-
   COMPOSE = Rails.root.join('docker-compose.yml').read.strip
 
   SECTIONS = {
@@ -118,16 +95,50 @@ module ConnectSnippets
       icon: 'plug',
       steps: [
         {
-          label: 'add_the_server',
+          client: 'Claude Code',
+          icon: 'claude',
+          label: 'added_for_this_project_and_for_you_alone_so_the_uuid_stays_out_of_the_repository',
           body: 'claude mcp add --transport http progress-watch {{server}}/mcp/{{space}}'
         },
         {
-          label: 'or_write_it_into_mcp_json_yourself',
-          body: MCP_IN_URL
+          client: 'VS Code',
+          icon: 'vscode',
+          label: 'it_goes_into_your_user_profile',
+          body: %(code --add-mcp '{"name":"progress-watch","type":"http","url":"{{server}}/mcp/{{space}}"}')
         },
         {
-          label: 'the_space_uuid_sits_in_the_url_so_any_client_that_takes_only_a_url_works',
-          body: MCP_IN_HEADER
+          client: 'Cursor',
+          icon: 'cursor',
+          label: 'add_it_to_cursor_mcp_json_in_your_home_directory',
+          body: <<~JSON.strip
+            {
+              "mcpServers": {
+                "progress-watch": {
+                  "url": "{{server}}/mcp/{{space}}"
+                }
+              }
+            }
+          JSON
+        },
+        {
+          client: 'Codex',
+          icon: 'openai',
+          label: 'add_it_to_codex_config_toml_in_your_home_directory',
+          body: <<~TOML.strip
+            [mcp_servers.progress-watch]
+            url = "{{server}}/mcp/{{space}}"
+          TOML
+        },
+        {
+          client: 'Gemini CLI',
+          icon: 'gemini',
+          label: 's_user_keeps_it_out_of_the_project_s_gemini_settings_json',
+          body: 'gemini mcp add -s user --transport http progress-watch {{server}}/mcp/{{space}}'
+        },
+        { label: 'the_uuid_is_a_credential_keep_it_in_these_per_user_places' },
+        {
+          label: 'to_keep_the_uuid_out_of_the_path_send_it_as_a_header',
+          body: 'claude mcp add --transport http progress-watch {{server}}/mcp --header "X-Space-Uuid: {{space}}"'
         },
         { label: 'four_tools_create_space_create_task_update_task_complete_task' }
       ]
@@ -201,8 +212,11 @@ module ConnectSnippets
     SECTIONS.fetch(section)[:steps]
             .select { |step| step[:only].nil? || here.include?(step[:only]) }
             .map do |step|
-              { label: fill(I18n.t(step[:label]), base_url, space_uuid),
-                body: fill(step[:body], base_url, space_uuid) }
+              {
+                client: step[:client], icon: step[:icon],
+                label: fill(I18n.t(step[:label]), base_url, space_uuid),
+                body: fill(step[:body], base_url, space_uuid)
+              }
             end
   end
 
