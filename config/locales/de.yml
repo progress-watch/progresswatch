@@ -37,7 +37,6 @@ de:
   removes_this_space_from_this_device_only_the_space_and_its_tasks_are_untouched_but_the_uuid_is_the_only_way_back_to_it_so_copy_it_first: "Entfernt diesen Bereich nur von diesem Gerät. Der Bereich und seine Aufgaben bleiben unberührt — aber die UUID ist der einzige Weg zurück, kopieren Sie sie also vorher, falls Sie sie noch brauchen."
   remove_what_from_this_device: "%{what} von diesem Gerät entfernen?\n\nDer Bereich und seine Aufgaben werden nicht gelöscht, aber die UUID ist der einzige Weg zurück und der Server kann sie nicht wiederherstellen."
   this_space: "Diesen Bereich"
-  live: "Live"
   connect: "Verbinden"
   commands_for_reporting_into_this_space_with_its_uuid_already_filled_in: "Befehle, um in diesen Bereich zu berichten, mit bereits eingesetzter UUID"
   notify_me: "Benachrichtigen"

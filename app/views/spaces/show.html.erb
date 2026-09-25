@@ -39,13 +39,6 @@
         <% end %>
       </form>
     <% end %>
-    <span class="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-300 pr-1 pl-2 py-1">
-      <span class="relative flex h-2 w-2">
-        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-        <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
-      </span>
-      <%= t('live') %>
-    </span>
     <dropdown-menu class="contents">
       <details class="relative <%= 'hidden' if turbo_native_app? %>">
         <summary class="btn-ghost list-none pl-2 pr-1 py-1 text-xs" title="<%= t('commands_for_reporting_into_this_space_with_its_uuid_already_filled_in') %>">

@@ -37,7 +37,6 @@ fr:
   removes_this_space_from_this_device_only_the_space_and_its_tasks_are_untouched_but_the_uuid_is_the_only_way_back_to_it_so_copy_it_first: "Retire cet espace de cet appareil uniquement. L'espace et ses tâches restent intacts, mais l'UUID est le seul chemin de retour : copiez-le d'abord si vous pourriez en avoir besoin."
   remove_what_from_this_device: "Retirer %{what} de cet appareil ?\n\nL'espace et ses tâches ne sont pas supprimés, mais son UUID est le seul chemin de retour et rien sur le serveur ne peut le récupérer."
   this_space: "cet espace"
-  live: "En direct"
   connect: "Connecter"
   commands_for_reporting_into_this_space_with_its_uuid_already_filled_in: "Commandes pour rapporter dans cet espace, avec son UUID déjà rempli"
   notify_me: "Me notifier"

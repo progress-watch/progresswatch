@@ -37,7 +37,6 @@ nl:
   removes_this_space_from_this_device_only_the_space_and_its_tasks_are_untouched_but_the_uuid_is_the_only_way_back_to_it_so_copy_it_first: "Verwijdert deze ruimte alleen van dit apparaat. De ruimte en haar taken blijven ongemoeid, maar de UUID is de enige weg terug: kopieer hem eerst als je hem nog nodig zou hebben."
   remove_what_from_this_device: "%{what} van dit apparaat verwijderen?\n\nDe ruimte en haar taken worden niet verwijderd, maar de UUID is de enige weg terug en niets op de server kan hem herstellen."
   this_space: "Deze ruimte"
-  live: "Live"
   connect: "Verbinden"
   commands_for_reporting_into_this_space_with_its_uuid_already_filled_in: "Commando's om naar deze ruimte te rapporteren, met de UUID al ingevuld"
   notify_me: "Waarschuw mij"
