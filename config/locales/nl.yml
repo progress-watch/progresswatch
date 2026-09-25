@@ -139,7 +139,7 @@ nl:
   add_the_server: "Voeg de server toe."
   or_write_it_into_mcp_json_yourself: "Of schrijf het zelf in .mcp.json."
   the_space_uuid_sits_in_the_url_so_any_client_that_takes_only_a_url_works: "De uuid van de ruimte zit in de URL, dus elke client die alleen een URL aanneemt werkt. Wil je hem uit het pad houden, stuur hem dan als header."
-  four_tools_create_space_create_task_update_task_complete_task: "Vier tools: create_space, create_task, update_task, complete_task. De agent bepaalt zelf wanneer hij een taak aanmaakt en hoe vaak hij rapporteert. Een agent die zonder ruimte verbonden is kan create_space aanroepen en je de URL teruggeven, zodat hij nooit zonder plek zit om te rapporteren."
+  four_tools_create_space_create_task_update_task_complete_task: "Vier tools: create_space, create_task, update_task, complete_task. Verbonden met een ruimte krijgt de agent de opdracht zijn eigen werk daar uit zichzelf te rapporteren: alles wat bestanden wijzigt of opdrachten uitvoert. Een agent die zonder ruimte verbonden is kan create_space aanroepen en je de URL teruggeven, zodat hij nooit zonder plek zit om te rapporteren."
   curl: "curl"
   try_the_api_with_curl: "De API proberen met curl"
   try_the_api_with_curl_and_report_from_a_client_that_can_only_fire_a_url: "Probeer de Progress Watch-API met curl, en rapporteer vanuit een client die alleen een URL kan afvuren."

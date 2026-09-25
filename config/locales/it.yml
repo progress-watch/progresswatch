@@ -139,7 +139,7 @@ it:
   add_the_server: "Aggiungi il server."
   or_write_it_into_mcp_json_yourself: "Oppure scrivilo tu stesso in .mcp.json."
   the_space_uuid_sits_in_the_url_so_any_client_that_takes_only_a_url_works: "L'uuid dello spazio sta nell'URL, quindi funziona qualsiasi client che accetti solo un URL. Per tenerlo fuori dal percorso, mandalo invece come header."
-  four_tools_create_space_create_task_update_task_complete_task: "Quattro strumenti: create_space, create_task, update_task, complete_task. L'agente decide da solo quando creare un'attività e con quale frequenza riportare. Uno connesso senza spazio può chiamare create_space e restituirti l'URL, quindi non resta mai senza un posto dove riportare."
+  four_tools_create_space_create_task_update_task_complete_task: "Quattro strumenti: create_space, create_task, update_task, complete_task. Collegato a uno spazio, all'agente viene detto di riportarvi il proprio lavoro di sua iniziativa: tutto ciò che modifica file o esegue comandi. Uno connesso senza spazio può chiamare create_space e restituirti l'URL, quindi non resta mai senza un posto dove riportare."
   curl: "curl"
   try_the_api_with_curl: "Provare l'API con curl"
   try_the_api_with_curl_and_report_from_a_client_that_can_only_fire_a_url: "Prova l'API di Progress Watch con curl, e riporta da un client che può solo lanciare un URL."

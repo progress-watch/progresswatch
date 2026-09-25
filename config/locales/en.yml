@@ -139,7 +139,7 @@ en:
   add_the_server: "Add the server."
   or_write_it_into_mcp_json_yourself: "Or write it into .mcp.json yourself."
   the_space_uuid_sits_in_the_url_so_any_client_that_takes_only_a_url_works: "The space uuid sits in the URL, so any client that takes only a URL works. To keep it out of the path, send it as a header instead."
-  four_tools_create_space_create_task_update_task_complete_task: "Four tools: create_space, create_task, update_task, complete_task. The agent decides on its own when to create a task and how often to report. One connected without a space can call create_space and hand you back the URL, so it is never stuck with nowhere to report."
+  four_tools_create_space_create_task_update_task_complete_task: "Four tools: create_space, create_task, update_task, complete_task. Connected with a space, the agent is told to report its own work there without being asked: anything that edits files or runs commands. One connected without a space can call create_space and hand you back the URL, so it is never stuck with nowhere to report."
   curl: "curl"
   try_the_api_with_curl: "Try the API with curl"
   try_the_api_with_curl_and_report_from_a_client_that_can_only_fire_a_url: "Try the Progress Watch API with curl, and report from a client that can only fire a URL."

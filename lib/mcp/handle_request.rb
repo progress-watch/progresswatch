@@ -5,6 +5,18 @@ module Mcp
     UnknownMethod = Class.new(StandardError)
     UnknownTool = Class.new(StandardError)
 
+    INSTRUCTIONS = <<~TEXT
+      This connection reports into a space the user opened to watch the work done in this
+      project from anywhere. Report your own work here without being asked: anything that
+      edits files or runs commands gets a task.
+
+      - create_task when the work starts, and one child per step with parent_uuid.
+      - update_task as each step moves, and complete_task as each step ends, not in a sweep
+        at the end. A board that stays empty until the job is over tells the user nothing.
+      - complete_task the parent last. Completing is what sends the user a notification, so
+        complete work that failed too, with the failure in values.
+    TEXT
+
     module_function
 
     def call(message, space_uuid:, base_url:)
@@ -28,7 +40,7 @@ module Mcp
 
     def dispatch(method, params, space_uuid, base_url)
       case method
-      when 'initialize' then initialize_result
+      when 'initialize' then initialize_result(space_uuid)
       when 'tools/list' then { 'tools' => Tools::DEFINITIONS }
       when 'tools/call' then tools_call(params, space_uuid, base_url)
       when 'ping' then {}
@@ -36,12 +48,13 @@ module Mcp
       end
     end
 
-    def initialize_result
+    def initialize_result(space_uuid)
       {
         'protocolVersion' => '2025-06-18',
         'capabilities' => { 'tools' => {} },
-        'serverInfo' => { 'name' => 'progress-watch', 'version' => '0.1.0' }
-      }
+        'serverInfo' => { 'name' => 'progress-watch', 'version' => '0.1.0' },
+        'instructions' => (INSTRUCTIONS if space_uuid.present?)
+      }.compact
     end
 
     def tools_call(params, space_uuid, base_url)

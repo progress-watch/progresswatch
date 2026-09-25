@@ -30,6 +30,27 @@ RSpec.describe 'MCP' do
       expect(json['result']['serverInfo']['name']).to eq('progress-watch')
     end
 
+    it 'tells an agent connected to a space to report its own work without being asked' do
+      rpc({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-06-18' } })
+
+      expect(json['result']['instructions']).to include('without being asked', 'create_task', 'parent_uuid')
+      expect(json['result']['instructions']).to include('not in a sweep', 'complete work that failed too')
+    end
+
+    it 'gives no instructions to a connection with no space, which has nothing to report into' do
+      rpc({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-06-18' } },
+          headers: { 'HTTP_X_SPACE_UUID' => '' })
+
+      expect(json['result']).not_to have_key('instructions')
+    end
+
+    it 'takes the space for the instructions from the path as well' do
+      rpc({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-06-18' } },
+          headers: { 'HTTP_X_SPACE_UUID' => '' }, path: "/mcp/#{space.uuid}")
+
+      expect(json['result']['instructions']).to include('without being asked')
+    end
+
     it 'answers a notification with 202 and no body' do
       rpc({ jsonrpc: '2.0', method: 'notifications/initialized' })
 

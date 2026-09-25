@@ -139,7 +139,7 @@ de:
   add_the_server: "Fügen Sie den Server hinzu."
   or_write_it_into_mcp_json_yourself: "Oder schreiben Sie es selbst in .mcp.json."
   the_space_uuid_sits_in_the_url_so_any_client_that_takes_only_a_url_works: "Die Bereichs-UUID steht in der URL, es funktioniert also jeder Client, der nur eine URL annimmt. Um sie aus dem Pfad herauszuhalten, senden Sie sie stattdessen als Header."
-  four_tools_create_space_create_task_update_task_complete_task: "Vier Werkzeuge: create_space, create_task, update_task, complete_task. Der Agent entscheidet selbst, wann er eine Aufgabe anlegt und wie oft er berichtet. Einer, der ohne Bereich verbunden ist, kann create_space aufrufen und Ihnen die URL zurückgeben, er steht also nie ohne Ziel da."
+  four_tools_create_space_create_task_update_task_complete_task: "Vier Werkzeuge: create_space, create_task, update_task, complete_task. Mit einem Bereich verbunden, wird der Agent angewiesen, dort unaufgefordert über seine eigene Arbeit zu berichten: alles, was Dateien ändert oder Befehle ausführt. Einer, der ohne Bereich verbunden ist, kann create_space aufrufen und Ihnen die URL zurückgeben, er steht also nie ohne Ziel da."
   curl: "curl"
   try_the_api_with_curl: "Die API mit curl ausprobieren"
   try_the_api_with_curl_and_report_from_a_client_that_can_only_fire_a_url: "Probieren Sie die Progress-Watch-API mit curl aus und berichten Sie von einem Client, der nur eine URL abfeuern kann."
