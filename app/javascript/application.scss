@@ -88,8 +88,16 @@ native-action {
   }
 
   .search-row:has(.search-box:focus-within, .search-box input:not(:placeholder-shown)) .search-box input {
-    @apply w-full cursor-text border-zinc-300 bg-white pr-8
+    @apply w-full cursor-text border-zinc-300 bg-white pr-8 sm:top-0.5
            placeholder:text-zinc-400 dark:border-zinc-600 dark:bg-zinc-900;
+  }
+
+  .search-row:has(.search-box:focus-within, .search-box input:not(:placeholder-shown)) .search-box > svg {
+    @apply sm:top-2.5;
+  }
+
+  .search-row:has(.search-box:focus-within, .search-box input:not(:placeholder-shown)) .search-box > a {
+    @apply sm:top-1.5;
   }
 
   .search-row:has(.search-box:focus-within, .search-box input:not(:placeholder-shown)) > :not(.search-box) {

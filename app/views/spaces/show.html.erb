@@ -27,7 +27,7 @@
       </native-action>
     </div>
   </div>
-  <div class="search-row flex min-h-8 flex-wrap items-center justify-end gap-1 sm:min-h-9">
+  <div class="search-row flex min-h-8 flex-wrap items-center justify-end gap-1 sm:py-0.5">
     <% if @searchable && turbo_native_app? %>
       <native-action data-placement="search" data-native="search" data-label="<%= t('search_tasks') %>"></native-action>
     <% elsif @searchable %>
