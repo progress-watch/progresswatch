@@ -271,4 +271,15 @@ RSpec.describe 'MCP' do
       expect(json['result']).to eq({})
     end
   end
+
+  describe 'params that are not objects' do
+    it 'answers invalid params rather than failing' do
+      rpc({ jsonrpc: '2.0', id: 7, method: 'tools/call', params: 'create_task' })
+      expect(response).to have_http_status(:ok)
+      expect(json['error']).to include('code' => -32_602, 'message' => 'params must be an object')
+
+      rpc({ jsonrpc: '2.0', id: 8, method: 'tools/call', params: { name: 'create_task', arguments: ['x'] } })
+      expect(json['error']).to include('code' => -32_602, 'message' => 'arguments must be an object')
+    end
+  end
 end

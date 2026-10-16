@@ -4,6 +4,7 @@ module Mcp
   module HandleRequest
     UnknownMethod = Class.new(StandardError)
     UnknownTool = Class.new(StandardError)
+    InvalidParams = Class.new(StandardError)
 
     INSTRUCTIONS = <<~TEXT
       This connection reports into a space the user opened to watch the work done in this
@@ -25,10 +26,10 @@ module Mcp
       id = message['id']
       return nil if id.nil?
 
-      success(id, dispatch(message['method'], message['params'] || {}, space_uuid, base_url))
+      success(id, dispatch(message['method'], object(message['params'], 'params'), space_uuid, base_url))
     rescue UnknownMethod => e
       error(id, -32_601, e.message)
-    rescue UnknownTool, Tools::MissingSpace => e
+    rescue UnknownTool, InvalidParams, Tools::MissingSpace => e
       error(id, -32_602, e.message)
     rescue ActiveRecord::RecordNotFound
       success(id, Tools.error('No such task or space on this server.'))
@@ -61,7 +62,14 @@ module Mcp
       name = params['name']
       raise UnknownTool, "Unknown tool: #{name}" unless Tools.exists?(name)
 
-      Tools.call(name, params['arguments'] || {}, space_uuid: space_uuid, base_url: base_url)
+      Tools.call(name, object(params['arguments'], 'arguments'), space_uuid: space_uuid, base_url: base_url)
+    end
+
+    def object(value, name)
+      return {} if value.nil?
+      raise InvalidParams, "#{name} must be an object" unless value.is_a?(Hash)
+
+      value
     end
 
     def success(id, result)

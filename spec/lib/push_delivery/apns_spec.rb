@@ -83,10 +83,12 @@ RSpec.describe PushDelivery::Apns do
     expect(Rails.logger).to have_received(:warn).with(/"event":"push.gone"/)
   end
 
-  it 'lets any other answer reach Sidekiq, which retries' do
+  it 'logs any other answer and keeps the row, rather than failing the job for everyone' do
+    allow(Rails.logger).to receive(:error)
     allow(session).to receive(:post).and_return(answer(503, '{"reason":"ServiceUnavailable"}'))
 
-    expect { deliver }.to raise_error(described_class::Error, /503 ServiceUnavailable/)
+    expect { deliver }.not_to raise_error
     expect(PushSubscription.count).to eq(1)
+    expect(Rails.logger).to have_received(:error).with(/"event":"push.failed".*503 ServiceUnavailable/)
   end
 end

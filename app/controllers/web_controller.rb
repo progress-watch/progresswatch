@@ -58,11 +58,12 @@ class WebController < ActionController::Base
   end
 
   def switch_to(locale)
-    query = request.query_parameters
+    segment = locale if translated? && locale != I18n.default_locale
+    path = url_for(only_path: true, locale: segment)
+    query = request.query_parameters.except('locale')
+    query['locale'] = locale if segment.nil?
 
-    return url_for(query.merge(locale:, only_path: true)) unless translated? && locale == I18n.default_locale
-
-    "#{url_for(query.merge(locale: nil, only_path: true))}#{query.any? ? '&' : '?'}locale=#{locale}"
+    query.empty? ? path : "#{path}?#{query.to_query}"
   end
 
   def docs_locale

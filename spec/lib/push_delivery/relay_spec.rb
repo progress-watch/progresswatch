@@ -127,9 +127,11 @@ RSpec.describe PushDelivery::Relay do
     expect(Rails.logger).to have_received(:warn).with(/"event":"push.relay_unavailable"/).twice
   end
 
-  it 'lets any other answer reach Sidekiq, which retries' do
+  it 'logs any other answer rather than failing the job for everyone' do
+    allow(Rails.logger).to receive(:error)
     allow(Net::HTTP).to receive(:post).and_return(answer(502))
 
-    expect { deliver }.to raise_error(described_class::Error)
+    expect { deliver }.not_to raise_error
+    expect(Rails.logger).to have_received(:error).with(/"event":"push.failed".*the relay answered 502/)
   end
 end

@@ -42,11 +42,20 @@ RSpec.describe PushDelivery::WebPush do
     expect(Rails.logger).to have_received(:warn).with(/"event":"push.gone".*"code":410/)
   end
 
-  it 'lets any other failure reach Sidekiq, which retries' do
-    allow(WebPush).to receive(:payload_send).and_raise(gone(503))
+  it 'logs a failure and still reaches the other browsers, so nobody is sent the same completion twice' do
+    PushSubscriptions::Create.call(space:, endpoint: 'https://push.example.com/b', p256dh: 'k', auth: 's')
+    allow(Rails.logger).to receive(:error)
+    sent = []
+    allow(WebPush).to receive(:payload_send) do |args|
+      raise gone(503) if args[:endpoint].end_with?('/a')
 
-    expect { deliver }.to raise_error(WebPush::ResponseError)
-    expect(PushSubscription.count).to eq(1)
+      sent << args[:endpoint]
+    end
+
+    expect { deliver }.not_to raise_error
+    expect(sent).to eq(['https://push.example.com/b'])
+    expect(PushSubscription.count).to eq(2)
+    expect(Rails.logger).to have_received(:error).with(/"event":"push.failed"/)
   end
 
   it 'sends nothing to a browser when the VAPID keys are gone' do

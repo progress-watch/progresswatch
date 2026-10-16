@@ -50,6 +50,30 @@ RSpec.describe 'Push subscriptions' do
     expect(response.parsed_body).to eq('id' => space.push_subscriptions.first.uuid)
   end
 
+  describe 'the endpoint, which the worker will later connect to' do
+    it 'refuses anything but https to a named host' do
+      ['http://push.example.com/a', 'https://127.0.0.1:9/a', 'https://[::1]/a', 'https://localhost/a',
+       'https://redis.internal/a', 'https://printer.local/a', 'ftp://push.example.com/a', 'push.example.com',
+       "https://push.example.com/#{'a' * 2048}"].each do |endpoint|
+        subscribe(subscription.merge(endpoint:))
+
+        expect(response).to have_http_status(:unprocessable_content), endpoint
+      end
+
+      expect(PushSubscription.count).to eq(0)
+    end
+
+    it 'refuses a device address posted as a browser, which the server alone may build' do
+      ["https://api.push.apple.com/3/device/#{'ab' * 32}", "fcm:#{'a' * 40}"].each do |endpoint|
+        subscribe(subscription.merge(endpoint:))
+
+        expect(response).to have_http_status(:unprocessable_content), endpoint
+      end
+
+      expect(PushSubscription.count).to eq(0)
+    end
+  end
+
   describe 'from the iOS app' do
     let(:device) { { token: 'AB' * 32, environment: 'sandbox' } }
 

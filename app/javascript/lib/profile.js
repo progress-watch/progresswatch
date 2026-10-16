@@ -98,7 +98,9 @@ export function importProfile (json) {
   const incoming = parse(json)
   if (!Array.isArray(incoming)) throw new Error('expected a list of { "uuid": ..., "server": ... }')
 
-  const entries = incoming.filter((entry) => typeof entry?.uuid === 'string' && typeof entry?.server === 'string')
+  const entries = incoming
+    .map((entry) => ({ ...entry, server: serverOrigin(entry?.server) }))
+    .filter((entry) => typeof entry.uuid === 'string' && entry.server)
   if (entries.length === 0) throw new Error('no spaces in that file')
 
   const byUuid = new Map(read().map((space) => [space.uuid, space]))
@@ -113,6 +115,18 @@ export function importProfile (json) {
   write(spaces)
 
   return spaces
+}
+
+function serverOrigin (value) {
+  if (typeof value !== 'string') return null
+
+  try {
+    const url = new URL(value)
+
+    return url.protocol === 'https:' || url.protocol === 'http:' ? url.origin : null
+  } catch {
+    return null
+  }
 }
 
 function parse (value) {

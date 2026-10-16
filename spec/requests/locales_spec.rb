@@ -249,6 +249,13 @@ RSpec.describe 'Locales' do
       expect(response.body).to include('/de/docs/curl?space=a-space')
     end
 
+    it 'carries the query as text, never as options the link is built from' do
+      get '/docs', params: { script_name: 'javascript:alert(1)//', anchor: 'x', host: 'evil.example' }
+
+      expect(response.body).not_to include('javascript:')
+      expect(response.body).to include('href="/de/docs?anchor=x&amp;host=evil.example&amp;script_name=javascript%3A')
+    end
+
     it 'falls back to the parameter on a page with no segment for the language' do
       space = Spaces::Create.call(title: 'Backups')
 

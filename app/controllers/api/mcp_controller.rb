@@ -27,7 +27,8 @@ module Api
     private
 
     def creating?(message)
-      message['method'] == 'tools/call' && %w[create_space create_task].include?(message.dig('params', 'name'))
+      message['method'] == 'tools/call' && message['params'].is_a?(Hash) &&
+        %w[create_space create_task].include?(message['params']['name'])
     end
 
     def space_uuid

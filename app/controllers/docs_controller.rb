@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class DocsController < WebController
+  UUID = /\A\h{8}-\h{4}-\h{4}-\h{4}-\h{12}\z/
+
   before_action :refuse_translated_markdown
 
   def default_url_options
@@ -15,7 +17,7 @@ class DocsController < WebController
 
     return not_found unless @doc || ConnectSnippets::SECTIONS.key?(@section)
 
-    @space_uuid = params[:space].presence
+    @space_uuid = params[:space].presence if UUID.match?(params[:space].to_s)
   end
 
   private
