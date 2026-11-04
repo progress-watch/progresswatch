@@ -67,6 +67,7 @@ module Mcp
           },
           'required' => ['title']
         },
+        '_meta' => { 'anthropic/alwaysLoad' => true },
         'description' => <<~TEXT
           Create a task the user can watch from anywhere while it runs.
 
@@ -108,6 +109,7 @@ module Mcp
           },
           'required' => ['task_uuid']
         },
+        '_meta' => { 'anthropic/alwaysLoad' => true },
         'description' => <<~TEXT
           Report progress on a task. Call periodically — every meaningful step, not every
           loop iteration.
@@ -144,6 +146,7 @@ module Mcp
           },
           'required' => ['task_uuid']
         },
+        '_meta' => { 'anthropic/alwaysLoad' => true },
         'description' => <<~TEXT
           Mark a task finished. This is what sends the user's push notification, so call
           it when the work is actually done — including when it failed, with the failure

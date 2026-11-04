@@ -112,6 +112,13 @@ RSpec.describe 'MCP' do
       expect(complete['description']).to include('not in a sweep')
       expect(create['description']).to include('Keep creating steps as work appears')
     end
+
+    it 'keeps the reporting tools out of tool search, so an agent sees them without looking' do
+      rpc({ jsonrpc: '2.0', id: 2, method: 'tools/list' })
+
+      always = json['result']['tools'].select { |tool| tool.dig('_meta', 'anthropic/alwaysLoad') }.pluck('name')
+      expect(always).to contain_exactly('create_task', 'update_task', 'complete_task')
+    end
   end
 
   describe 'tools/call' do
