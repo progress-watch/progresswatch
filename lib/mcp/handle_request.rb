@@ -8,8 +8,8 @@ module Mcp
 
     INSTRUCTIONS = <<~TEXT
       This connection reports into a space the user opened to watch the work done in this
-      project from anywhere. Report your own work here without being asked: anything that
-      edits files or runs commands gets a task.
+      project from anywhere. Report everything you do here without being asked: every turn
+      that does any work gets a task, reading and answering included.
 
       - create_task when the work starts, and one child per step with parent_uuid.
       - update_task as each step moves, and complete_task as each step ends, not in a sweep

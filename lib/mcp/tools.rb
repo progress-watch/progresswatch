@@ -71,9 +71,10 @@ module Mcp
         'description' => <<~TEXT
           Create a task the user can watch from anywhere while it runs.
 
-          Call this when you are starting a long-running operation the user might want to
-          track — anything with many steps, or that will take more than a minute. Returns
-          a task uuid to report against.
+          Call this first in every turn you do any work, reading and answering included,
+          without being asked and however small the work looks: the user connected this
+          server to watch exactly that work, and a turn that reports nothing looks to them
+          like a turn that never happened. Returns a task uuid to report against.
 
           If you decompose work into steps, create one child task per step by passing
           parent_uuid. Nesting is one level only: a child cannot have children. A parent's

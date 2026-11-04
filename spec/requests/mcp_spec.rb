@@ -34,6 +34,7 @@ RSpec.describe 'MCP' do
       rpc({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-06-18' } })
 
       expect(json['result']['instructions']).to include('without being asked', 'create_task', 'parent_uuid')
+      expect(json['result']['instructions']).to include('every turn', 'reading and answering included')
       expect(json['result']['instructions']).to include('not in a sweep', 'complete work that failed too')
     end
 
@@ -104,7 +105,7 @@ RSpec.describe 'MCP' do
       update = json['result']['tools'].find { |tool| tool['name'] == 'update_task' }
       complete = json['result']['tools'].find { |tool| tool['name'] == 'complete_task' }
 
-      expect(create['description']).to include('long-running', 'one level only')
+      expect(create['description']).to include('every turn you do any work', 'however small', 'one level only')
       expect(update['description']).to include('replaces the whole state')
 
       expect(create['description']).to include('not all of them at the end')
