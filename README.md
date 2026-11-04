@@ -100,7 +100,7 @@ progresswatch run "python train.py"
 
 ## Development
 
-Ruby 4.0.5 (see `.tool-versions`), Node 22, and a local Redis.
+Ruby 4.0.9 (see `.tool-versions`), Node 22, and a local Redis.
 
 ```sh
 bundle install
