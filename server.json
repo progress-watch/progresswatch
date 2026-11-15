@@ -1,0 +1,25 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "watch.progress/progresswatch",
+  "title": "Progress Watch",
+  "description": "Report progress from any script or agent and get notified when it finishes.",
+  "version": "0.0.2",
+  "websiteUrl": "https://progress.watch/docs",
+  "repository": {
+    "url": "https://github.com/progress-watch/progresswatch",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://progress.watch/mcp/{space_uuid}",
+      "variables": {
+        "space_uuid": {
+          "description": "The uuid of the space to report into. Opening https://progress.watch creates one.",
+          "isRequired": true,
+          "isSecret": true
+        }
+      }
+    }
+  ]
+}
